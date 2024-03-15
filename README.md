@@ -10,4 +10,4 @@ Team Members:
 5. Kanan Shah
 6. Zhijun Li
 7. 
-8. 
+8. Brandon Kue
