@@ -8,6 +8,6 @@ Team Members:
 3. Andreas Zignago
 4. Balraj Kalathil
 5. Kanan Shah
-6. 
+6. Zhijun Li
 7. 
 8. 
