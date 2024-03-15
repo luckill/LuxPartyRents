@@ -6,7 +6,7 @@ Team Members:
 1. Heamandeep Kaur
 2. Anish Chouhan
 3. Andreas Zignago
-4. 
+4. Balraj Kalathil
 5. 
 6. 
 7. 
