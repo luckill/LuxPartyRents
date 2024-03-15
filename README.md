@@ -4,7 +4,7 @@ Senior Group Project demonstrating team collaboration.
 Team Members:
 
 1. Heamandeep Kaur
-2. 
+2. Anish Chouhan
 3. 
 4. 
 5. 
