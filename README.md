@@ -9,5 +9,5 @@ Team Members:
 4. Balraj Kalathil
 5. Kanan Shah
 6. Zhijun Li
-7. 
+7. Eric Brutskiy
 8. Brandon Kue
