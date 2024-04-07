@@ -1,0 +1,55 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url(picture/rose.jpg) no-repeat center center fixed;
+    background-size: cover;
+}
+
+form {
+    width: 600px;
+    height: auto;
+    padding: 1em;
+    background: #222222;
+    border: 1px solid black;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    text-align: left;
+    color: white;
+    display: block;
+    padding: 0.5em 1.5em 0.5em 0em;
+    width: 80%;
+}
+
+.myinput {
+    width: 85%;
+    background: #2D2D2D;
+    padding: 0.7em;
+    margin-bottom: 0.9rem;
+    border-radius: 25px;
+    color: white;
+}
+
+form h1 {
+    flex: 0 0 auto;
+    text-align: center;
+    font-size: 100px;
+    color: white;
+    margin-top: 0;
+    margin-bottom: 0.2rem;
+}
+
+a.link {
+    margin-top: 0.5rem;
+    text-decoration: none;
+    color: #21A1FD;
+}
