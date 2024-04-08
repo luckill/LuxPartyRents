@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> My Orders </title>
+    <style>
+        /* Eric */
+        html, body {
+            height: 100%; 
+            margin: 0; 
+            padding: 0;
+            box-sizing: border-box; 
+        }
+
+        
+        body {
+            background-image: url('flowersv1.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+        }
+
+        
+        h1 {
+            text-align: center; 
+            font-size: 54px; 
+        }
+
+        h2 {
+            text-align: center; 
+            font-size: 25px; 
+        }
+
+        h3 {
+            text-align: left; 
+            font-size: 25px; 
+        }
+
+        
+        h3 span {
+            margin: 0 45px; 
+        }
+
+        
+        table {
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+
+        th, td {
+            border: 1px solid black; 
+            padding: 8px; 
+            text-align: left; 
+        }
+
+        th {
+            background-color: #f2f2f2; 
+        }
+
+        
+        .controls {
+            text-align: left; 
+            font-size: 20px; 
+            margin: 10px 0; 
+        }
+
+        
+        input[type="text"], button {
+            padding: 10px; 
+            margin-right: 10px; 
+            font-size: 18px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>POTAPOV WEDDINGS</h1>
+    <h2>Sacramento    |    South Carolina</h2>
+    <hr>
+    <h3>
+        <span>Inventory</span><span>Rentals</span><span>FAQs</span>
+    </h3>
+    <div class="controls">
+        <input type="text" placeholder="Filter..." />
+        <input type="text" placeholder="Sort by..." />
+        <button>Add Item</button>
+        <input type="text" placeholder="Search Rentals..." />
+    </div>
+    <table>
+        <tr>
+            <th>Date Rent</th>
+            <th>Date Return</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Resourced From</th>
+            <th>Price</th>
+            <th>Items</th>
+        </tr>
+        <!-- Example Rows -->
+        <tr>
+            <td>10/10/2023</td>
+            <td>10/11/2023</td>
+            <td>Alex Hamilton</td>
+            <td>+11234567890</td>
+            <td>alexhammy@email.com</td>
+            <td>Sacramento</td>
+            <td>$365.24</td>
+            <td>10 Chairs</td>
+        </tr>
+        <tr>
+            <td>2/14/2024</td>
+            <td>2/16/2024</td>
+            <td>Ashley Walker</td>
+            <td>+9086754321</td>
+            <td>ashleyWalks@email.com</td>
+            <td>South Carolina</td>
+            <td>$190.03</td>
+            <td>50 Table cloths</td>
+        </tr>
+    </table>
+</body>
+</html>
