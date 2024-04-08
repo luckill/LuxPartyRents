@@ -14,11 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Simulate fetching gallery images
     const gallerySection = document.querySelector('.gallery');
     const images = [
-        'Image1.jpg',
-        'Image2.jpg',
-        'Image3.jpg',
-        'Image4.jpg',
-        'Image5.jpg',
+        'picture/Image1.jpg',
+        'picture/Image2.jpg',
+        'picture/Image3.jpg',
+        'picture/Image4.jpg',
+        'picture/Image5.jpg',
     
         // Add as many paths as needed
     ];
