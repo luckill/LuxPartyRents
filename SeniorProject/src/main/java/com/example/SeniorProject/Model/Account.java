@@ -1,6 +1,7 @@
 package com.example.SeniorProject.Model;
 
 import jakarta.persistence.*;
+import org.springframework.security.crypto.bcrypt.*;
 
 @Entity
 @Table(name = "account")
