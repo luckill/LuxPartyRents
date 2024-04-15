@@ -15,7 +15,22 @@ public class CustomerController
     private CustomerRepository customerRepository;
     @Autowired
     private AccountRepository accountRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
+    @PostMapping("/login")
+    public ResponseEntity<?> Login(@RequestBody AccountInfo accountInfo)
+    {
+        String email = accountInfo.getEmail();
+        String password = accountInfo.getPassword();
+        if(passwordEncoder.matches(password, accountRepository.findAccountByEmail(email).getPassword()))
+        {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        else
+        {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 
     @PostMapping("/findAccount")
     public ResponseEntity<?> checkIfAccountExist(@RequestParam("email") String email)
@@ -30,11 +45,12 @@ public class CustomerController
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
     @PutMapping("/resetPassword")
     public ResponseEntity<?> resetPassword(@RequestBody AccountInfo accountInfo)
     {
         Account account = accountRepository.findAccountByEmail(accountInfo.getEmail());
-        String newPassword = passwordEncoder.encode(account.getPassword());
+        String newPassword = passwordEncoder.encode(accountInfo.getPassword());
         account.setPassword(newPassword);
         accountRepository.save(account);
         return ResponseEntity.status(HttpStatus.OK).build();
