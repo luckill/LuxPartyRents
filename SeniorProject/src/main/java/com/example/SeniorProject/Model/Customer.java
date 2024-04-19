@@ -1,7 +1,7 @@
 package com.example.SeniorProject.Model;
 
 import jakarta.persistence.*;
-
+import javax.validation.constraints.*;
 import java.util.*;
 
 @Entity
@@ -13,11 +13,16 @@ public class Customer
     @Column(name = "customer_id")
     private int id;
     @Column(name = "customer_firstName")
+    @NotNull
     private String firstName;
     @Column(name = "customer_lastName")
+    @NotNull
     private String lastName;
+    @NotNull
     @Column(name = "customer_email")
     private String email;
+    @NotNull
+    @Size(min = 10, max = 10)
     @Column(name = "customer_phone")
     private String phone;
     @Column(name = "address")
@@ -26,6 +31,7 @@ public class Customer
     private String city;
     @Column(name = "state")
     private String state;
+    @Size(min = 5,max = 5, message = "zip code must be at most 5 character")
     @Column(name = "zip_code")
     private String zipCode;
 

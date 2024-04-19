@@ -2,6 +2,7 @@ package com.example.SeniorProject.Model;
 
 import jakarta.persistence.*;
 
+import javax.validation.constraints.*;
 import java.util.*;
 
 @Entity
@@ -12,16 +13,24 @@ public class Product
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private int id;
+    @NotNull
     @Column(name = "quantity")
     private int quantity;
+    @NotNull
     @Column(name = "price")
     private double price;
+    @NotNull
     @Column(name = "type")
     private String type;
+    @NotNull
     @Column(name = "name")
     private String name;
+    @NotNull
     @Column(name = "description")
     private String description;
+    @NotNull
+    @Column(name = "location")
+    private String location;
 
     @ManyToMany(mappedBy = "products")
     private Set<Order> orders = new HashSet<>();
