@@ -37,73 +37,74 @@
 <nav class="navbar navbar-expand-lg bg-transparent" data-bs-theme="dark">
     <div class="container-fluid">
         <div class="navbar-brand"></div>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarColor01"
-                aria-controls="navbarColor01" aria-expanded="false"
-                aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+                aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse mb-4" id="navbarColor01">
             <ul class="nav nav-underline navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Account Details</a>
+                    <a class="nav-link" href="/">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="UserOrder_page">Orders</a>
+                    <a class="nav-link" href="/rental">Rentals</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Help</a>
+                    <a class="nav-link" href="/gallery">Gallery</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">FAQ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">About Us</a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
 <section class="featured">
-    <h2>Rentals</h2>
-</section>
-<section class="order_search">
-    <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search"
-               placeholder="Order Number" aria-label="Search">
-        <button class="btn btn-outline-light" type="submit">Search</button>
-    </form>
+    <h2>Cart</h2>
 </section>
 <div id="container">
     <table class="table ">
         <thead>
         <tr>
-            <th>Date Pickup</th>
-            <th>Date Returned</th>
-            <th>Order Number</th>
-            <th>Location</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Availability</th>
+            <th>Item Price</th>
+            <th></th>
             <th>Total</th>
-            <th>Items</th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td>03/13/2024</td>
-            <td>03/20/2024</td>
-            <td>#1003569</td>
-            <td>Sacramento</td>
-            <td>$4,320</td>
-            <td>50</td>
+            <td>Silvered Victorian Plates</td>
+            <td>20</td>
+            <td>In-stock</td>
+            <td>$20</td>
+            <td></td>
+            <td>$400</td>
         </tr>
         <tr>
-            <td>Mary</td>
-            <td>Moe</td>
-            <td>mary@example.com</td>
+            <td>Silvered Victorian Cutlery</td>
+            <td>20</td>
+            <td>Back_Ordered</td>
+            <td>$10</td>
+            <td></td>
+            <td>$200</td>
         </tr>
         <tr>
-            <td>July</td>
-            <td>Dooley</td>
-            <td>july@example.com</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>$600</td>
         </tr>
         </tbody>
     </table>
+    <button class="btn btn-outline-light" type="submit" style="float:right;">Go to Checkout</button>
 </div>
 </body>
 
