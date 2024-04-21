@@ -3,6 +3,8 @@ package com.example.SeniorProject.Model;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.bcrypt.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.validation.constraints.*;
 
 @Entity
@@ -27,6 +29,7 @@ public class Account
     @Column(name = "is_verified")
     private boolean isVerified;
     @OneToOne(mappedBy = "account")
+    @JsonBackReference
     private Customer customer;
 
     public Account()
@@ -46,6 +49,11 @@ public class Account
         return email;
     }
 
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
     public Customer getCustomer()
     {
         return customer;
@@ -56,6 +64,11 @@ public class Account
         return isAdmin;
     }
 
+    public void setAdmin(boolean admin) 
+    {
+        isAdmin = admin;
+    }
+
     public String getPassword()
     {
         return password;
@@ -64,5 +77,20 @@ public class Account
     public void setPassword(String password)
     {
         this.password = password;
+    }
+
+    public boolean isVerified() 
+    {
+        return isVerified;
+    }
+      
+    public void setVerified(boolean verified) 
+    {
+        isVerified = verified;
+    }
+
+    public int getId()
+    {
+        return id;
     }
 }
