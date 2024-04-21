@@ -1,16 +1,34 @@
-document.querySelector(".item-search-btn").addEventListener("click", filterItems);
+// Functionality for front page
+document.addEventListener("DOMContentLoaded", function() {
+    var frontPageForm = document.getElementById("front-page-form");
+    if (frontPageForm) {
+        frontPageForm.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent default form submission
 
-document.querySelector("#product-search").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-         // Cancel the default action, if needed
-        e.preventDefault();
-        filterItems();
+            var kw = document.getElementById("product-search").value;
+            if (kw.trim() !== "") {
+                window.location.href = "rental?kw=" + encodeURIComponent(kw);
+            }
+        });
     }
-})
+});
 
-function filterItems() {
-    // get the text from the textbox
-    const textLine = document.querySelector("#product-search").value.toLowerCase();
+// Functionality for catalog page
+document.addEventListener("DOMContentLoaded", function() {
+    var params = new URLSearchParams(window.location.search);
+    var kw = params.get("kw");
+
+    if (kw) {
+        console.log("Performing search for keywords:", kw);
+        filterItems(kw);
+    }
+});
+
+function filterItems(keyword) {
+     // get the text from the textbox
+    const textLine = keyword.toLowerCase();
+    // set the search bar to the keyword
+    const searchBar = document.getElementById("product-search").value = keyword;
     const items = document.querySelectorAll("option");
     // if textLine is nul then just return
     if (textLine.length === 0) {resetAllItems(items);}
