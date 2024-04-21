@@ -1,6 +1,6 @@
 // Functionality for front page
 document.addEventListener("DOMContentLoaded", function() {
-    var frontPageForm = document.getElementById("front-page-form");
+    var frontPageForm = document.getElementById("other-page-form");
     if (frontPageForm) {
         frontPageForm.addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent default form submission
