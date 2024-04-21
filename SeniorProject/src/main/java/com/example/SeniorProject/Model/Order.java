@@ -2,8 +2,7 @@ package com.example.SeniorProject.Model;
 
 import jakarta.persistence.*;
 
-import java.sql.Date;
-import java.time.*;
+import javax.validation.constraints.*;
 import java.util.*;
 
 @Entity
@@ -13,14 +12,19 @@ public class Order
     @Id
     @Column(name = "order_id")
     private int id;
+    @NotNull
     @Column(name = "order_date")
     private String date;
+    @NotNull
     @Column(name = "rental_time")
     private int rentalTime;
+    @NotNull
     @Column(name = "payment_status")
     private boolean hasBeenPaid;
+    @NotNull
     @Column(name = "order_status")
     private String status;
+    @NotNull
     @Column(name = "price")
     private double price;
     @ManyToOne(cascade = CascadeType.ALL)

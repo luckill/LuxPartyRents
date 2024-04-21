@@ -20,6 +20,9 @@ public class Product
     private String type;
     @Column(name = "name")
     private String name;
+
+    @Column(name = "location")
+    private String location;
     @Column(name = "description")
     private String description;
 
@@ -66,5 +69,29 @@ public class Product
     public void setOrders(Set<Order> orders)
     {
         this.orders = orders;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }
