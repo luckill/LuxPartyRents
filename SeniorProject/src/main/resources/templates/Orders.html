@@ -9,9 +9,9 @@
             margin: 0; 
             padding: 0;
             box-sizing: border-box; 
+            color: white; /* Sets text color to white */
         }
 
-        
         body {
             background-image: url('flowersv1.jpg'); 
             background-size: cover; 
@@ -19,7 +19,10 @@
             background-repeat: no-repeat; 
         }
 
-        
+        h1, h2, h3, td, .controls input[type="text"], .controls button {
+            color: white; /* Ensures all text colors are white */
+        }
+
         h1 {
             text-align: center; 
             font-size: 54px; 
@@ -35,12 +38,10 @@
             font-size: 25px; 
         }
 
-        
         h3 span {
             margin: 0 45px; 
         }
 
-        
         table {
             width: 100%; 
             border-collapse: collapse; 
@@ -53,17 +54,16 @@
         }
 
         th {
-            background-color: #f2f2f2; 
+            background-color: #f2f2f2;
+            color: black; /* Sets header text color to black */
         }
 
-        
         .controls {
             text-align: left; 
             font-size: 20px; 
             margin: 10px 0; 
         }
 
-        
         input[type="text"], button {
             padding: 10px; 
             margin-right: 10px; 
