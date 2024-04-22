@@ -55,3 +55,185 @@ img {
 .item-desc {
     margin-bottom: 10px;
 }
+
+#top{
+  color: white;
+  font-size: 40px;
+}
+.location{
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.location p.name{
+  color: white;
+  font-size: 60px;
+}
+
+
+.featured{
+  max-width: fit-content;
+  padding-left: 3%;
+  margin-right: auto;
+  float:left;
+}
+
+.featured h2{
+  color: white;
+  text-align: center;
+  font-size: 35px;
+  border-bottom: solid white;
+}
+.order_search{
+width:15%;
+float:right;
+padding-right:2%;
+}
+
+#container { width: 80%; margin-left: auto; margin-right: auto;}
+
+.table {
+color:white !important;
+}
+
+.table tbody tr:hover{
+color:#ababab;
+}
+
+ /* CSS for the modal overlay */
+ .modal-overlay {
+  display:none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white; 
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 1001;
+  width: 80%; 
+  max-width: 800px; 
+  height: 60%; 
+  max-height: 600px; 
+  overflow-y: auto; 
+}
+
+/* CSS for the modal content */
+.modal-content {
+  background-color: rgb(255, 255, 255); 
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* CSS to center the modal content */
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+
+.modal-content p {
+  color: black; 
+
+}
+
+.modal-content o {
+  color: black; 
+  font-weight: bold;
+  font-size: xx-large;
+
+}
+
+#openModalButton {
+  border: none; 
+  padding: 0; 
+  background: none; 
+}
+
+.closePopupBtn {
+  position: relative;
+  width: 400px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  
+}
+
+#closeModalButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  background-color: #ccc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-content img {
+  max-width: 100%; 
+  max-height: 80vh; 
+  border-radius: 10px; 
+}
+
+.image-text-grid {
+  display: grid;
+  grid-template-columns: auto 1fr; /* Two columns: auto for image, 1fr for text */
+  align-items: center; 
+  column-gap: 20px; 
+}
+
+ /* CSS for the image */
+ .image-text-grid img {
+  max-width: 100%; 
+  border-radius: 10px; 
+}
+
+.image-text-grid p {
+  font-size: 16px;
+  color: black;
+}
+
+.input-container {
+  display: flex;
+  justify-content: flex-end; 
+  align-items: center;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  margin-right: 70px;
+  margin-bottom: 200px;
+}
+
+input[type="text"] {
+  width: 125px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  
+}
+
+.input-container button {
+  padding: 10px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: grey;
+  color: white;
+  align-self: center;
+}
+
+.modal-content button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}

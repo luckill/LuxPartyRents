@@ -68,18 +68,44 @@
           </div>
         </div>
       </nav>
+    
       <div class="rounded-3 border shadow-lg">
         <div class="container-fluid p-5">
+          <!--Black Plate-->
+          <!-- Modal overlay -->
+          <div id="modalOverlay" class="modal-overlay">
+            <!-- Modal content -->
+            <div class="modal-content">
+              <o>Black Dinner Plates</o>
+              <div class="image-text-grid">
+                <img src="picture/items/blackplate.jpg" class="rounded" alt="Error" width="350" height="200">
+                <p> Description: Gorgeous plate lined with gold. <br> Quantity Left: 00 <br> Price: $00.00 </p>
+              </div>
+              <div class="input-container">
+                <button>-</button>
+                <input type="text" placeholder="Enter Quantity">
+                <button>+</button>
+            </div>
+                <div class="closePopupBtn"></div>
+                <button id="closeModalButton" onclick="openModal()">X</button>
+            </div>
+        </div>
+        
+
             <div class="row row-cols-3 gy-5">
                 <div class="col item-frame" id="black-dinner-plate">
                     <div class="dropdown">
+                      
                         <img src="picture/items/blackplate.jpg" class="rounded" alt="Error" width="250" height="100">
+                     
                         <div class="item-name">
                             <div class="itemdesc">Black Dinner Plate</div>
                             <div class="itemdesc">$00.00 USD</div>
                         </div>
                         <div class="dropdown-content">
+                          <button id="openModalButton" onclick="openModal()">
                         <img src="picture/items/blackplate.jpg" class="rounded" alt="Error" width="500" height="500">
+                          </button>
                         <div class="product-info">
                             <div class="itemdesc">Black Dinner Plate</div>
                             <div class="itemdesc">Gorgeous plate lined with gold.</div>
@@ -87,17 +113,22 @@
                             <div class="itemdesc">Quantity: 99</div>
                         </div>
                         </div>
-                        </div> 
+                    </div> 
                 </div>
+                                
+
                 <div class="col item-frame" id="glass-cups">
                     <div class="dropdown">
+                      
                         <img src="picture/items/glasscups.jpg" class="rounded" alt="Error" width="250" height="100">
                         <div class="item-name">
                             <div class="itemdesc">Glass Cups</div>
                             <div class="itemdesc">$00.00 USD</div>
                         </div>
                         <div class="dropdown-content">
+                          <button id="openModalButton" onclick="openModal()">
                         <img src="picture/items/glasscups.jpg" class="rounded" alt="Error" width="500" height="500">
+                      </button>
                         <div class="product-info">
                             <div class="itemdesc">Glass Cups</div>
                             <div class="itemdesc">Gorgeous plate lined with gold.</div>
@@ -115,7 +146,9 @@
                             <div class="itemdesc">$00.00 USD</div>
                         </div>
                         <div class="dropdown-content">
+                          <button id="openModalButton" onclick="openModal()">
                         <img src="picture/items/flowervase.jpg" class="rounded" alt="Error" width="500" height="500">
+                      </button>
                         <div class="product-info">
                             <div class="itemdesc">Flower Vase</div>
                             <div class="itemdesc">Gorgeous plate lined with gold.</div>
@@ -133,7 +166,9 @@
                           <div class="itemdesc">$00.00 USD</div>
                       </div>
                       <div class="dropdown-content">
+                        <button id="openModalButton" onclick="openModal()">
                       <img src="picture/items/plastictable.JPG" class="rounded" alt="Error" width="500" height="500">
+                    </button>
                       <div class="product-info">
                           <div class="itemdesc">Plastic Table</div>
                           <div class="itemdesc">Gorgeous plate lined with gold.</div>
@@ -151,7 +186,9 @@
                           <div class="itemdesc">$00.00 USD</div>
                       </div>
                       <div class="dropdown-content">
+                        <button id="openModalButton" onclick="openModal()">
                       <img src="picture/items/goblet.jpg" class="rounded" alt="Error" width="500" height="500">
+                    </button>
                       <div class="product-info">
                           <div class="itemdesc">Goblet</div>
                           <div class="itemdesc">Gorgeous plate lined with gold.</div>
@@ -169,7 +206,9 @@
                           <div class="itemdesc">$00.00 USD</div>
                       </div>
                       <div class="dropdown-content">
+                        <button id="openModalButton" onclick="openModal()">
                       <img src="picture/items/winecup.jpg" class="rounded" alt="Error" width="500" height="500">
+                    </button>
                       <div class="product-info">
                           <div class="itemdesc">Wine Cup</div>
                           <div class="itemdesc">Gorgeous plate lined with gold.</div>
@@ -186,7 +225,36 @@
 
 
 <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="search.js" charset="UTF-8" type="text/javascript"></script>    
+<script src="search.js" charset="UTF-8" type="text/javascript"></script>   
+<script>
 
+const openModalButton = document.getElementById('openModalButton');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModalButton = document.getElementById('closeModalButton');
+
+        // Function to open the modal
+        function openModal() {
+            modalOverlay.style.display = 'block';
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            modalOverlay.style.display = 'none';
+        }
+
+        // Event listeners
+        openModalButton.addEventListener('click', openModal);
+        closeModalButton.addEventListener('click', closeModal);
+
+        // Function to open the modal
+function openModal() {
+    document.getElementById('modalOverlay').style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+}
+</script> 
 </body>
 </html>
