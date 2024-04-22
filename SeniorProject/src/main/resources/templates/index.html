@@ -57,9 +57,9 @@
                         <a class="nav-link" href="/about">About Us</a>
                     </li>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
+                <form class="d-flex" id="other-page-form" role="search" method="get" action="/rental">
+                    <input class="form-control me-2" type="search" placeholder="Search Products" name="kw" aria-label="Search" id="product-search">
+                    <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
                 </form>
             </div>
         </div>
@@ -110,6 +110,8 @@
             </div>
         </section>
     </div>
+
+    <script src="search.js" charset="UTF-8" type="text/javascript"></script>   
 </body>
 
 </html>
