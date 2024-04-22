@@ -2,6 +2,9 @@ package com.example.SeniorProject.Model;
 
 import jakarta.persistence.*;
 import javax.validation.constraints.*;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.*;
 
 @Entity
@@ -40,6 +43,7 @@ public class Customer
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
+    @JsonManagedReference
     private Account account;
 
     public Customer()
