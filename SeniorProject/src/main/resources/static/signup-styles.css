@@ -33,8 +33,7 @@ label {
 .myinput {
     width: 85%;
     background: #2D2D2D;
-    padding: 0.7em;
-    margin-bottom: 0.9rem;
+    margin-bottom: 0.2rem;
     border-radius: 25px;
     color: white;
 }
@@ -52,4 +51,43 @@ a.link {
     margin-top: 0.5rem;
     text-decoration: none;
     color: #21A1FD;
+}
+
+#password-requirements {
+    font-size: 0.9em;
+}
+
+#password-requirements ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#password-requirements li {
+    color: white;
+}
+
+#password-requirements li:before {
+    content: "•";
+    color: #007bff;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+#password-requirements li.valid:before {
+    color: #28a745; /* Green */
+}
+
+#password-requirements li.invalid:before {
+    color: #dc3545; /* Red */
+}
+
+#signup-form p {
+    font-size: 0.9em;
+    color: white;
+}
+#error {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
 }
