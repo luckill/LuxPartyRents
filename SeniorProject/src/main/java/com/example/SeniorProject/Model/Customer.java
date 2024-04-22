@@ -1,5 +1,6 @@
 package com.example.SeniorProject.Model;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import javax.validation.constraints.*;
 

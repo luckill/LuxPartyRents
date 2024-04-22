@@ -1,7 +1,7 @@
 package com.example.SeniorProject.Model;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
-import org.springframework.security.crypto.bcrypt.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -77,16 +77,6 @@ public class Account
     public void setPassword(String password)
     {
         this.password = password;
-    }
-
-    public boolean isVerified() 
-    {
-        return isVerified;
-    }
-      
-    public void setVerified(boolean verified) 
-    {
-        isVerified = verified;
     }
 
     public int getId()

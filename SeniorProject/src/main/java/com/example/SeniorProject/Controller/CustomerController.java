@@ -1,5 +1,6 @@
 package com.example.SeniorProject.Controller;
 
+import com.example.SeniorProject.*;
 import com.example.SeniorProject.Model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +41,27 @@ public class CustomerController
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody CustomerAccountWrapper customerAccountWrapper)
+    {
+        String email = customerAccountWrapper.getEmail();
+        if (accountRepository.findAccountByEmail(email) != null )
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An account associate with this email address already existed.");
+        }
+        if(customerRepository.findAccountByCustomerName(customerAccountWrapper.getFirstName(), customerAccountWrapper.getLastName()) != null)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("AN account that is associate with your name already existed. please login instead. if you are trying to recreate n account please delete for current account first.");
+        }
+        Account account = customerAccountWrapper.getAccount();
+        Customer customer = customerAccountWrapper.getCustomer();
+        String hashedPassword = passwordEncoder.encode(customerAccountWrapper.getPassword());
+        account.setPassword(hashedPassword);
+        this.accountRepository.save(account);
+        customer.setAccount(account);
+        this.customerRepository.save(customer);
+        return ResponseEntity.status(HttpStatus.OK).body("User created successfully. We send a verification email to the email account you entered. Please follow the email's instruction to verify your email.Unverified account and customer profile will be deleted by the end of account's creation day");
+    }
     @PostMapping("/findAccount")
     public ResponseEntity<?> checkIfAccountExist(@RequestParam("email") String email)
     {
