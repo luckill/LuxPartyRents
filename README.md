@@ -13,18 +13,18 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 
 # Technologies Used
 * Frontend:
- - Programming Language: JavaScript, HTML, CSS
+	- Programming Language: JavaScript, HTML, CSS
 * Framework: Bootstrap, SpringBoot
- - Interactive Development Environment (IDE): VSCode, IntelliJ
- - Software Development Kits (SDKs): Java Development Kit 17(JDK 17)
+	- Interactive Development Environment (IDE): VSCode, IntelliJ
+	- Software Development Kits (SDKs): Java Development Kit 17(JDK 17)
 * Backend:
- - Programming Language: Java, 
- - Framework: java Spring
+	- Programming Language: Java, 
+	- Framework: java Spring
 * Database:
- - Type: Relational
- - MySQL
+	- Type: Relational
+	- MySQL
 * Deployment: 
- - Digital Ocean Server and Digital ocean MySQL database.
+	- Digital Ocean Server and Digital ocean MySQL database.
 
 # Installation
 1. Clone the repository.
@@ -32,20 +32,20 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 3. Navigate to SeniorProject/src/main/resources
 4. Add an application.properties
 5. Add into application properties for email server
- - spring.mail.host=smtp.gmail.com
- - spring.mail.port=587
- - spring.mail.username=#yo0ur email address
- - pring.mail.password=# app password for your gmail account
- - spring.mail.properties.mail.smtp.auth=true
- - spring.mail.properties.mail.smtp.starttls.enable=true
- - For how to create and app password for your gmail account, visit https://support.google.com/mail/answer/185833?hl=en
+	- spring.mail.host=smtp.gmail.com
+	- spring.mail.port=587
+	- spring.mail.username=#yo0ur email address
+	- pring.mail.password=# app password for your gmail account
+	- spring.mail.properties.mail.smtp.auth=true
+	- spring.mail.properties.mail.smtp.starttls.enable=true
+	- For how to create and app password for your gmail account, visit https://support.google.com/mail/answer/185833?hl=en
 6. Add into application properties for database
- - spring.jpa.hibernate.ddl-auto=update
- - spring.datasource.url=jdbc: #your connection string
- - spring.datasource.username=# your username
- - spring.datasource.password=#your password
- - spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
- - spring.jpa.show-sql: true(this can be set to false) 
+	- spring.jpa.hibernate.ddl-auto=update
+	- spring.datasource.url=jdbc: #your connection string
+	- spring.datasource.username=# your username
+	- spring.datasource.password=#your password
+	- spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+	- spring.jpa.show-sql: true(this can be set to false) 
 
 # ERD
 ![ERD](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/e40a376b-79ba-4caa-bf8d-1f68b42b19e2)
