@@ -73,19 +73,19 @@ Developer Instructions
 # Timeline
 ![time1](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/579878d3-b7cc-42d7-9441-cc6dc4ba223b)
 	## What is done:
-1. Milestone 1: Creating a mock-up for visualization and researching our stack and database.
-2. Milestone 2: Code each of the pages with a consistent navbar based on our mock-up
-3. Milestone 3: Adding and linking with a database to test logging in and signing up.
-4. Milestone 4: Adding the CRUD functions for the products for the admin.
+- Milestone 1: Creating a mock-up for visualization and researching our stack and database.
+- Milestone 2: Code each of the pages with a consistent navbar based on our mock-up
+- Milestone 3: Adding and linking with a database to test logging in and signing up.
+- Milestone 4: Adding the CRUD functions for the products for the admin.
 
 ![time2](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/d7491127-1ed5-43da-a563-e9269e1fbd81)
 	## What is expected to be done:
-1. Milestone 5: Adding functionality to each page, link the frontend web page with backend using javascript.
-2. Milestone 6: Add pay functionality with stripe API, admin account functionality, customer reminder function.
-3. Milestone 7: Create a pdf generator using java.
-4. Milestone 8: Create a task scheduler that can run tasks automatically at a specified time and date.
-5. Milestone 9: Add authentication and authorization for each page
-6. Milestone 10: Calculate delivery charge with google map API.
+- Milestone 5: Adding functionality to each page, link the frontend web page with backend using javascript.
+- Milestone 6: Add pay functionality with stripe API, admin account functionality, customer reminder function.
+- Milestone 7: Create a pdf generator using java.
+- Milestone 8: Create a task scheduler that can run tasks automatically at a specified time and date.
+- Milestone 9: Add authentication and authorization for each page
+- Milestone 10: Calculate delivery charge with google map API.
 
 # Contributors
   Team Members:
