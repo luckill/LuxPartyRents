@@ -88,7 +88,7 @@ Developer Instructions
 - Milestone 10: Calculate delivery charge with google map API.
 
 # Contributors
-  Team Members:
+Team Members:
 	- Heamandeep Kaur
 	- Anish Chouhan
 	- Andreas Zignago
