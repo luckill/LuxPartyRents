@@ -14,13 +14,12 @@ import java.util.List;
 public class ProductController {
         @Autowired
         private ProductRepository productRepository;
-        ObjectMapper objectMapper = new ObjectMapper();
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
         @PostMapping(path="/addProduct") // Map ONLY POST Requests
         public @ResponseBody String addProduct (@RequestBody String product) {
                 // @ResponseBody means the returned String is the response, not a view name
                 // @RequestParam means it is a parameter from the GET or POST request
-                System.out.println(product);
                 try {
                         Product n = objectMapper.readValue(product, Product.class);
                         productRepository.save(n);
