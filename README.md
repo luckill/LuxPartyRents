@@ -1,6 +1,6 @@
 # SeniorProject
 Senior Group Project demonstrating team collaboration. 
-![comment](readme img/ERD.jpg)
+![comment](./readme img/ERD.jpg)
 
 Team Members:
 
