@@ -1,17 +1,17 @@
 ![cheezits](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/055fb94f-e32e-4e8a-bcb1-d06dfa84b93c)
-#Project Name: Equipment Rental Website
-##By Cheezits
+# Project Name: Equipment Rental Website
+## By Cheezits
 
 
-#Synopsis
+# Synopsis
 Potapov Wedding is an equipment rental website. This project aims to help improve the efficiency and productivity of the client’s rental process while also providing an online store to help automate more of the client’s work that the client is doing manually.
 
-#Features
+# Features
 Feature 1: An admin page for the client to personalize the website and keep track of rentals and inventory.
 Feature 2: A login page and a personal profile showing customers their orders and what’s in their shopping cart.
 Feature 3: A clean, professional, and easy-to-navigate shop and home page for customers to use.
 
-#Technologies Used
+# Technologies Used
 Frontend:
 Programming Language: JavaScript, HTML, CSS
 Framework: Bootstrap, SpringBoot
@@ -26,7 +26,7 @@ MySQL
 Deployment: 
 Digital Ocean Server and Digital ocean MySQL database.
 
-#Installation
+# Installation
 Clone the repository.
 Navigate to the project directory.
 Navigate to SeniorProject/src/main/resources
@@ -47,11 +47,11 @@ spring.datasource.password=#your password
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.show-sql: true(this can be set to false) 
 
-#ERD
+# ERD
 ![ERD](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/e40a376b-79ba-4caa-bf8d-1f68b42b19e2)
 
 
-#Prototype
+# Prototype
 ![home](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/f6db66d4-432b-45a2-b8a9-71bf5c116996)
 
 ![login](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/f2171b84-fbcd-48ed-96e9-27e283aab438)
@@ -62,7 +62,7 @@ spring.jpa.show-sql: true(this can be set to false)
 
 
 
-#Testing
+# Testing
 [Placeholder for testing instructions. To be filled in CSC 191.]
 Deployment
 [Placeholder for deployment instructions. To be filled in CSC 191.]
@@ -70,7 +70,7 @@ Developer Instructions
 [Placeholder for developer instructions. To be filled in CSC 191.]
 
 
-#Timeline
+# Timeline
 ![time1](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/579878d3-b7cc-42d7-9441-cc6dc4ba223b)
 	##What is done:
 Milestone 1: Creating a mock-up for visualization and researching our stack and database.
@@ -87,7 +87,7 @@ Milestone 8: Create a task scheduler that can run tasks automatically at a speci
 Milestone 9: Add authentication and authorization for each page
 Milestone 10: Calculate delivery charge with google map API.
 
-#Contributors
+# Contributors
   Team Members:
 Heamandeep Kaur
 Anish Chouhan
@@ -98,6 +98,6 @@ Zhijun Li
 Eric Brutskiy
 Brandon Kue
 
-#License
+# License
 
 THE SOFTWARE IS PROVIDED TO OUR CLIENT. THIS WEBSITE CANNOT BE USED WITHOUT THE PERMISSION OF THE PROVIDED CLIENT.
