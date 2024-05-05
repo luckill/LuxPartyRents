@@ -89,14 +89,14 @@ Developer Instructions
 
 # Contributors
 Team Members:
-	- Heamandeep Kaur
-	- Anish Chouhan
-	- Andreas Zignago
-	- Balraj Kalathil
-	- Kanan Shah
-	- Zhijun Li
-	- Eric Brutskiy
-	- Brandon Kue
+- Heamandeep Kaur
+- Anish Chouhan
+- Andreas Zignago
+- Balraj Kalathil
+- Kanan Shah
+- Zhijun Li
+- Eric Brutskiy
+- Brandon Kue
 
 # License
 
