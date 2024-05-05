@@ -72,14 +72,14 @@ Developer Instructions
 
 # Timeline
 ![time1](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/579878d3-b7cc-42d7-9441-cc6dc4ba223b)
-	## What is done:
+## What is done:
 - Milestone 1: Creating a mock-up for visualization and researching our stack and database.
 - Milestone 2: Code each of the pages with a consistent navbar based on our mock-up
 - Milestone 3: Adding and linking with a database to test logging in and signing up.
 - Milestone 4: Adding the CRUD functions for the products for the admin.
 
 ![time2](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/d7491127-1ed5-43da-a563-e9269e1fbd81)
-	## What is expected to be done:
+## What is expected to be done:
 - Milestone 5: Adding functionality to each page, link the frontend web page with backend using javascript.
 - Milestone 6: Add pay functionality with stripe API, admin account functionality, customer reminder function.
 - Milestone 7: Create a pdf generator using java.
