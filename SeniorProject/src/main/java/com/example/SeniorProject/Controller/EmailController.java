@@ -1,15 +1,14 @@
 package com.example.SeniorProject.Controller;
 
 import com.example.SeniorProject.Email.*;
+import com.example.SeniorProject.Service.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.HashMap;
 
 @RestController
@@ -55,9 +54,6 @@ public class EmailController
             emailMap.remove(token);
             emailMap.put(token,email);
         }
-
-        // Constructing the verification URL with the token
-        //String verificationUrl = "http://localhost:8080/verify-email?token=" + token;
 
         String verificationUrl = "http://" + request.getServerName() + ":" + request.getServerPort()  + "/verify-email?token=" + token;
 

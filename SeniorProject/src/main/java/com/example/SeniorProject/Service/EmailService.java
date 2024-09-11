@@ -1,5 +1,6 @@
-package com.example.SeniorProject.Email;
+package com.example.SeniorProject.Service;
 
+import com.example.SeniorProject.Email.EmailDetails;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.*;
