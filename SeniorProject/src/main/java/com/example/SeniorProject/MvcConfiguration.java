@@ -21,5 +21,9 @@ public class MvcConfiguration implements WebMvcConfigurer
         registry.addViewController("/UserDetails_page").setViewName("UserDetails_page");
         registry.addViewController("/UserCart_page").setViewName("UserCart_page");
         registry.addViewController("/displayInfo").setViewName("displayInfo");
+        registry.addViewController("/resetPassword").setViewName("resetPasswordForm");
+        registry.addViewController("/Orders").setViewName("Orders");
+        registry.addViewController("/user_order").setViewName("UserOrder_page");
+        registry.addViewController(133"uploadPicture").setViewName("uploadPictureForm");
     }
 }

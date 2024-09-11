@@ -1,15 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const loginStatus = false; // Simulate login status
-
-    // Login display logic
-    const loginDisplay = document.querySelector('.login-display');
-    if (loginStatus) {
-        loginDisplay.innerHTML = `<span>Welcome, User!</span>
-                                  <a href="#profile">Profile</a>
-                                  <a href="#logout">Log Out</a>`;
-    } else {
-        loginDisplay.innerHTML = `<a href="#login">Log In</a>`;
-    }
 
     // Simulate fetching gallery images
     const gallerySection = document.querySelector('.gallery');

@@ -14,54 +14,9 @@
 </head>
 
 <body class="bg-transparent">
-    <header class="py-3 border-bottom">
-        <div class="row flex-nowrap justify-content-between align-items-center">
-            <div class="col-3 pt-1"></div>
-            <div class="col-6 text-center">
-                <a class="fs-1 text-white -bg-transparent text-end text-decoration-none" href="/">Potapov
-                    Weddings</a>
-            </div>
-            <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
-                <a class="btn btn btn-outline-light mx-2" href="/login">Login</a>
-                <a class="btn btn btn-outline-light" href="/signUp">Sign up</a>
-            </div>
-        </div>
-        <div class="container d-flex flex-wrap justify-content-center">
-            <a class="d-flex align-self-center link-body-emphasis text-decoration-none">
-                <span class="fs-6 text-white -bg-transparent text-center">Sacramento | South Carolina</span>
-            </a>
-        </div>
-    </header>
-    <nav class="navbar navbar-expand-lg bg-transparent" data-bs-theme="dark">
-        <div class="container-fluid">
-            <div class="navbar-brand"></div>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarColor01"
-                    aria-controls="navbarColor01" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse mb-4" id="navbarColor01">
-                <ul class="nav nav-underline navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Account Details</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link"  href="UserOrder_page">Orders</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Help</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">FAQ</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-
-    <div id="container">
+<div th:replace="~{Navbar :: header}"></div>
+<div th:replace="~{Navbar :: navbar}"></div>
+<div id="container">
         <section class="row1">
             <div class="col1">
                 <p>Email: bobbyisrad@Eurl.com</p>

@@ -5,39 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gallery</title>
     <link rel="stylesheet" href="gallery_style.css">
+    <!-- Include Bootstrap CSS for the navbar -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="top-header">
-        <h1>POTAPOV WEDDINGS</h1>
-        <p class="locations">Sacramento | South Carolina</p>
-    </div>
-    <nav>
-        <div class="nav-bar">
-            <a href="/">Home</a>
-            <a href="/rental">Rental</a>
-            <a href="/gallery">Gallery</a>
-            <a href="/about">About</a>
-            <a href="/faqs">FAQs</a>
-            <div class="nav-right">
+<!-- Include the Thymeleaf fragment for the navbar -->
+<div th:replace="~{Navbar :: header}"></div>
+<div th:replace="~{Navbar :: navbar}"></div>
 
-            <form class="d-flex" id="other-page-form" role="search" method="get" action="/rental">
-                <input class="form-control me-2" type="search" placeholder="Search Products" name="kw" aria-label="Search" id="product-search">
-            </form>
-            <div class="login-display">
-                <!-- Dynamically change based on login status -->
-            </div>
-        </div>
-    </nav>
+<header id="imageHeader">
+    <h1>Image Gallery</h1>
+    <p>Explore the beautiful moments we've captured</p>
+</header>
 
-    <header>
-        <h1>Image Gallery</h1>
-        <p>Explore the beautiful moments we've captured</p>
-    </header>
+<section class="gallery">
+    <!-- Images loaded dynamically -->
+</section>
 
-    <section class="gallery">
-        <!-- Images loaded dynamically -->
-    </section>
-
-    <script src="script.js"></script>
+<!-- Include Bootstrap JS (required for navbar functionality) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

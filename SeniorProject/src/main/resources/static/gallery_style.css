@@ -1,79 +1,15 @@
 body, html {
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        background-image: url('Image.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
-    
-}
-
-.top-header {
-    background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-}
-
-.top-header h1 {
     margin: 0;
-    font-family: "Times New Roman", Times, serif; /* Example of a serif font */
-    font-size: 36px; /* Adjust size as needed */
+    padding: 0;
+    background: url(picture/rose.jpg) no-repeat center center fixed;
+    background-size: cover;
 }
 
-.locations {
-    margin: 0;
-    font-size: 18px; /* Adjust size as needed */
-}
-
-
-
-.nav-bar {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px;
-    flex-wrap: wrap;
-}
-
-.nav-bar a {
-    color: white;
-    text-decoration: none;
-    margin-right: 20px;
-}
-
-.nav-right {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-}
-
-.nav-bar input[type="text"] {
-    padding: 5px;
-    margin-right: 10px;
-}
-
-.login-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.login-btn:hover {
-    background-color: #0056b3;
-}
-
-header {
+/* Make sure content below navbar is not hidden behind it */
+#imageHeader {
     text-align: center;
     color: white;
-    margin: 20px 0;
+    margin: 20px 0 20px 0; /* Adjust top margin to clear the fixed navbar */
 }
 
 .gallery {
