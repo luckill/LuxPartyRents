@@ -76,16 +76,6 @@ public class CustomerController
         }
     }
 
-    @PutMapping("/resetPassword")
-    public ResponseEntity<?> resetPassword(@RequestBody AccountInfo accountInfo)
-    {
-        Account account = accountRepository.findAccountByEmail(accountInfo.getEmail());
-        String newPassword = passwordEncoder.encode(accountInfo.getPassword());
-        account.setPassword(newPassword);
-        accountRepository.save(account);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
     @GetMapping("/getCustomer/{id}")
     public @ResponseBody Iterable<Customer> getUserById(@PathVariable int id) {
         return customerRepository.getCustomerById(id);
