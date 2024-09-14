@@ -9,7 +9,7 @@ body, html {
 }
 
 img {
-    max-width: 100%;
+    max-width: 90%;
     height: auto;
   }
 
@@ -17,11 +17,10 @@ img {
     display: none;
     position: absolute;
     border-radius: 25px;
-    top: -20px; 
-    left: -10px;
-    right: -10px;
+    top: 0%; 
+    left: 0%;
+    right: 0%;
     
-    min-width: fit-content;
     min-width: fit-content;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
@@ -236,4 +235,31 @@ input[type="text"] {
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
+}
+
+.product-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-controls button {
+  color: white;
+  padding: 10px 20px;
+  margin: 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: grey;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
 }
