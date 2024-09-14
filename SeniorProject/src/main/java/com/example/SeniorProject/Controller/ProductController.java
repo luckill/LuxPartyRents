@@ -5,11 +5,13 @@ import com.example.SeniorProject.Model.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping(path="/product")
 public class ProductController {
         @Autowired
@@ -32,11 +34,9 @@ public class ProductController {
         }
 
         @GetMapping(path="/getAll")
-        public @ResponseBody Iterable<Product> getProduct() {
-                // This returns a JSON or XML with the users
-                return productRepository.findAll();
+        public @ResponseBody Page<Product> getAllProducts(Pageable pageable) {
+            return productRepository.findAll(pageable);
         }
-
         @PostMapping(path ="/update")
         public @ResponseBody String updateProduct (@RequestBody String product) {
                 System.out.println(product);
@@ -88,4 +88,8 @@ public class ProductController {
                         return null;
                 }
         }
+        @GetMapping("/names")
+    public List<String> getProductNames() {
+        return productRepository.findAllProductNames();
+    }
 }
