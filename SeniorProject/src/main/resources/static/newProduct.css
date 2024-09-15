@@ -1,0 +1,176 @@
+@import url(https://fonts.googleapis.com/css?family=Bree+Serif);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+* {
+    margin: 0;
+    padding: 0
+}
+
+html {
+  background: url(picture/rose.jpg) no-repeat center fixed;
+  background-size: cover;
+}
+
+
+body {
+    background: transparent;
+    margin: 15px auto 0;
+    width: 410px;
+}
+
+#contact {
+    margin: 0;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+}
+
+#contact #form {
+    width: 410px;
+    float: left;
+    color: white;
+    margin-top: 20px;
+}
+
+#contact #form h2 {
+    font: 48px 'Bree Serif', Georgia, serif;
+}
+
+#contact #form span {
+    display: block;
+    float: left;
+    width: 100px;
+    padding-top: 5px;
+    font: 14px/16px'Bree Serif', Georgia, serif;
+}
+
+#contact #form input {
+    float: left;
+    width: 500px;
+    border: 0px;
+    color: #F1F1F1;
+    padding: 10px 10px 10px 30px;
+    font: 11px/20px'Open Sans', Verdana, Helvetica, sans-serif;
+    margin-bottom: 10px;
+}
+
+#contact #form textarea {
+    float: left;
+    border: 0px;
+    width: 500px;
+    height: 140px;
+    padding: 10px 10px 10px 30px;
+    font: 11px/20px'Open Sans', Verdana, Helvetica, sans-serif;
+    color: #F1F1F1;
+    resize: none;
+}
+
+#contact #form input.name {
+    background: #222222 no-repeat 10px 8px;
+}
+
+#contact #form input.quantity {
+    background: #222222 no-repeat 10px 9px;
+}
+
+#contact #form input.price {
+    background: #222222 no-repeat 10px 9px;
+}
+
+#contact #form input.type {
+    background: #222222 no-repeat 10px 8px;
+}
+
+#contact #form textarea.description {
+    background: #222222 no-repeat 10px 8px;
+}
+
+#contact #form input.submit {
+    cursor: pointer;
+    width: 85px;
+    height: 30px;
+    float: right;
+    padding: 0px 0px 5px 0px;
+    margin: 10px 10px 0px 0px;
+    background: #222222;
+    color: #F1F1F1;
+    font: 14px/16px'Bree Serif', Georgia, serif;
+}
+
+#contact #form input.cancel {
+    cursor: pointer;
+    width: 85px;
+    height: 30px;
+    float: left;
+    padding: 0px 0px 0px 5px;
+    margin: 10px 0px 10px 16px;
+    background: #222222;
+    color: #F1F1F1;
+    font: 14px/16px'Bree Serif', Georgia, serif;
+}
+
+#contact #form input.edit {
+    cursor: pointer;
+    width: 85px;
+    height: 30px;
+    float: right;
+    padding: 0px 0px 5px 0px;
+    margin: 10px 10px 0px 0px;
+    background: #222222;
+    color: #F1F1F1;
+    font: 14px/16px'Bree Serif', Georgia, serif;
+}
+
+#contact #form input.back{
+    cursor: pointer;
+    width: 85px;
+    height: 30px;
+    float: left;
+    padding: 0px 0px 0px 5px;
+    margin: 10px 0px 10px 16px;
+    background: #222222;
+    color: #F1F1F1;
+    font: 14px/16px'Bree Serif', Georgia, serif;
+}
+
+#contact #hero{
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    color: black;
+}
+
+#drop-area{
+    width: 500px;
+    height: 300px;
+    padding: 30px;
+    background: rgb(37, 23, 23);
+    text-align: center;
+    border-radius: 20px;
+}
+
+#img-view{
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    border: 20 dashed #bbb5ff;
+    background: #f7f8ff;
+    background-position: center;
+    background-size: cover;
+}
+
+#img-view img{
+    width: 100px;
+    margin-top: 25px;
+}
+
+#img-view span{
+    display: block;
+    font-size: 12px;
+    color: #222222;
+    margin-top: 15px;
+}

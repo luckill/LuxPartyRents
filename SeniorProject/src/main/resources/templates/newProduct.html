@@ -1,0 +1,48 @@
+<head></head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="newProduct.css">
+</head>
+
+<body>
+    <section id="contact">
+        <div class="content">
+            <div class="hero">
+                <label for="input-file" id="drop-area">
+                    <input type="file" accept="image/*" id="input-file" hidden>
+                    <div id="img-view">
+                        <img src="./static/picture/upload.png">
+                        <p>Drag and drop or click to add image</p>
+                        <span>Upload any image</span>
+                    </div>
+                </label>
+            </div>
+            <script src="imageScript.js"></script>
+            <div id="form">
+                <form action="" id="contactForm" method="post">
+                    <span>Name</span>
+                    <input type="text" name="name" class="name" placeholder="Name of Product" tabindex=1 />
+
+                    <span>Quantity</span>
+                    <input type="text" name="quantity" class="quantity" placeholder="NUmber of items" tabindex=2 />
+
+                    <span>Price</span>
+                    <input type="text" name="price" class="price" placeholder="Price of each item" tabindex=3 />
+
+                    <span>Type</span>
+                    <input type="text" name="type" class="type" placeholder="The type of item" tabindex=4 />
+
+                    <span>Description</span>
+                    <textarea class="description" placeholder="Enter a simple discription of product"
+                        tabindex=5></textarea>
+
+                    <input type="submit" name="submit" value="Add" class="submit" tabindex=6>
+
+                    <input type="submit" name="cancel" value="Cancel" class="cancel" tabindex=6>
+                </form>
+            </div>
+    </section>
+</body>
