@@ -16,6 +16,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
     @Modifying
     @Query(" UPDATE Product p SET p.quantity = ?1 WHERE p.id=?2")
     void updateProductQuantityById(int quantity, int id);
+
     @Query(" SELECT p FROM Product p WHERE p.name = ?1")
     List<Product> getProductByName(String name);
     @Query(" SELECT p FROM Product p WHERE p.type=?1")
@@ -23,9 +24,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
 
     @Query(" SELECT p FROM Product p WHERE p.id=?1")
     List<Product> getProductById(int id);
-
-    @Query("SELECT p.name FROM Product p")
-    List<String> findAllProductNames();
 
     @Transactional
     @Modifying
