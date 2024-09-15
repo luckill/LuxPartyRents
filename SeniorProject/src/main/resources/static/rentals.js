@@ -1,5 +1,3 @@
-let currentPage = 0; // Start with the first page
-const pageSize = 9; // Number of items per page
 
 async function loadProductNames(page = currentPage, size = pageSize) {
     try {
