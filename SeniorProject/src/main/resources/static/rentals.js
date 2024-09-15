@@ -1,4 +1,3 @@
-
 async function loadProductNames(page = currentPage, size = pageSize) {
     try {
         const response = await fetch(`/product/getAll?page=${page}&size=${size}`);
