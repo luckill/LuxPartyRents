@@ -8,9 +8,8 @@ import com.example.SeniorProject.Model.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -61,8 +60,9 @@ public class OrderController {
 
     // Read all orders with pagination
     @GetMapping(path="/getAll")
-    public @ResponseBody Page<Order> getAllOrders(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+    public @ResponseBody
+    List<Order> getAllOrders() {
+        return orderRepository.findAll();
     }
 
     // Read a single order by ID
