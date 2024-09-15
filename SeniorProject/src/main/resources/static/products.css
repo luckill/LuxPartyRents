@@ -1,50 +1,35 @@
-html { 
-  background: url(picture/rose.jpg) no-repeat center center fixed;
+html {
+  background: url(picture/rose.jpg) no-repeat center fixed;
   background-size: cover;
 }
 
-#top{
-  color: white;
-  font-size: 40px;
-}
-.location{
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.location p.name{
-  color: white;
-  font-size: 60px;
-}
 
 
-.featured{
-  max-width: fit-content;
-  padding-left: 3%;
-  margin-right: auto;
-  float:left;
+.middle {
+  width: 100%;
+  align-self: center;
+  float: center;
 }
 
-.featured h2{
+.middle h2 {
   color: white;
   text-align: center;
   font-size: 35px;
-  border-bottom: solid white;
-}
-.order_search{
-width:15%;
-float:right;
-padding-right:2%;
 }
 
-#container { width: 80%; margin-left: auto; margin-right: auto;}
-
-.table {
-color:white !important;
+.search {
+  width: 100%;
+  float: right;
+  padding-right: 2%;
 }
 
-.table tbody tr:hover{
-color:#ababab;
+.last table{
+  color: white;
 }
 
+#container {
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: transparent !important;
+}

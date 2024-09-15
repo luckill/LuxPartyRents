@@ -40,6 +40,7 @@ public class Customer
     private String zipCode;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "customer", cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<Order> orders = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
