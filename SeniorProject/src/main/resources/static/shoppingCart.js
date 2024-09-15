@@ -76,6 +76,12 @@ function duplicateCartItem(item) {
     let clonedItemAmount = clonedCartItem.querySelector("#itemAmountInput");
     clonedItemAmount.id = "cloned" + item.name.replace(/\s+/g, '') + "CartAmount"
     clonedItemAmount.value = item.amount;
+
+    let clonedItemCost = clonedCartItem.querySelector("#itemCost");
+    clonedItemCost.id = "cloned" + item.name.replace(/\s+/g, '') + "CartCost"
+    console.log(item.name + ": " + item.price);
+    clonedItemCost.innerHTML = "$"+item.price;
+    
     clonedItemAmount.addEventListener("input", function() {
         if (parseInt(this.value)) {
             // Reflect changes onto the otherside
@@ -145,6 +151,7 @@ function duplicateTotalItem(item) {
     clonedItemAmount.innerHTML = "x"+item.amount;
 
     let clonedItemCost = clonedTotalItem.querySelector("#itemCost");
+    clonedItemCost.id = "cloned" + item.name.replace(/\s+/g, '') + "TotalCost"
     clonedItemCost.innerHTML = "$"+item.price;
 
     // Append
