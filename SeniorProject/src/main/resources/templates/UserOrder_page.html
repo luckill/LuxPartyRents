@@ -14,38 +14,35 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
     <style>
-        .middle h2{
-            color: white;
-            text-align: center;
-            font-size: 35px;
-        }
+
     </style>
 </head>
 
 <body class="bg-transparent">
-<div th:replace="~{Navbar :: header}"></div>
-<div th:replace="~{Navbar :: navbar}"></div>
-<section class="middle">
-    <h2>Rentals</h2>
-</section>
+    <div th:replace="~{Navbar :: header}"></div>
+    <div th:replace="~{Navbar :: navbar}"></div>
+    <div class="container">
+        <section class="middle">
+            <h2>Rentals</h2>
+        </section>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Order ID</th>
-            <th>Date</th>
-            <th>Paid</th>
-            <th>Price</th>
-            <th>Rental Time</th>
-            <th>Status</th>
-           
-        </tr>
-    </thead>
-    <tbody id="orders-container">
-        <!-- Orders will be dynamically added here -->
-    </tbody>
-</table>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Payment Status</th>
+                    <th>Price</th>
+                    <th>Rental Time</th>
+                    <th>Status</th>
 
+                </tr>
+            </thead>
+            <tbody id="orders-container">
+                <!-- Orders will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
 <script>
     // Function to load all orders (initial load)
     async function loadOrders() {
