@@ -103,4 +103,11 @@ public class OrderController {
         Order order = orderRepository.findById(id).orElse(null);
         return order != null ? order.getProducts() : null;
     }
+
+    @GetMapping(path="/getOrderByCustomerId")
+    public @ResponseBody List<Order> getOrderByCustomreId(@RequestParam int id)
+    {
+        Customer customer = customerRepository.findById(id).orElse(null);
+        return customer != null ? customer.getOrders() : null;
+    }
 }
