@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.*;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -30,6 +32,7 @@ public class OrderController
     @Autowired
     private OrderProductRepository orderProductRepository;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping("/create")
     @Transactional
@@ -39,12 +42,12 @@ public class OrderController
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ERROR!!! - Order with this ID already exists.");
         }
-        Customer customer = customerRepository.findById(id).orElse(null);
+        Customer customer = customerRepository.getCustomerById(id);
         if (customer == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - Customer not found");
         }
-        Order order = new Order(orderDTO.getDate(), orderDTO.getRentalTime(), orderDTO.isPaid(), orderDTO.getStatus());
+        Order order = new Order(orderDTO.getDate(), orderDTO.getRentalTime(),  orderDTO.isPaid(), orderDTO.getStatus());
         order.setId(orderDTO.getId());  // Manually assigning the ID
         order.setCustomer(customer);
         order = orderRepository.save(order);
@@ -52,15 +55,11 @@ public class OrderController
         for (OrderProductDTO orderProductDTO : orderDTO.getOrderProducts())
         {
             ProductDTO productDTO = orderProductDTO.getProduct();
-            Product product = productRepository.findById(productDTO.getId()).orElse(null);
-            if (product == null)
-            {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - Product not found");
-            }
+            Product product = productRepository.findById(productDTO.getId()).orElseThrow(() -> new RuntimeException("Product not found"));
             int quantity = orderProductDTO.getQuantity();
             if (quantity > product.getQuantity())
             {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ERROR! - Insufficient product quantity.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("hahahah");
             }
             totalPrice += product.getPrice() * quantity;
             product.setQuantity(product.getQuantity() - quantity);
@@ -79,9 +78,10 @@ public class OrderController
     public @ResponseBody
     List<OrderDTO> getAllOrders()
     {
-        List<Order> orders = orderRepository.findAll();
-        List<OrderDTO> orderDTOs = orders.stream().map(this::mapToOrderDTO).collect(Collectors.toList());
-        return ResponseEntity.ok(orderDTOs).getBody();
+       List<Order> orders = orderRepository.findAll();
+       List<OrderDTO> orderDTOs = orders.stream().map(this::mapToOrderDTO).collect(Collectors.toList());
+
+    return ResponseEntity.ok(orderDTOs).getBody();
     }
 
     // Read a single order by ID
@@ -160,8 +160,8 @@ public class OrderController
         return ResponseEntity.status(HttpStatus.OK).body(orderProductDTOs);
     }
 
-    @GetMapping(path = "/getOrderByCustomerId")
-    public ResponseEntity<?> getOrderByCustomerId(@RequestParam int id)
+    @GetMapping(path="/getOrderByCustomerId")
+    public ResponseEntity<?> getOrderByCustomreId(@RequestParam int id)
     {
         Customer customer = customerRepository.findById(id).orElse(null);
         if (customer == null)
@@ -174,20 +174,21 @@ public class OrderController
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No orders associate with this customer found");
         }
-
+        
         List<OrderDTO> orderDTOs = orders.stream().map(this::mapToOrderDTO).toList();
         return ResponseEntity.status(HttpStatus.OK).body(orderDTOs);
     }
 
-    private OrderDTO mapToOrderDTO(Order order)
-    {
+    private OrderDTO mapToOrderDTO(Order order) {
         Set<OrderProductDTO> orderProductDTOs = order.getOrderProducts().stream()
-                .map(orderProduct -> new OrderProductDTO(orderProduct.getQuantity(), new ProductDTO(orderProduct.getProduct().getId(), orderProduct.getProduct().getName(), orderProduct.getProduct().getPrice())))
-                .collect(Collectors.toSet());
+            .map(orderProduct -> new OrderProductDTO(orderProduct.getQuantity(), new ProductDTO(orderProduct.getProduct().getId(), orderProduct.getProduct().getName(),orderProduct.getProduct().getPrice())))
+            .collect(Collectors.toSet());
         OrderDTO orderDTO = new OrderDTO(order.getDate(), order.getRentalTime(), order.isPaid(), order.getStatus());
         orderDTO.setPrice(order.getPrice());
         orderDTO.setId(order.getId());
         orderDTO.setOrderProducts(orderProductDTOs);
         return orderDTO;
     }
+
+
 }
