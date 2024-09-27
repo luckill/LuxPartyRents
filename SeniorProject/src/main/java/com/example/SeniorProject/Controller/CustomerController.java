@@ -77,7 +77,7 @@ public class CustomerController
     }
 
     @GetMapping("/getCustomer/{id}")
-    public @ResponseBody Iterable<Customer> getUserById(@PathVariable int id) {
+    public @ResponseBody Customer getUserById(@PathVariable int id) {
         return customerRepository.getCustomerById(id);
     }
 

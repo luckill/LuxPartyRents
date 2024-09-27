@@ -100,13 +100,15 @@
             if (checkPasswordAndEmail()) {
                 document.getElementById('error').innerText = "";
                 event.preventDefault();
-                fetch('/customer/signup',
+                const formData = new FormData(event.target);
+                const formDataObj = Object.fromEntries(formData);
+                fetch('/auth/signup',
                     {
                         method: 'POST',
                         headers:
-                        {
-                            'Content-Type': 'application/json',
-                        },
+                            {
+                                'Content-Type': 'application/json',
+                            },
                         body: JSON.stringify(Object.fromEntries(new FormData(event.target)))
                     })
                     .then(response => {
