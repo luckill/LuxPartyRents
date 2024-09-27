@@ -6,9 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
             event.preventDefault(); // Prevent default form submission
 
             var kw = document.getElementById("product-search").value;
-            if (kw.trim() !== "") {
-                window.location.href = "rental?kw=" + encodeURIComponent(kw);
-            }
+            window.location.href = "rental?kw=" + encodeURIComponent(kw);
         });
     }
 });
@@ -23,28 +21,30 @@ document.addEventListener("DOMContentLoaded", function() {
         filterItems(kw);
     }
 });
-
+// I basically need to reroute this to work with the new rental page.
 function filterItems(keyword) {
      // get the text from the textbox
-    const textLine = keyword.toLowerCase();
+    const textLine = keyword.toLowerCase().replace(/\s+/g, '');
     // set the search bar to the keyword
-    const searchBar = document.getElementById("product-search").value = keyword;
-    const items = document.querySelectorAll("option");
+    document.getElementById("product-search").value = keyword;
+    
+    //const items = document.querySelectorAll("option");
+    const itemFrames = document.querySelectorAll(".item-frame");
     // if textLine is nul then just return
     if (textLine.length === 0) {resetAllItems(items);}
-    // check wether or not the text is apart of one of the id
-    items.forEach(item => {
+    // Go through each itemFrame and filter
+    itemFrames.forEach(item => {
         // if value doesn't contain anything from the text line then set display to none
-        const itemName = item.value.replace(/\s+/g, '-').toLowerCase();
-        if (!item.value.toLowerCase().includes(textLine)) {
-            console.log(itemName);
-            document.getElementById(itemName).setAttribute("style", "display: none;");
-        } else { document.getElementById(itemName).setAttribute("style", "display: ;"); }
+        const itemName = item.querySelector(".item-name").id;
+        if (!itemName.toLowerCase().includes(textLine)) {
+            item.classList.add("d-none");
+        } else { item.classList.remove("d-none"); }
     })
 }
 
 function resetAllItems(items) {
+    // set all display none
     items.forEach(item => {
-        item.setAttribute("style", "display: ;")
+        item.classList.add("d-none");
     })
 }
