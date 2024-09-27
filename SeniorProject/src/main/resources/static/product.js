@@ -1,5 +1,12 @@
 window.onload = function(){
-    fetch('/product/getAll')
+    fetch('/product/getAll',{
+        method: "GET",
+        headers:
+        {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+        }
+    })
       .then(response => response.json())
       .then(res => {
         const data = res;
@@ -99,6 +106,7 @@ function updateProduct() {
       headers:
       {
         'Content-Type': 'application/json',
+        "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
       },
       body: JSON.stringify(Object.fromEntries(formData))
     })
@@ -124,6 +132,7 @@ function deleteProduct(id) {
       headers:
       {
         'Content-Type': 'application/json',
+        "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
       },
       body: JSON.stringify(Object.fromEntries(formData))
     })
@@ -193,6 +202,7 @@ function addProduct() {
       headers:
       {
         'Content-Type': 'application/json',
+        "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
       },
       body: JSON.stringify(Object.fromEntries(formData))
     })

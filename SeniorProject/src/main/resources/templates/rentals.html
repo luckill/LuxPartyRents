@@ -98,14 +98,14 @@
                     productDiv.className = 'col-md-3 item-frame';
                     productDiv.innerHTML = `
                         <div class="dropdown">
-                            <img src="picture/items/${product.location}.jpg" class="rounded" alt="Error" width=450" height="450">
+                            <img src="https://d3snlw7xiuobl9.cloudfront.net/${product.location}.jpg" class="rounded" alt="Error" width=450" height="450">
                             <div class="item-name">
                                 <div class="itemdesc">${product.name}</div>
                                 <div class="itemdesc">$${product.price.toFixed(2)} USD</div>
                             </div>
                             <div class="dropdown-content">
                                 <button id="openModalButton" onclick="openModal()">
-                                    <img src="picture/items/${product.location}.jpg" class="rounded" alt="Error" width="500" height="500">
+                                    <img src="https://d3snlw7xiuobl9.cloudfront.net/${product.location}.jpg" class="rounded" alt="Error" width="500" height="500">
                                 </button>
                                 <div class="product-info">
                                     <div class="itemdesc">${product.name}</div>
