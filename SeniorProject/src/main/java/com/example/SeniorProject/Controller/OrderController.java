@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,6 +38,7 @@ public class OrderController
 
     @PostMapping("/create")
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> createOrder(@RequestParam(name = "id") int id, @RequestBody OrderDTO orderDTO)
     {
         if (orderRepository.existsById(orderDTO.getId()))
@@ -74,7 +77,8 @@ public class OrderController
     }
 
     // Read all orders with pagination
-    @GetMapping(path = "/getAll")
+    @GetMapping(path="/getAll")
+    @PreAuthorize("isAuthenticated()")
     public @ResponseBody
     List<OrderDTO> getAllOrders()
     {
@@ -85,9 +89,9 @@ public class OrderController
     }
 
     // Read a single order by ID
-    @GetMapping(path = "/getById")
-    public ResponseEntity<?> getOrderById(@RequestParam int id)
-    {
+    @GetMapping(path="/getById")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getOrderById(@RequestParam int id) {
         Order order = orderRepository.findById(id).orElse(null);
         if (order == null)
         {
@@ -99,6 +103,7 @@ public class OrderController
     }
 
     @PutMapping(path ="/update")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<?> updateOrder ( @RequestBody OrderDTO orderDTO)
     {
         Order order = orderRepository.findById(orderDTO.getId()).orElse(null);
@@ -129,6 +134,7 @@ public class OrderController
 
     // Delete an order
     @DeleteMapping(path="/delete")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> deleteOrder(@RequestParam int id)
     {
         try
@@ -148,6 +154,7 @@ public class OrderController
     }
 
     @GetMapping(path="/getOrderProductsByOrderId")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getOrderProductsByOrderId(@RequestParam int id) {
         Order order = orderRepository.findById(id).orElse(null);
         if (order == null)
@@ -160,8 +167,9 @@ public class OrderController
         return ResponseEntity.status(HttpStatus.OK).body(orderProductDTOs);
     }
 
-    @GetMapping(path="/getOrderByCustomerId")
-    public ResponseEntity<?> getOrderByCustomreId(@RequestParam int id)
+    @GetMapping(path = "/getOrderByCustomerId")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getOrderByCustomerId(@RequestParam int id)
     {
         Customer customer = customerRepository.findById(id).orElse(null);
         if (customer == null)
