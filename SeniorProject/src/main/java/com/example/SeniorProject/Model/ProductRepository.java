@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
     List<Product> getProductByType(String type);
 
     @Query(" SELECT p FROM Product p WHERE p.id=?1")
-    Product getProductById(int id);
+    List<Product> getProductById(int id);
 
     @Transactional
     @Modifying

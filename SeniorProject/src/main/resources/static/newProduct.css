@@ -135,6 +135,18 @@ body {
     font: 14px/16px'Bree Serif', Georgia, serif;
 }
 
+#contact #form input.delete {
+    cursor: pointer;
+    width: 85px;
+    height: 30px;
+    float: right;
+    padding: 0px 0px 5px 0px;
+    margin: 10px 10px 0px 0px;
+    background: #222222;
+    color: #F1F1F1;
+    font: 14px/16px'Bree Serif', Georgia, serif;
+}
+
 #contact #hero{
     width: 100%;
     min-height: 100vh;
