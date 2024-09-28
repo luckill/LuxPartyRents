@@ -117,6 +117,7 @@ function filterTypes(typeChosen) {
         itemFrames.forEach(item => {
             item.classList.remove("d-none");
         })
+        document.getElementById("product-search").focus();
         return;
     }
     // Go through each itemFrame and filter
@@ -127,6 +128,6 @@ function filterTypes(typeChosen) {
             item.classList.add("d-none");
         } else { item.classList.remove("d-none"); }
     }) 
-    document.getElementById("product-search").focus();
 
+    document.getElementById("product-search").focus();
 }
