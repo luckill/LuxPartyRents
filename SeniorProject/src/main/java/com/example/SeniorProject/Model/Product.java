@@ -111,4 +111,9 @@ public class Product {
     public void setOrderProducts(Set<OrderProduct> orderProducts) {
         this.orderProducts = orderProducts;
     }
+
+    public void setPrice(double price)
+    {
+        this.price = price;
+    }
 }
