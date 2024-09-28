@@ -29,7 +29,7 @@ public class OrderController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // Create a new order (SCRUM-100)
+    // Create a new order
     @PostMapping(path="/create")
     public @ResponseBody String createOrder(@RequestBody String orderJson) {
         try {
@@ -125,13 +125,19 @@ public class OrderController {
         try {
             Order order = objectMapper.readValue(orderJson, Order.class);
 
-            // Logic to handle order return
+            // Update the order status to "Returned"
+            order.setStatus("Returned");
 
-            // Send notification to admin for successful return
+            // Save the updated order
+            orderRepository.save(order);
+
+            // Send notification to both admin and customer for successful return
             sendAdminNotification("Order Returned",
                     "Order ID " + order.getId() + " has been successfully returned by "
                             + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
                     order);
+
+            sendCustomerReturnNotification(order);
 
             return "Order returned successfully";
         } catch (Exception e) {
@@ -165,7 +171,7 @@ public class OrderController {
     // Helper method to send email notifications to the admin
     private void sendAdminNotification(String subject, String messageBody, Order order) {
         EmailDetails adminEmailDetails = new EmailDetails();
-        adminEmailDetails.setRecipient("hkaur19@csus.edu");  // Replace with admin email
+        adminEmailDetails.setRecipient("190project2024@gmail.com"); //email of admin
         adminEmailDetails.setSubject(subject);
 
         String emailBody = messageBody +
@@ -175,5 +181,19 @@ public class OrderController {
 
         adminEmailDetails.setMessageBody(emailBody);
         emailService.sendSimpleEmail(adminEmailDetails);
+    }
+
+    // Helper method to send email notifications to the customer when the order is returned
+    private void sendCustomerReturnNotification(Order order) {
+        EmailDetails customerEmailDetails = new EmailDetails();
+        customerEmailDetails.setRecipient(order.getCustomer().getEmail());
+        customerEmailDetails.setSubject("Order Returned Successfully");
+
+        String emailBody = "Dear " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName() + "," +
+                "\n\nYour order with ID: " + order.getId() + " has been successfully returned." +
+                "\n\nThank you for shopping with us!";
+
+        customerEmailDetails.setMessageBody(emailBody);
+        emailService.sendSimpleEmail(customerEmailDetails);
     }
 }
