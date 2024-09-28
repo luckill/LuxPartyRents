@@ -94,4 +94,9 @@ public class Product
     public void setLocation(String location) {
         this.location = location;
     }
+
+    public void setPrice(double price)
+    {
+        this.price = price;
+    }
 }
