@@ -20,7 +20,7 @@ public class OrderProduct {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("productId")
     @JoinColumn(name = "product_id", foreignKey = @ForeignKey(name = "FK_PRODUCT"))
-    @JsonManagedReference
+    @JsonManagedReference("product_info")
     private Product product;
 
     @Column(name = "quantity")

@@ -34,7 +34,7 @@ public class Product {
     private String description;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @JsonManagedReference("order_product")
     private Set<OrderProduct> orderProducts = new HashSet<>();
 
     public Product() {
@@ -49,6 +49,7 @@ public class Product {
         this.description = description;
         this.location = location;
     }
+
 
     // Getters and Setters
 
