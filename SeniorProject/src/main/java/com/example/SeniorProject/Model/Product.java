@@ -48,8 +48,14 @@ public class Product {
         this.name = name;
         this.description = description;
         this.location = location;
+        this.name = name;
+        this.description = description;
+        this.location = location;
     }
 
+    // Getters and Setters
+
+    public int getId() {
     // Getters and Setters
 
     public int getId() {
