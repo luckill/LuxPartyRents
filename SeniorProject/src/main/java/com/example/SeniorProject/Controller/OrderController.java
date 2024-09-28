@@ -1,9 +1,11 @@
 package com.example.SeniorProject.Controller;
 
+import com.example.SeniorProject.Email.EmailDetails;
+import com.example.SeniorProject.Service.EmailService;
 import com.example.SeniorProject.Model.Order;
 import com.example.SeniorProject.Model.OrderRepository;
 import com.example.SeniorProject.Model.Customer;
-import com.example.SeniorProject.Model.CustomerRepository; // Import for CustomerRepository
+import com.example.SeniorProject.Model.CustomerRepository;
 import com.example.SeniorProject.Model.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +22,14 @@ public class OrderController {
     private OrderRepository orderRepository;
 
     @Autowired
-    private CustomerRepository customerRepository; // Add CustomerRepository to handle Customer persistence
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // Create a new order
+    // Create a new order (SCRUM-100)
     @PostMapping(path="/create")
     public @ResponseBody String createOrder(@RequestBody String orderJson) {
         try {
@@ -34,23 +39,27 @@ public class OrderController {
             // Check if the customer already exists
             Customer customer = order.getCustomer();
             if (customer != null) {
-                // If the customer has an ID, fetch it from the database
                 if (customer.getId() != 0) {
                     Customer existingCustomer = customerRepository.findById(customer.getId()).orElse(null);
                     if (existingCustomer != null) {
-                        order.setCustomer(existingCustomer); // Attach existing customer to the order
+                        order.setCustomer(existingCustomer);
                     } else {
-                        // If the customer ID is provided but not found in DB, save the new customer
                         customerRepository.save(customer);
                     }
                 } else {
-                    // If the customer doesn't have an ID, it's a new customer, so save it first
                     customerRepository.save(customer);
                 }
             }
 
             // Save the order after handling the customer
             orderRepository.save(order);
+
+            // Send notification to admin for new order
+            sendAdminNotification("New Order Placed",
+                    "A new order has been placed by "
+                            + customer.getFirstName() + " " + customer.getLastName(),
+                    order);
+
             return "Order created successfully";
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,10 +67,9 @@ public class OrderController {
         }
     }
 
-    // Read all orders with pagination
+    // Read all orders
     @GetMapping(path="/getAll")
-    public @ResponseBody
-    List<Order> getAllOrders() {
+    public @ResponseBody List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
@@ -104,10 +112,68 @@ public class OrderController {
         return order != null ? order.getProducts() : null;
     }
 
+    // Get orders by customer ID
     @GetMapping(path="/getOrderByCustomerId")
-    public @ResponseBody List<Order> getOrderByCustomreId(@RequestParam int id)
-    {
+    public @ResponseBody List<Order> getOrderByCustomerId(@RequestParam int id) {
         Customer customer = customerRepository.findById(id).orElse(null);
         return customer != null ? customer.getOrders() : null;
+    }
+
+    // Return an order
+    @PostMapping(path="/return")
+    public @ResponseBody String returnOrder(@RequestBody String orderJson) {
+        try {
+            Order order = objectMapper.readValue(orderJson, Order.class);
+
+            // Logic to handle order return
+
+            // Send notification to admin for successful return
+            sendAdminNotification("Order Returned",
+                    "Order ID " + order.getId() + " has been successfully returned by "
+                            + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
+                    order);
+
+            return "Order returned successfully";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error returning order";
+        }
+    }
+
+    // Cancel an order
+    @PostMapping(path="/cancel")
+    public @ResponseBody String cancelOrder(@RequestBody String orderJson) {
+        try {
+            Order order = objectMapper.readValue(orderJson, Order.class);
+
+            // Logic to handle order cancellation
+            orderRepository.deleteById(order.getId());
+
+            // Send notification to admin for order cancellation
+            sendAdminNotification("Order Canceled",
+                    "Order ID " + order.getId() + " has been canceled by "
+                            + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
+                    order);
+
+            return "Order canceled successfully";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error canceling order";
+        }
+    }
+
+    // Helper method to send email notifications to the admin
+    private void sendAdminNotification(String subject, String messageBody, Order order) {
+        EmailDetails adminEmailDetails = new EmailDetails();
+        adminEmailDetails.setRecipient("hkaur19@csus.edu");  // Replace with admin email
+        adminEmailDetails.setSubject(subject);
+
+        String emailBody = messageBody +
+                "\nOrder ID: " + order.getId() +
+                "\nCustomer: " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName() +
+                "\nTotal Amount: $" + order.getPrice();
+
+        adminEmailDetails.setMessageBody(emailBody);
+        emailService.sendSimpleEmail(adminEmailDetails);
     }
 }
