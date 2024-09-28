@@ -36,9 +36,16 @@
                                 <a class="nav-link" href="/about">About Us</a>
                             </li>
                         </ul>
-                        <form class="d-flex" id="other-page-form" role="search" method="get" action="/rental">
+                        <form class="d-flex input-group w-50" id="other-page-form" role="search" method="get" action="/rental">
+                            <label id="filterLabel" class="input-group-text d-none" for="filterSelector">Filter</label>
+                            <select id="filterSelector" class="form-select d-none">
+                              <option selected>None</option>
+                              <option value="1">Kitchenware</option>
+                              <option value="2">Decoration</option>
+                              <option value="3">Table</option>
+                            </select>
                             <input class="form-control me-2" type="search" placeholder="Search Products" name="kw" aria-label="Search" id="product-search">
-                            <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
+                            <button class="btn btn-outline-light item-search-btn rounded-3" type="submit">Search</button>
                         </form>
                     </div>
                 </div>
