@@ -48,37 +48,37 @@ public class Product {
         this.name = name;
         this.description = description;
         this.location = location;
-        this.name = name;
-        this.description = description;
-        this.location = location;
     }
 
     // Getters and Setters
 
-    public int getId() {
-    // Getters and Setters
-
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(int id)
+    {
         this.id = id;
     }
 
-    public int getQuantity() {
+    public int getQuantity()
+    {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(int quantity)
+    {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public double getPrice()
+    {
         return price;
     }
 
-    public String getType() {
+    public String getType()
+    {
         return type;
     }
 
@@ -98,23 +98,28 @@ public class Product {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(String location)
+    {
         this.location = location;
     }
 
-    public String getDescription() {
+    public String getDescription()
+    {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(String description)
+    {
         this.description = description;
     }
 
-    public Set<OrderProduct> getOrderProducts() {
+    public Set<OrderProduct> getOrderProducts()
+    {
         return orderProducts;
     }
 
-    public void setOrderProducts(Set<OrderProduct> orderProducts) {
+    public void setOrderProducts(Set<OrderProduct> orderProducts)
+    {
         this.orderProducts = orderProducts;
     }
 
