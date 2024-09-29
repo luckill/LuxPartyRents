@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.*;
@@ -26,9 +27,7 @@ public class Account implements UserDetails
     @Size(min = 8, message = "password must be at least 8 character long")
     @Column(name = "password")
     private String password;
-    @NotNull
-    @Column(name = "is_admin")
-    private boolean isAdmin;
+
     @NotNull
     @Column(name = "is_verified")
     private boolean isVerified;
@@ -38,6 +37,10 @@ public class Account implements UserDetails
     @NotNull
     @Column(name = "account_locked")
     private boolean isLocked;
+
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
+    private Role role;
 
     @OneToOne(mappedBy = "account")
     @JsonBackReference
@@ -52,7 +55,6 @@ public class Account implements UserDetails
     {
         this.email = email;
         this.password = password;
-        this.isAdmin = isAdmin;
         this.failedLoginAttempt = 0;
         this.isLocked = false;
     }
@@ -60,7 +62,9 @@ public class Account implements UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
-        return List.of();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getName().toString());
+
+        return List.of(authority);
     }
 
 
@@ -103,15 +107,6 @@ public class Account implements UserDetails
         return customer;
     }
 
-    public boolean isAdmin()
-    {
-        return isAdmin;
-    }
-
-    public void setAdmin(boolean admin)
-    {
-        isAdmin = admin;
-    }
 
     public String getPassword()
     {
@@ -153,11 +148,21 @@ public class Account implements UserDetails
         this.isLocked = isLocked;
     }
 
+
     public boolean isVerified() {
         return isVerified;
     }
 
     public void setVerified(boolean verified) {
         isVerified = verified;
+    }
+    public Role getRole() {
+        return role;
+    }
+
+    public Account setRole(Role role) {
+        this.role = role;
+
+        return this;
     }
 }
