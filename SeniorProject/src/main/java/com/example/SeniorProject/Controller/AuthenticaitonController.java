@@ -32,7 +32,7 @@ public class AuthenticaitonController
     public ResponseEntity<?> register(@RequestBody RegisterUserDTO registerUserDTO)
     {
         authenticationService.signUp(registerUserDTO);
-        return ResponseEntity.ok("User created successfully. We send a verification email to the email account you entered. Please follow the email's instruction to verify your email.Unverified account and customer profile will be deleted at 12am Pacific Time");
+        return ResponseEntity.ok("Your account has been successfully created. A verification email has been sent to the address provided. Please follow the instructions in the email to verify your account. Unverified accounts and associated profiles will be automatically deleted at 12:00 AM Pacific Time.");
     }
 
     @PostMapping("/login")
@@ -51,7 +51,7 @@ public class AuthenticaitonController
         }
         catch (LockedException exception)
         {
-            return ResponseEntity.status(HttpStatus.LOCKED).body("you account id locked");
+            return ResponseEntity.status(HttpStatus.LOCKED).body("your account is id locked");
         }
     }
 }

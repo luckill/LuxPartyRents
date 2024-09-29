@@ -32,7 +32,15 @@ public class AuthenticationService
 	}
 
 	public void signUp(RegisterUserDTO input)
-        {
+  {
+      if (accountRepository.findAccountByEmail(input.getEmail()) != null )
+      {
+          throw new BadRequestException("AAn account associated with this email already exists.");
+      }
+		  if(customerRepository.findAccountByCustomerName(input.getFirstName(), input.getLastName()) != null)
+      {
+          throw new BadRequestException("An account associated with your name already exists. Please log in instead. If you are trying to create a new account, please delete the current one first.");
+      }
                 Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
                 if (accountRepository.findAccountByEmail(input.getEmail()) != null )
                 {
@@ -50,7 +58,7 @@ public class AuthenticationService
                 accountRepository.save(account);
                 customer.setAccount(account);
                 customerRepository.save(customer);
-        }
+      }
 
         public Account authenticate(LoginUserDTO input)
         {
