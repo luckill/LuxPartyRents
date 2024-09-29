@@ -34,11 +34,11 @@ public class AuthenticationService
     {
         if (accountRepository.findAccountByEmail(input.getEmail()) != null )
         {
-            throw new BadRequestException("Account associated by this email already exists");
+            throw new BadRequestException("AAn account associated with this email already exists.");
         }
 		if(customerRepository.findAccountByCustomerName(input.getFirstName(), input.getLastName()) != null)
         {
-            throw new BadRequestException("An account that is associate with your name already existed. please login instead. if you are trying to recreate n account please delete for current account first.");
+            throw new BadRequestException("An account associated with your name already exists. Please log in instead. If you are trying to create a new account, please delete the current one first.");
         }
         Customer customer = new Customer(input.getFirstName(), input.getLastName(), input.getEmail(), input.getPhoneNumber(),"","","","");
         Account account = new Account(input.getEmail(), passwordEncoder.encode(input.getPassword()), false);

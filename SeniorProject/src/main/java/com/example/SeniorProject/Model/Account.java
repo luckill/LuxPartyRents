@@ -152,4 +152,12 @@ public class Account implements UserDetails
     {
         this.isLocked = isLocked;
     }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
+    }
 }
