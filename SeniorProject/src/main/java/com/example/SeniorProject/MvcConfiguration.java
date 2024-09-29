@@ -12,7 +12,7 @@ public class MvcConfiguration implements WebMvcConfigurer
         registry.addViewController("/login").setViewName("Login");
         registry.addViewController("/forgetPassword").setViewName("forgetPasswordForm");
         registry.addViewController("/about").setViewName("about");
-        registry.addViewController("/signUp").setViewName("signup");
+        registry.addViewController("/signup").setViewName("signup");
         registry.addViewController("/gallery").setViewName("gallery");
         registry.addViewController("/rental").setViewName("rentals");
         registry.addViewController("/shoppingCart").setViewName("shoppingCart"); 
@@ -29,5 +29,6 @@ public class MvcConfiguration implements WebMvcConfigurer
         registry.addViewController("/paymentBad").setViewName("paymentBad");
         registry.addViewController("/newProduct").setViewName("newProduct");
         registry.addViewController("/theProduct").setViewName("theProduct");
+        registry.addViewController("/order_detail").setViewName("order_detail");
     }
 }
