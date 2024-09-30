@@ -1,11 +1,10 @@
 package com.example.SeniorProject.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 @Entity
@@ -13,7 +12,7 @@ import java.util.Set;
 public class Order {
 
     @Id
-    @Column(name = "order_id")
+    @Column(name = "order_id", unique = true, nullable = false)
     private int id;
 
     @NotNull
@@ -41,29 +40,33 @@ public class Order {
     @JsonBackReference
     private Customer customer;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private Set<OrderProduct> orderProducts = new HashSet<>();
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinTable(name = "order_product", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
+    private Set<Product> products = new HashSet<>();
 
-    public Order(String date, int rentalTime, boolean paid, String status) {
+    // Constructor that assigns a random unique int as the order ID
+    public Order(String date, int rentalTime, boolean paid, String status, double price, Customer customer) {
+        this.id = generateRandomUniqueOrderId();  // Generate random int for order_id
         this.date = date;
         this.rentalTime = rentalTime;
         this.paid = paid;
         this.status = status;
+        this.price = price;
+        this.customer = customer;
     }
 
     public Order() {
-        // Default constructor
+        this.id = generateRandomUniqueOrderId();  // Generate random int for order_id in default constructor
     }
 
-    // Add product to the order with quantity
-    public void addProduct(Product product, int quantity) {
-        OrderProduct orderProduct = new OrderProduct(this, product, quantity);
-        orderProducts.add(orderProduct);
-        product.getOrderProducts().add(orderProduct); // Associate product with the order
+    // Generate a random unique int for the order ID
+    private int generateRandomUniqueOrderId() {
+        Random random = new Random();
+        return random.nextInt(Integer.MAX_VALUE);  // Generates a random positive integer
     }
 
     // Getters and Setters
+
     public int getId() {
         return id;
     }
@@ -120,11 +123,11 @@ public class Order {
         this.customer = customer;
     }
 
-    public Set<OrderProduct> getOrderProducts() {
-        return orderProducts;
+    public Set<Product> getProducts() {
+        return products;
     }
 
-    public void setOrderProducts(Set<OrderProduct> orderProducts) {
-        this.orderProducts = orderProducts;
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 }
