@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Email;
 import java.util.HashMap;
 
 @RestController
@@ -81,6 +82,70 @@ public class EmailController
         // Sending the email
         return emailService.sendSimpleEmail(details);
     }
+
+
+
+
+
+
+    // User/CX Email notifications
+    private void sendCxPickupNotification ( Order order){
+        //setting the up the email
+        EmailDetails CxEmailDetails = new EmailDetails();
+        CxEmailDetails.setRecipient(order.getCustomer().getEmail());
+        CxEmailDetails.setSubject("Wedding Rental Pickup Reminder");
+
+        //filling the email body
+        String emailBody = "Thank you for coming to us for your rental needs!\n"
+                + "Here is an important reminder for your rental pickup.\n"
+                + order.getCustomer().getFirstName() + " "
+                + order.getCustomer().getLastName() + " your Order, "
+                + order.getID() + " pickup is on, " + order.getDate();
+
+        //sending email
+        CxEmailDetails.setMessageBody(emailBody);
+        emailService.sendSimpleEmail(CxEmailDetails);
+
+    }//Pickup
+
+    private void sendCxReturnNotification ( Order order){
+        //setting the up the email
+        EmailDetails CxEmailDetails = new EmailDetails();
+        CxEmailDetails.setRecipient(order.getCustomer().getEmail());
+        CxEmailDetails.setSubject("Wedding Rental Return Reminder");
+
+        //filling the email body
+        String emailBody = "I hope your special day was memory worthy!\n"
+                + "Below is important return information for your rental\n"
+                + order.getCustomer().getFirstName() + " "
+                + order.getCustomer().getLastName() + " your Order, "
+                + order.getID() + " return is on, " + order.getRentalTime();
+
+        //sending email
+        CxEmailDetails.setMessageBody(emailBody);
+        emailService.sendSimpleEmail(CxEmailDetails);
+
+    }//Return
+
+    //Note that sendCxCanceledNotification requires a CanceledReason to be
+    //passed into the function for the email to be complete.
+    private void sendCxCanceledNotification ( String CanceledReason, Order order){
+        //setting the up the email
+        EmailDetails CxEmailDetails = new EmailDetails();
+        CxEmailDetails.setRecipient(order.getCustomer().getEmail());
+        CxEmailDetails.setSubject(" Important Wedding Rental Order Update");
+
+        //filling the email body
+        String emailBody = order.getCustomer().getFirstName() + " "
+                + order.getCustomer().getLastName() + " your Order, "
+                + order.getID() + " has been canceled for, " + CanceledReason
+                + "\n Please reach out to our service number for any questions.";
+
+        //sending email
+        CxEmailDetails.setMessageBody(emailBody);
+        emailService.sendSimpleEmail(CxEmailDetails);
+
+    }//Canceled
 
     private String generateVerificationToken(String email) {
         // Generating a random verification token logic goes here
