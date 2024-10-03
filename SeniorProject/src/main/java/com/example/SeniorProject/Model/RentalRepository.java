@@ -9,13 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface RentalRepository extends JpaRepository<Product, Integer> {
-
-    @Query("SELECT p.name FROM Product p")
-    List<String> findAllProductNames();
-
-    // New search method for keyword
     Page<Product> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
-
-    // New search method for type
-    Page<Product> findByTypeIgnoreCase(String type, Pageable pageable);
+    Page<Product> findByTypeIgnoreCase(String type, Pageable pageable); // Custom method for searching by type
 }

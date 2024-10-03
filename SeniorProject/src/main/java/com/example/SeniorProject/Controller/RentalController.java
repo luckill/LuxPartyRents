@@ -18,30 +18,30 @@ public class RentalController {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping(path="/getAll")
-public @ResponseBody Page<Product> getAllProducts(
-        @RequestParam(value = "kw", required = false) String keyword,
-        @RequestParam(value = "type", required = false) String type,
-        Pageable pageable) {
-    if (keyword != null && !keyword.isEmpty()) {
-        return rentalRepository.findByNameContainingIgnoreCase(keyword, pageable);
-    } else if (type != null && !type.isEmpty()) {
-        return rentalRepository.findByTypeIgnoreCase(type, pageable); // Custom method for searching by type
+    public @ResponseBody Page<Product> getAllProducts(
+            @RequestParam(value = "kw", required = false) String keyword,
+            @RequestParam(value = "type", required = false) String type,
+            Pageable pageable) {
+        if (keyword != null && !keyword.isEmpty()) {
+            return rentalRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        } else if (type != null && !type.isEmpty()) {
+            return rentalRepository.findByTypeIgnoreCase(type, pageable); // Custom method for searching by type
+        }
+        return rentalRepository.findAll(pageable);
     }
-    return rentalRepository.findAll(pageable);
-}
-
-    // New search method
+    
     @GetMapping(path = "/search")
     public @ResponseBody Page<Product> searchProducts(
             @RequestParam(name = "kw", required = false) String keyword,
             @RequestParam(name = "type", required = false) String type,
             Pageable pageable) {
+        
         if (keyword != null && !keyword.isEmpty()) {
-            return rentalRepository.findByNameContainingIgnoreCase(keyword, pageable);
+            return rentalRepository.findByNameContainingIgnoreCase(keyword, pageable); // Use pagination for keyword searches
         } else if (type != null && !type.isEmpty()) {
-            return rentalRepository.findByTypeIgnoreCase(type, pageable);
+            return rentalRepository.findByTypeIgnoreCase(type, pageable); // Use pagination for type searches
         } else {
-            return rentalRepository.findAll(pageable);
+            return rentalRepository.findAll(pageable); // Use pagination for fetching all products
         }
     }
-}
+    }
