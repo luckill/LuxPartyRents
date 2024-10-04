@@ -59,23 +59,62 @@
     </div>
 <script>
     // Function to load current orders
-    async function loadCurrentOrders() {
-        try {
-            const response = await fetch('http://localhost:8080/order/currentOrders?customerId=1');
+    async function loadCurrentOrders()
+    {
+        try
+        {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get("customerId");
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (!jwtToken)
+            {
+                console.error("No JWT token found.");
+                return;
+            }
+            const response = await fetch(`http://localhost:8080/order/currentOrders?customerId=${id}`,
+            {
+                method: 'GET',
+                headers:
+                {
+                    "Content_type": "application/json",
+                    "Authorization": `Bearer ${jwtToken}`
+                },
+            });
             const data = await response.json();
             renderOrders(data);
-        } catch (error) {
+        }
+        catch (error)
+        {
             console.error('Error fetching current orders:', error);
         }
     }
 
     // Function to load past orders
     async function loadPastOrders() {
-        try {
-            const response = await fetch('http://localhost:8080/order/pastOrders?customerId=1');
+        try
+        {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get("customerId");
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (!jwtToken)
+            {
+                console.error("No JWT token found.");
+                return;
+            }
+            const response = await fetch(`http://localhost:8080/order/pastOrders?customerId=${id}`,
+            {
+                method: 'GET',
+                headers:
+                {
+                    "Content_type": "application/json",
+                    "Authorization": `Bearer ${jwtToken}`
+                },
+            });
             const data = await response.json();
             renderOrders(data);
-        } catch (error) {
+        }
+        catch (error)
+        {
             console.error('Error fetching past orders:', error);
         }
     }

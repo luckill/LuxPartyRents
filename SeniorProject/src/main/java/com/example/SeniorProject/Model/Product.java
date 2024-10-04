@@ -34,7 +34,7 @@ public class Product {
     private String description;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("order_product")
+    @JsonBackReference("order_product")
     private Set<OrderProduct> orderProducts = new HashSet<>();
 
     public Product() {

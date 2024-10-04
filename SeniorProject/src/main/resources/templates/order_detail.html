@@ -99,14 +99,20 @@
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get("id");
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (!jwtToken)
+            {
+                console.error("No JWT token found.");
+                return;
+            }
 
             const response = await fetch(`/order/getById?id=${id}`,{
                 method: 'GET',
                 headers:
-                    {
-                        "Content_type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
-                    },
+                {
+                    "Content_type": "application/json",
+                    "Authorization": `Bearer ${jwtToken}`
+                },
             });
             if (response.ok)
             {
