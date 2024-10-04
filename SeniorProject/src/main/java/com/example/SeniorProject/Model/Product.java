@@ -1,7 +1,6 @@
 package com.example.SeniorProject.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,14 +20,14 @@ public class Product {
     @Column(name = "price")
     private double price;
 
+    @Column(name = "deposit")
+    private double deposit;
+
     @Column(name = "type")
     private String type;
 
     @Column(name = "name")
     private String name;
-
-    @Column(name = "location")
-    private String location;
 
     @Column(name = "description")
     private String description;
@@ -41,13 +40,13 @@ public class Product {
         // Default constructor
     }
 
-    public Product(int quantity, double price, String type, String name, String description, String location) {
+    public Product(int quantity, double price, String type, String name, String description) {
         this.quantity = quantity;
         this.price = price;
+        this.deposit = price / 2;
         this.type = type;
         this.name = name;
         this.description = description;
-        this.location = location;
     }
 
 
@@ -87,21 +86,14 @@ public class Product {
         this.type = type;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location)
+    public void setName(String name)
     {
-        this.location = location;
+        this.name = name;
     }
 
     public String getDescription()
@@ -127,5 +119,15 @@ public class Product {
     public void setPrice(double price)
     {
         this.price = price;
+    }
+
+    public double getDeposit()
+    {
+        return deposit;
+    }
+
+    public void setDeposit(double deposit)
+    {
+        this.deposit = deposit;
     }
 }

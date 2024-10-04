@@ -99,7 +99,7 @@ public class EmailController
                 + "Here is an important reminder for your rental pickup.\n"
                 + order.getCustomer().getFirstName() + " "
                 + order.getCustomer().getLastName() + " your Order, "
-                + order.getId() + " pickup is on, " + order.getDate();
+                + order.getId() + " pickup is on, " + order.getCreationDate();
 
         //sending email
         CxEmailDetails.setMessageBody(emailBody);
