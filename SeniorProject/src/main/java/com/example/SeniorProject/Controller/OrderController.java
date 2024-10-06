@@ -207,16 +207,16 @@ public class OrderController
     }
 
     @PutMapping(path = "/update")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<?> updateOrder(@RequestBody OrderDTO orderDTO)
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?> updateOrder(@RequestParam int orderId, @RequestBody OrderDTO orderDTO)
     {
-        Order order = orderRepository.findById(orderDTO.getId()).orElse(null);
+        Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - order not found");
         }
 
-        if (orderDTO.getRentalTime() == 0)
+        if (orderDTO.getRentalTime() != order.getRentalTime() && orderDTO.getRentalTime() != 0)
         {
             order.setRentalTime(orderDTO.getRentalTime());
         }
@@ -226,6 +226,10 @@ public class OrderController
         }
         if (!orderDTO.getStatus().equals(order.getStatus().toString()))
         {
+            if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.RETURNED)
+            {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Order is already returned or cancelled");
+            }
             order.setStatus(OrderStatus.valueOf(orderDTO.getStatus()));
         }
         orderRepository.save(order);
@@ -254,7 +258,6 @@ public class OrderController
     }
 
     @GetMapping(path = "/getOrderProductsByOrderId")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getOrderProductsByOrderId(@RequestParam int id)
     {
         Order order = orderRepository.findById(id).orElse(null);
@@ -320,6 +323,24 @@ public class OrderController
         return ResponseEntity.status(HttpStatus.OK).body(orderDTOs);
     }
 
+    @GetMapping("/getCustomerByOrderId")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getCustomerByOrderId(@RequestParam int orderId)
+    {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        Customer customer = customerRepository.findById(order.getCustomer().getId()).orElse(null);
+        if (customer == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found");
+        }
+        CustomerDTO customerDTO = new CustomerDTO(customer.getFirstName(), customer.getLastName(), customer.getEmail(), customer.getPhone());
+        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
+    }
+
     private OrderDTO mapToOrderDTO(Order order)
     {
         Set<OrderProductDTO> orderProductDTOs = order.getOrderProducts().stream()
@@ -336,7 +357,7 @@ public class OrderController
     private void sendAdminNotification(String subject, String messageBody, Order order)
     {
         EmailDetails adminEmailDetails = new EmailDetails();
-        adminEmailDetails.setRecipient("190project2024@gmail.com"); //email of admin
+        adminEmailDetails.setRecipient("zhijunli7799@gmail.com"); //email of admin
         adminEmailDetails.setSubject(subject);
 
         String emailBody = messageBody +

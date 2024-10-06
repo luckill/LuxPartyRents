@@ -71,7 +71,7 @@
                 console.error("No JWT token found.");
                 return;
             }
-            const response = await fetch(`http://localhost:8080/order/currentOrders?customerId=${id}`,
+            const response = await fetch(`/order/currentOrders?customerId=${id}`,
             {
                 method: 'GET',
                 headers:
@@ -101,12 +101,12 @@
                 console.error("No JWT token found.");
                 return;
             }
-            const response = await fetch(`http://localhost:8080/order/pastOrders?customerId=${id}`,
+            const response = await fetch(`/order/pastOrders?customerId=${id}`,
             {
                 method: 'GET',
                 headers:
                 {
-                    "Content_type": "application/json",
+                    "Content-type": "application/json",
                     "Authorization": `Bearer ${jwtToken}`
                 },
             });
@@ -120,13 +120,16 @@
     }
 
     // Function to render orders in the table
-    function renderOrders(orders) {
+    function renderOrders(orders)
+    {
         const container = document.getElementById('orders-container');
         container.innerHTML = ''; // Clear previous orders
 
         // Append orders to container
-        orders.forEach(order => {
+        orders.forEach(order =>
+        {
             const orderRow = document.createElement('tr');
+            orderRow.classList.add('clickable-row');
             orderRow.innerHTML = `
                 <td>${order.id}</td>
                 <td>${order.date}</td>
@@ -135,6 +138,9 @@
                 <td>${order.rentalTime}</td>
                 <td>${order.status}</td>
             `;
+            orderRow.addEventListener('click', () => {
+                window.location.href = `/order_detail?id=${order.id}`; // Change to the desired URL
+            });
             container.appendChild(orderRow);
         });
     }
