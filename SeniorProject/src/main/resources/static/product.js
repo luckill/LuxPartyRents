@@ -1,9 +1,15 @@
 window.onload = function() {
+    const jwtToken = localStorage.getItem('jwtToken');
+    if (!jwtToken)
+    {
+        console.error("No JWT token found.");
+        return;
+    }
     fetch('/product/getAll', {
         method: "GET",
         headers: {
             'Content-Type': 'application/json',
-            "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+            "Authorization": `Bearer ${jwtToken}`
         }
     })
     .then(response => response.json())
@@ -38,13 +44,19 @@ window.onload = function() {
 function updateProduct() {
   const form = document.getElementById('theProduct');
   let formData = new FormData(form);
+  const jwtToken = localStorage.getItem('jwtToken');
+  if (!jwtToken)
+  {
+        console.error("No JWT token found.");
+        return;
+  }
   fetch('/product/update',
     {
       method: 'POST',
       headers:
       {
         'Content-Type': 'application/json',
-        "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+        "Authorization": `Bearer ${jwtToken}`
       },
       body: JSON.stringify(Object.fromEntries(formData))
     })

@@ -7,10 +7,10 @@ public class ProductDTO
 	private int id;
 	private String name;
 	private double price;
+	private double deposit;
 	private int quantity;
 	private String type;
 	private String description;
-	private String location;
 
 	public ProductDTO()
 	{
@@ -22,18 +22,20 @@ public class ProductDTO
 		this.id = id;
 		this.name = name;
 		this.price = price;
+		this.deposit = this.price / 2;
 	}
 
-	public ProductDTO(int id, String name, double price, int quantity, String type, String description, String location)
+	public ProductDTO(int id, String name, double price, String type)
 	{
-		this(id,name,price);
-		this.id = id;
-		this.name = name;
-		this.price = price;
-		this.quantity = quantity;
+		this(id, name, price);
 		this.type = type;
+	}
+
+	public ProductDTO(int id, String name, double price, int quantity, String type, String description)
+	{
+		this(id,name,price, type);
+		this.quantity = quantity;
 		this.description = description;
-		this.location = location;
 	}
 
 	public int getId()
@@ -86,16 +88,6 @@ public class ProductDTO
 		this.description = description;
 	}
 
-	public String getLocation()
-	{
-		return location;
-	}
-
-	public void setLocation(String location)
-	{
-		this.location = location;
-	}
-
 	public String getType()
 	{
 		return type;
@@ -106,7 +98,13 @@ public class ProductDTO
 		this.type = type;
 	}
 
+	public double getDeposit()
+	{
+		return deposit;
+	}
 
-
-
+	public void setDeposit(double deposit)
+	{
+		this.deposit = deposit;
+	}
 }

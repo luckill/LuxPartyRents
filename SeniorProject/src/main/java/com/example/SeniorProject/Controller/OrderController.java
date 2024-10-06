@@ -11,12 +11,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping(path="/order")
+@RequestMapping(path = "/order")
 public class OrderController
 {
 
@@ -40,36 +41,43 @@ public class OrderController
     @PostMapping("/create")
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> createOrder(@RequestParam(name = "id") int id, @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<?> createOrder(@RequestParam(name = "id") int id, @RequestBody OrderDTO orderDTO)
+    {
         // Check if the order already exists
-        if (orderRepository.existsById(orderDTO.getId())) {
+        int orderId = generateUniqueOrderId();
+        if (orderRepository.existsById(id))
+        {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ERROR!!! - Order with this ID already exists.");
         }
 
         // Find the customer by ID
         Customer customer = customerRepository.findById(id).orElse(null);
-        if (customer == null) {
+        if (customer == null)
+        {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - Customer not found");
         }
 
         // Create the new order
-        Order order = new Order(orderDTO.getDate(), orderDTO.getRentalTime(), orderDTO.isPaid(), orderDTO.getStatus());
-        order.setId(generateUniqueOrderId()); // Use unique ID generation
+        Order order = new Order(orderId, orderDTO.getRentalTime(), orderDTO.isPaid());
+        order.setCustomer(customer);
         // Save the order to the database
         order = orderRepository.save(order);
 
         double totalPrice = 0;
 
         // Process the products in the order
-        for (OrderProductDTO orderProductDTO : orderDTO.getOrderProducts()) {
+        for (OrderProductDTO orderProductDTO : orderDTO.getOrderProducts())
+        {
             ProductDTO productDTO = orderProductDTO.getProduct();
             Product product = productRepository.findById(productDTO.getId()).orElse(null);
-            if (product == null) {
+            if (product == null)
+            {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - Product not found");
             }
 
             int quantity = orderProductDTO.getQuantity();
-            if (quantity > product.getQuantity()) {
+            if (quantity > product.getQuantity())
+            {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("ERROR!!! - Insufficient product quantity.");
             }
 
@@ -99,21 +107,25 @@ public class OrderController
 
     // Cancel an order
     @PutMapping("/cancel")
-    public ResponseEntity<String> cancelOrder(@RequestParam int orderId) {
-        try {
+    public ResponseEntity<String> cancelOrder(@RequestParam int orderId)
+    {
+        try
+        {
             // Find the order by ID
             Order order = orderRepository.findById(orderId).orElse(null);
-            if (order == null) {
+            if (order == null)
+            {
                 return new ResponseEntity<>("Order not found", HttpStatus.NOT_FOUND);
             }
 
             // Check if the order is already cancelled
-            if ("cancelled".equals(order.getStatus())) {
+            if (order.getStatus() == OrderStatus.CANCELLED)
+            {
                 return new ResponseEntity<>("Order is already cancelled", HttpStatus.BAD_REQUEST);
             }
 
             // Set the order status to 'cancelled'
-            order.setStatus("cancelled");
+            order.setStatus(OrderStatus.CANCELLED);
 
             // Save the order with the updated status
             orderRepository.save(order);
@@ -126,16 +138,20 @@ public class OrderController
             );
 
             return new ResponseEntity<>("Order cancelled successfully", HttpStatus.OK);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             return new ResponseEntity<>("Error cancelling order", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Fetching the current orders for a customer (status = 'active')
-    @GetMapping(path="/currentOrders")
-    public ResponseEntity<?> getCurrentOrders(@RequestParam int customerId) {
+    @GetMapping(path = "/currentOrders")
+    public ResponseEntity<?> getCurrentOrders(@RequestParam int customerId)
+    {
         List<Order> currentOrders = orderRepository.findCurrentOrdersByCustomerId(customerId);
-        if (currentOrders.isEmpty()) {
+        if (currentOrders.isEmpty())
+        {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No current orders found for the customer.");
         }
 
@@ -147,10 +163,12 @@ public class OrderController
     }
 
     // Fetch past orders for a customer (status = 'completed')
-    @GetMapping(path="/pastOrders")
-    public ResponseEntity<?> getPastOrders(@RequestParam int customerId) {
+    @GetMapping(path = "/pastOrders")
+    public ResponseEntity<?> getPastOrders(@RequestParam int customerId)
+    {
         List<Order> pastOrders = orderRepository.findPastOrdersByCustomerId(customerId);
-        if (pastOrders.isEmpty()) {
+        if (pastOrders.isEmpty())
+        {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No past orders found for the customer.");
         }
 
@@ -163,7 +181,7 @@ public class OrderController
 
 
     // Read all orders with pagination
-    @GetMapping(path="/getAll")
+    @GetMapping(path = "/getAll")
     @PreAuthorize("isAuthenticated()")
     public @ResponseBody
     List<OrderDTO> getAllOrders()
@@ -174,9 +192,10 @@ public class OrderController
     }
 
     // Read a single order by ID
-    @GetMapping(path="/getById")
+    @GetMapping(path = "/getById")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getOrderById(@RequestParam int id) {
+    public ResponseEntity<?> getOrderById(@RequestParam int id)
+    {
         Order order = orderRepository.findById(id).orElse(null);
         if (order == null)
         {
@@ -187,21 +206,17 @@ public class OrderController
         return ResponseEntity.status(HttpStatus.OK).body(orderDTO);
     }
 
-    @PutMapping(path ="/update")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<?> updateOrder ( @RequestBody OrderDTO orderDTO)
+    @PutMapping(path = "/update")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?> updateOrder(@RequestParam int orderId, @RequestBody OrderDTO orderDTO)
     {
-        Order order = orderRepository.findById(orderDTO.getId()).orElse(null);
-        if(order == null)
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - order not found");
         }
 
-        if(orderDTO.getDate() != null)
-        {
-            order.setDate(orderDTO.getDate());
-        }
-        if (orderDTO.getRentalTime() == 0)
+        if (orderDTO.getRentalTime() != order.getRentalTime() && orderDTO.getRentalTime() != 0)
         {
             order.setRentalTime(orderDTO.getRentalTime());
         }
@@ -209,16 +224,20 @@ public class OrderController
         {
             order.setPaid(orderDTO.isPaid());
         }
-        if (!orderDTO.getStatus().equals(order.getStatus()))
+        if (!orderDTO.getStatus().equals(order.getStatus().toString()))
         {
-            order.setStatus(orderDTO.getStatus());
+            if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.RETURNED)
+            {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Order is already returned or cancelled");
+            }
+            order.setStatus(OrderStatus.valueOf(orderDTO.getStatus()));
         }
         orderRepository.save(order);
         return ResponseEntity.ok("Order updated successfully");
     }
 
     // Delete an order
-    @DeleteMapping(path="/delete")
+    @DeleteMapping(path = "/delete")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> deleteOrder(@RequestParam int id)
     {
@@ -238,9 +257,9 @@ public class OrderController
         }
     }
 
-    @GetMapping(path="/getOrderProductsByOrderId")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getOrderProductsByOrderId(@RequestParam int id) {
+    @GetMapping(path = "/getOrderProductsByOrderId")
+    public ResponseEntity<?> getOrderProductsByOrderId(@RequestParam int id)
+    {
         Order order = orderRepository.findById(id).orElse(null);
         if (order == null)
         {
@@ -253,30 +272,34 @@ public class OrderController
     }
 
     // Return an order
-    @PostMapping(path="/return")
-    public @ResponseBody String returnOrder(@RequestBody String orderJson) {
-        try {
-            Order order = objectMapper.readValue(orderJson, Order.class);
-
-            // Update the order status to "Returned"
-            order.setStatus("Returned");
-
-            // Save the updated order
-            orderRepository.save(order);
-
-            // Send notification to both admin and customer for successful return
-            sendAdminNotification("Order Returned",
-                    "Order ID " + order.getId() + " has been successfully returned by "
-                            + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
-                    order);
-
-            sendCustomerReturnNotification(order);
-
-            return "Order returned successfully";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Error returning order";
+    @PostMapping(path = "/return")
+    public ResponseEntity<?> returnOrder(@RequestParam int orderId)
+    {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error!!! - Order not found");
         }
+
+        if (order.getStatus() == OrderStatus.RETURNED)
+        {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Order is already returned");
+        }
+        // Update the order status to "Returned"
+        order.setStatus(OrderStatus.RETURNED);
+
+        // Save the updated order
+        orderRepository.save(order);
+
+        // Send notification to both admin and customer for successful return
+        sendAdminNotification("Order Returned",
+                "Order ID " + order.getId() + " has been successfully returned by "
+                        + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
+                order);
+
+        sendCustomerReturnNotification(order);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Order returned successfully");
     }
 
     @GetMapping(path = "/getOrderByCustomerId")
@@ -300,12 +323,30 @@ public class OrderController
         return ResponseEntity.status(HttpStatus.OK).body(orderDTOs);
     }
 
+    @GetMapping("/getCustomerByOrderId")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getCustomerByOrderId(@RequestParam int orderId)
+    {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+        }
+        Customer customer = customerRepository.findById(order.getCustomer().getId()).orElse(null);
+        if (customer == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found");
+        }
+        CustomerDTO customerDTO = new CustomerDTO(customer.getFirstName(), customer.getLastName(), customer.getEmail(), customer.getPhone());
+        return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
+    }
+
     private OrderDTO mapToOrderDTO(Order order)
     {
         Set<OrderProductDTO> orderProductDTOs = order.getOrderProducts().stream()
-                .map(orderProduct -> new OrderProductDTO(orderProduct.getQuantity(), new ProductDTO(orderProduct.getProduct().getId(), orderProduct.getProduct().getName(), orderProduct.getProduct().getPrice())))
+                .map(orderProduct -> new OrderProductDTO(orderProduct.getQuantity(), new ProductDTO(orderProduct.getProduct().getId(), orderProduct.getProduct().getName(), orderProduct.getProduct().getPrice(), orderProduct.getProduct().getType())))
                 .collect(Collectors.toSet());
-        OrderDTO orderDTO = new OrderDTO(order.getDate(), order.getRentalTime(), order.isPaid(), order.getStatus());
+        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getRentalTime(), order.isPaid(), order.getStatus());
         orderDTO.setPrice(order.getPrice());
         orderDTO.setId(order.getId());
         orderDTO.setOrderProducts(orderProductDTOs);
@@ -313,9 +354,10 @@ public class OrderController
     }
 
     // Helper method to send email notifications to the admin
-    private void sendAdminNotification(String subject, String messageBody, Order order) {
+    private void sendAdminNotification(String subject, String messageBody, Order order)
+    {
         EmailDetails adminEmailDetails = new EmailDetails();
-        adminEmailDetails.setRecipient("190project2024@gmail.com"); //email of admin
+        adminEmailDetails.setRecipient("zhijunli7799@gmail.com"); //email of admin
         adminEmailDetails.setSubject(subject);
 
         String emailBody = messageBody +
@@ -328,7 +370,8 @@ public class OrderController
     }
 
     // Helper method to send email notifications to the customer when the order is returned
-    private void sendCustomerReturnNotification(Order order) {
+    private void sendCustomerReturnNotification(Order order)
+    {
         EmailDetails customerEmailDetails = new EmailDetails();
         customerEmailDetails.setRecipient(order.getCustomer().getEmail());
         customerEmailDetails.setSubject("Order Returned Successfully");
@@ -342,15 +385,17 @@ public class OrderController
     }
 
     // Method to generate a unique order ID
-    private int generateUniqueOrderId() {
+    private int generateUniqueOrderId()
+    {
         Random random = new Random();
         int orderId;
         boolean exists;
-        // Keep generating a random number until you find a unique one
-        do {
-            orderId = random.nextInt(999999);
+        do
+        {
+            orderId = 1000000000 + random.nextInt(1147483648);
             exists = orderRepository.existsById(orderId);
-        } while (exists);
+        }
+        while (exists);
 
         return orderId;
     }

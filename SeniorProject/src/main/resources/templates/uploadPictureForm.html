@@ -33,6 +33,13 @@
             fileError.textContent = '';
             responseMessage.textContent = '';
 
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (!jwtToken)
+            {
+                console.error("No JWT token found.");
+                return;
+            }
+
             if(file.type !== "image/jpeg")
             {
                 fileError.textContent = "Error: invalid file type. Only.jpg files are allowed.";
@@ -52,8 +59,8 @@
                 method: 'POST',
                 headers:
                 {
-                    "Content_type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+                    "Content-type": "application/json",
+                    "Authorization": `Bearer ${jwtToken}`
                 },
                 body: formData
             })

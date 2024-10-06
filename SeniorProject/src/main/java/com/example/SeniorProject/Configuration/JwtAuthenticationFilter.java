@@ -1,11 +1,11 @@
 package com.example.SeniorProject.Configuration;
 
-import com.example.SeniorProject.Service.JwtService;
+import com.example.SeniorProject.Service.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,12 +21,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
 	private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final JwtTokenBlacklistService jwtTokenBlacklistService;
 
-    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtService jwtService, UserDetailsService userDetailsService)
+    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtService jwtService, UserDetailsService userDetailsService, JwtTokenBlacklistService jwtTokenBlacklistService)
     {
         this.handlerExceptionResolver = handlerExceptionResolver;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.jwtTokenBlacklistService = jwtTokenBlacklistService;
     }
 
 	@Override
@@ -41,6 +43,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
                 return;
             }
             final String jwt  = header.substring(7);
+            if (jwtTokenBlacklistService.isTokenBlacklisted(jwt)) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is blacklisted");
+                return;
+            }
+
             final String userEmail = jwtService.extractUsername(jwt);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if(userEmail != null && authentication == null)

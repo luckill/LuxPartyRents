@@ -55,6 +55,7 @@
                     <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
                         <a id="loginButton" class="btn btn-outline-light mx-2" href="/login">Login</a>
                         <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
+                        <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()">Logout</button>
                         <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart">Cart</a>
                     </div>
                 </div>
@@ -88,6 +89,36 @@
                         document.getElementById("other-page-form").remove();
                     }
                 });
+
+                function logout()
+                {
+                    fetch("/auth/logout",
+                    {
+                        method: "POST",
+                        headers:
+                        {
+                            "Content_type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+                        }
+                    })
+                    .then(function (response)
+                    {
+                        if (response.ok)
+                        {
+                            localStorage.removeItem("jwtToken");
+                            window.location.href = '/';
+                        }
+                        else
+                        {
+                            // Handle errors, you can display a message to the user
+                            console.error('Error:', response.statusText);
+                        }
+                    })
+                    .catch(error =>
+                    {
+                        console.error('Error:', error);
+                    });
+                }
             </script>
         </div>
     </body>
