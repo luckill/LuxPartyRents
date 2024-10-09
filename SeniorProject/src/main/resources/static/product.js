@@ -1,3 +1,4 @@
+// This mainly handles filtering
 window.onload = function() {
     const jwtToken = localStorage.getItem('jwtToken');
     if (!jwtToken)
@@ -5,41 +6,57 @@ window.onload = function() {
         console.error("No JWT token found.");
         return;
     }
-    fetch('/product/getAll', {
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtToken}`
-        }
-    })
-    .then(response => response.json())
-    .then(res => {
-        const data = res;
-        let rows = '';
-        data.forEach(product => {
-            rows += `<tr data-id="${product.id}">
+    
+    // Fetch and display products
+    fetchProducts()
+
+    // Add click event listeners for sorting
+    document.getElementById('sort-id').addEventListener('click', () => sortTable('id'));
+    document.getElementById('sort-name').addEventListener('click', () => sortTable('name'));
+    document.getElementById('sort-price').addEventListener('click', () => sortTable('price'));
+    document.getElementById('sort-quantity').addEventListener('click', () => sortTable('quantity'));
+    document.getElementById('sort-type').addEventListener('click', () => sortTable('type'));
+};
+// This function allows fetching products w/ filtering by given column
+function fetchProducts(sortBy = '') {
+  const jwtToken = localStorage.getItem('jwtToken');
+  if (!jwtToken) {
+    console.error("No JWT token found.");
+    return;
+  }
+  
+  let url = '/products/getAll';
+  if (sortBy) {
+    url += `?sortBy=${sortBy}`; // Add sorting query parameter if present
+  }
+  
+  fetch(url, {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization": `Bearer ${jwtToken}`
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    let rows = '';
+    data.forEach(product => {
+      rows += `<tr data-id="${product.id}">
                         <td>${product.id}</td>
                         <td>${product.name}</td>
                         <td>${product.price}</td>
                         <td>${product.quantity}</td>
                         <td>${product.type}</td>
                      </tr>`;
-        });
-        console.log(rows);
-        document.getElementById('tableRows').innerHTML = rows;
+    });
+    document.getElementById('tableRows').innerHTML = rows;
+  })
+  .catch(error => console.log('Error fetching data:', error));
+}
 
-        // Add click event listeners to each row
-        const tableRows = document.querySelectorAll('#tableRows tr');
-        tableRows.forEach(row => {
-            row.addEventListener('click', function() {
-                const productId = this.dataset.id; // Get the product ID
-                window.location.href = `/theProduct?id=${productId}`; // Redirect to the product page
-            });
-        });
-    })
-    .catch(error => console.log('Error fetching data:', error));
-};
-
+function sortTable(column) {
+  fetchProducts(column); // Fetch sorted data based on the column clicked
+}
 
 function updateProduct() {
   const form = document.getElementById('theProduct');

@@ -10,31 +10,55 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.data.domain.Sort;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-@RequestMapping(path="/product")
+@RequestMapping(path="/products")
 public class ProductController {
     @Autowired
     private ProductRepository productRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-        @PostMapping(path="/addProduct") // Map ONLY POST Requests
-        @PreAuthorize("hasAnyRole('ADMIN')")
-        public @ResponseBody String addProduct (@RequestBody ProductDTO productDTO)
-        {
-                Product product = new Product(productDTO.getQuantity(), productDTO.getPrice(), productDTO.getType(), productDTO.getName(), productDTO.getDescription());
-                productRepository.save(product);
-                return "Product added successfully";
-        }
+    @PostMapping(path="/addProduct") // Map ONLY POST Requests
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public @ResponseBody String addProduct (@RequestBody ProductDTO productDTO)
+    {
+        Product product = new Product(productDTO.getQuantity(), productDTO.getPrice(), productDTO.getType(), productDTO.getName(), productDTO.getDescription());
+        productRepository.save(product);
+        return "Product added successfully";
+    }
 
     @GetMapping(path="/getAll")
-    public @ResponseBody List<ProductDTO> getAllProducts()
-    {
-        List<Product> products = productRepository.findAll();
+    public @ResponseBody List<ProductDTO> getAllProducts(@RequestParam(required = false) String sortBy) {
+        List<Product> products;
+        if (sortBy == null || sortBy.isEmpty()) {
+            products = productRepository.findAll();
+        } else {
+            switch (sortBy) {
+                case "id":
+                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+                break;
+                case "name":
+                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+                break;
+                case "price":
+                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "price"));
+                break;
+                case "quantity":
+                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "quantity"));
+                break;
+                case "type":
+                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "type"));
+                break;
+                default:
+                products = productRepository.findAll();
+                break;
+            }
+        }
         return products.stream().map(this::mapToProductDTO).toList();
     }
 

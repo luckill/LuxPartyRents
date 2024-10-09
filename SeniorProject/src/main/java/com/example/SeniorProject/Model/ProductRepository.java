@@ -2,6 +2,7 @@ package com.example.SeniorProject.Model;
 
 import org.springframework.data.jpa.repository.*;
 import org.springframework.transaction.annotation.*;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -29,4 +30,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
     @Modifying
     @Query(" DELETE FROM Product p WHERE p.id=?1")
     void deleteById(int id);
+
 }

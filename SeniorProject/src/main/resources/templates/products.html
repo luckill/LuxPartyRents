@@ -65,9 +65,17 @@
             <button type="button" style="margin-left: 10%;" class="btn btn-outline-light"
                 onclick="window.location.href='/newProduct'">Add</button>
             <form class="search" role="search"></form>
-            <input class="form-control me-2" style="width: 200px;" type="search" placeholder="Order Number"
-                aria-label="Search">
-            <button class="btn btn-outline-light" style="margin-right: 10%;" type="submit">Search</button>
+                <div class="dropdown w-25 d-flex"> <!-- Added margin-start to create a gap -->
+                    <select class="form-select wide-dropdown me-2" id="type-dropdown" name="type" onchange=""> <!-- Only filters when search has values in it -->
+                        <option value="Name">Name</option>
+                        <option value="ID">ID</option>
+                        <option value="Type">Type</option>
+                        <option value="Price">Price</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <input class="form-control me-2" style="width: 200px;" type="search" placeholder="Search" id="searchInput" aria-label="Search">
+                <button class="btn btn-outline-light" style="margin-right: 10%;" type="submit" id="searchButton">Search</button>
             </form>
         </div>
     </section>
@@ -77,11 +85,12 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Type</th>
+                        <!-- Dropdown button acts as a filter -->
+                        <th>ID <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-id"></button></th>
+                        <th>Name <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-name"></button></th>
+                        <th>Price <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-price"></button></th>
+                        <th>Quantity <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-quantity"></button></th>
+                        <th>Type <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-type"></button></th>
                     </tr>
                 </thead>
                 <tbody id="tableRows">
