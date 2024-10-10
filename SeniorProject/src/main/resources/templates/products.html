@@ -66,11 +66,10 @@
                 onclick="window.location.href='/newProduct'">Add</button>
             <form class="search" role="search"></form>
                 <div class="dropdown w-25 d-flex"> <!-- Added margin-start to create a gap -->
-                    <select class="form-select wide-dropdown me-2" id="type-dropdown" name="type" onchange=""> <!-- Only filters when search has values in it -->
+                    <select class="form-select wide-dropdown me-2" id="col-type-dropdown" name="type" onchange=""> <!-- Only filters when search has values in it -->
                         <option value="Name">Name</option>
                         <option value="ID">ID</option>
                         <option value="Type">Type</option>
-                        <option value="Price">Price</option>
                         <!-- Add more options as needed -->
                     </select>
                 </div>
@@ -94,6 +93,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableRows">
+                    <!-- Items will show up here -->
                 </tbody>
             </table>
         </div>

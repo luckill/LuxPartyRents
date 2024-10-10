@@ -16,9 +16,17 @@ window.onload = function() {
     document.getElementById('sort-price').addEventListener('click', () => sortTable('price'));
     document.getElementById('sort-quantity').addEventListener('click', () => sortTable('quantity'));
     document.getElementById('sort-type').addEventListener('click', () => sortTable('type'));
+
+    // Event listeners for search functionality
+    document.getElementById("searchInput").addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+          searchProducts();
+      }
+    });
+    document.getElementById("searchButton").addEventListener("click", searchProducts);
 };
 // This function allows fetching products w/ filtering by given column
-function fetchProducts(sortBy = '') {
+function fetchProducts(sortBy = '', searchType = '', searchTerm = '') {
   const jwtToken = localStorage.getItem('jwtToken');
   if (!jwtToken) {
     console.error("No JWT token found.");
@@ -29,7 +37,11 @@ function fetchProducts(sortBy = '') {
   if (sortBy) {
     url += `?sortBy=${sortBy}`; // Add sorting query parameter if present
   }
-  
+  // Add search parameters if present
+  if (searchType && searchTerm) {
+    url += (sortBy ? '&' : '?') + `searchType=${searchType}&searchTerm=${searchTerm}`;
+  }
+  console.log(url);
   fetch(url, {
     method: "GET",
     headers: {
@@ -54,8 +66,57 @@ function fetchProducts(sortBy = '') {
   .catch(error => console.log('Error fetching data:', error));
 }
 
+// Function to search products
+function searchProducts() {
+  const searchType = document.getElementById("col-type-dropdown").value.toLowerCase();
+  const searchTerm = document.getElementById("searchInput").value;
+  console.log(`Searching for ${searchTerm} by ${searchType}`);
+  
+  // Return base and skip the search
+  if (!searchTerm) {
+    fetchProducts();
+    return; 
+  }
+
+  const jwtToken = localStorage.getItem('jwtToken');
+  if (!jwtToken) {
+      console.error("No JWT token found.");
+      return;
+  }
+
+  let url = `/products/search?type=${searchType}&term=${searchTerm}`;
+  console.log(url);
+
+  fetch(url, {
+      method: "GET",
+      headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${jwtToken}`
+      }
+  })
+  .then(response => response.json())
+  .then(data => {
+      let rows = '';
+      data.forEach(product => {
+          rows += `<tr data-id="${product.id}">
+                      <td>${product.id}</td>
+                      <td>${product.name}</td>
+                      <td>${product.price}</td>
+                      <td>${product.quantity}</td>
+                      <td>${product.type}</td>
+                   </tr>`;
+      });
+      document.getElementById('tableRows').innerHTML = rows;
+  })
+  .catch(error => console.log('Error fetching search results:', error));
+}
+
+// Function to sort table based on column
 function sortTable(column) {
-  fetchProducts(column); // Fetch sorted data based on the column clicked
+  const searchType = document.getElementById("col-type-dropdown").value;
+  const searchTerm = document.getElementById("searchInput").value;
+
+  fetchProducts(column, searchType, searchTerm); // Fetch sorted data based on the column clicked
 }
 
 function updateProduct() {

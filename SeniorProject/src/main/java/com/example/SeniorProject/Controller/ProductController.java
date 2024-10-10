@@ -160,4 +160,37 @@ public class ProductController {
         productDTO.setDescription(product.getDescription());
         return productDTO;
     }
+    // Meant for searching with the given column types
+    @GetMapping(path="/search")
+    public ResponseEntity<?> searchProducts(@RequestParam String type, @RequestParam String term) {
+        List<Product> products = productRepository.findAll();
+        List<Product> result = new ArrayList<>();
+
+        switch (type.toLowerCase()) {
+            case "name":
+                result = products.stream()
+                    .filter(product -> product.getName().toLowerCase().contains(term.toLowerCase()))
+                    .toList();
+                break;
+            case "type":
+                result = products.stream()
+                    .filter(product -> product.getType().toLowerCase().contains(term.toLowerCase()))
+                    .toList();
+                break;
+            case "id":
+                try {
+                    int id = Integer.parseInt(term);
+                    result = products.stream()
+                        .filter(product -> product.getId() == id)
+                        .toList();
+                } catch (NumberFormatException e) {
+                    return ResponseEntity.badRequest().body("Invalid ID format.");
+                }
+                break;
+            default:
+                return ResponseEntity.badRequest().body("Invalid search type.");
+        }
+
+        return ResponseEntity.ok(result.stream().map(this::mapToProductDTO).toList());
+    }    
 }
