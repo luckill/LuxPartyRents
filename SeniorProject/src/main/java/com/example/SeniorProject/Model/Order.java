@@ -1,23 +1,26 @@
 package com.example.SeniorProject.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import javax.validation.constraints.*;
+
+import javax.validation.constraints.NotNull;
+import java.time.*;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 @Entity
 @Table(name = "order_info")
-public class Order {
+public class Order
+{
 
     @Id
-    @Column(name = "order_id", unique = true, nullable = false)
+    @Column(name = "order_id")
     private int id;
 
     @NotNull
     @Column(name = "order_date")
-    private String date;
+    private LocalDate creationDate;
 
     @NotNull
     @Column(name = "rental_time")
@@ -28,8 +31,12 @@ public class Order {
     private boolean paid;
 
     @NotNull
-    @Column(name = "order_status")
-    private String status;
+    @Column(nullable = false, name = "order_status")
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
+    @NotNull
+    private String paymentReference;
 
     @NotNull
     @Column(name = "price")
@@ -40,94 +47,120 @@ public class Order {
     @JsonBackReference
     private Customer customer;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinTable(name = "order_product", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
-    private Set<Product> products = new HashSet<>();
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<OrderProduct> orderProducts = new HashSet<>();
 
-    // Constructor that assigns a random unique int as the order ID
-    public Order(String date, int rentalTime, boolean paid, String status, double price, Customer customer) {
-        this.id = generateRandomUniqueOrderId();  // Generate random int for order_id
-        this.date = date;
+    public Order(int id, int rentalTime, boolean paid)
+    {
+        this.id = id;
+        this.creationDate = LocalDate.now();
         this.rentalTime = rentalTime;
         this.paid = paid;
-        this.status = status;
-        this.price = price;
-        this.customer = customer;
+        this.status = OrderStatus.RECEIVED;
     }
 
-    public Order() {
-        this.id = generateRandomUniqueOrderId();  // Generate random int for order_id in default constructor
+    public Order()
+    {
+        // Default constructor
     }
 
-    // Generate a random unique int for the order ID
-    private int generateRandomUniqueOrderId() {
-        Random random = new Random();
-        return random.nextInt(Integer.MAX_VALUE);  // Generates a random positive integer
+    // Add product to the order with quantity
+    public void addProduct(Product product, int quantity)
+    {
+        OrderProduct orderProduct = new OrderProduct(this, product, quantity);
+        orderProducts.add(orderProduct);
+        product.getOrderProducts().add(orderProduct); // Associate product with the order
     }
 
     // Getters and Setters
-
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(int id)
+    {
         this.id = id;
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public int getRentalTime() {
+    public int getRentalTime()
+    {
         return rentalTime;
     }
 
-    public void setRentalTime(int rentalTime) {
+    public void setRentalTime(int rentalTime)
+    {
         this.rentalTime = rentalTime;
     }
 
-    public boolean isPaid() {
+    public boolean isPaid()
+    {
         return paid;
     }
 
-    public void setPaid(boolean paid) {
+    public void setPaid(boolean paid)
+    {
         this.paid = paid;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus()
+    {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status)
+    {
         this.status = status;
     }
 
-    public double getPrice() {
+    public double getPrice()
+    {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(double price)
+    {
         this.price = price;
     }
 
-    public Customer getCustomer() {
+    public Customer getCustomer()
+    {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
+    public void setCustomer(Customer customer)
+    {
         this.customer = customer;
     }
 
-    public Set<Product> getProducts() {
-        return products;
+    public Set<OrderProduct> getOrderProducts()
+    {
+        return orderProducts;
     }
 
-    public void setProducts(Set<Product> products) {
-        this.products = products;
+    public void setOrderProducts(Set<OrderProduct> orderProducts)
+    {
+        this.orderProducts = orderProducts;
+    }
+
+    public @NotNull LocalDate getCreationDate()
+    {
+        return creationDate;
+    }
+
+    public void setCreationDate(@NotNull LocalDate creationDate)
+    {
+        this.creationDate = creationDate;
+    }
+
+    public @NotNull String getPaymentReference()
+    {
+        return paymentReference;
+    }
+
+    public void setPaymentReference(@NotNull String paymentReference)
+    {
+        this.paymentReference = paymentReference;
     }
 }

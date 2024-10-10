@@ -26,7 +26,7 @@ public class ProductController {
         @PreAuthorize("hasAnyRole('ADMIN')")
         public @ResponseBody String addProduct (@RequestBody ProductDTO productDTO)
         {
-                Product product = new Product(productDTO.getQuantity(), productDTO.getPrice(), productDTO.getType(), productDTO.getName(), productDTO.getDescription(), productDTO.getLocation());
+                Product product = new Product(productDTO.getQuantity(), productDTO.getPrice(), productDTO.getType(), productDTO.getName(), productDTO.getDescription());
                 productRepository.save(product);
                 return "Product added successfully";
         }
@@ -50,7 +50,6 @@ public class ProductController {
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
         }
-        //public ProductDTO(int id, String name, double price, int quantity, String type, String description, String location)
         if(productDTO.getName() != null)
         {
             product.setName(productDTO.getName());
@@ -58,10 +57,6 @@ public class ProductController {
         if (productDTO.getDescription() != null)
         {
             product.setDescription(productDTO.getDescription());
-        }
-        if (productDTO.getLocation() != null)
-        {
-            product.setLocation(productDTO.getLocation());
         }
         if (productDTO.getType() != null)
         {
@@ -139,7 +134,6 @@ public class ProductController {
         productDTO.setType(product.getType());
         productDTO.setQuantity(product.getQuantity());
         productDTO.setDescription(product.getDescription());
-        productDTO.setLocation(product.getLocation());
         return productDTO;
     }
 }
