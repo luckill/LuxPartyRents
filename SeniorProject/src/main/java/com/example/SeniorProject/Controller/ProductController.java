@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -33,32 +34,56 @@ public class ProductController {
     }
 
     @GetMapping(path="/getAll")
-    public @ResponseBody List<ProductDTO> getAllProducts(@RequestParam(required = false) String sortBy) {
+    public @ResponseBody List<ProductDTO> getAllProducts(
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String searchTerm) {
+        
         List<Product> products;
-        if (sortBy == null || sortBy.isEmpty()) {
-            products = productRepository.findAll();
-        } else {
-            switch (sortBy) {
-                case "id":
-                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
-                break;
+    
+        // Filter based on searchType and searchTerm
+        if (searchType != null && !searchType.isEmpty() && searchTerm != null && !searchTerm.isEmpty()) {
+            switch (searchType.toLowerCase()) {
                 case "name":
-                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
-                break;
-                case "price":
-                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "price"));
-                break;
-                case "quantity":
-                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "quantity"));
-                break;
+                    products = productRepository.findAllByNameContaining(searchTerm); 
+                    break;
                 case "type":
-                products = productRepository.findAll(Sort.by(Sort.Direction.ASC, "type"));
-                break;
+                    products = productRepository.findAllByTypeContaining(searchTerm); 
+                    break;
+                case "id":
+                    products = productRepository.findAllByIdContaining(Integer.valueOf(searchTerm)); 
+                    break;
                 default:
-                products = productRepository.findAll();
-                break;
+                    products = productRepository.findAll(); 
+                    break;
+            }
+        } else {
+            products = productRepository.findAll(); 
+        }
+    
+        // Handle sorting
+        if (sortBy != null && !sortBy.isEmpty()) {
+            switch (sortBy.toLowerCase()) {
+                case "id":
+                    products.sort(Comparator.comparingInt(Product::getId));
+                    break;
+                case "name":
+                    products.sort(Comparator.comparing(Product::getName));
+                    break;
+                case "price":
+                    products.sort(Comparator.comparingDouble(Product::getPrice));
+                    break;
+                case "quantity":
+                    products.sort(Comparator.comparingInt(Product::getQuantity));
+                    break;
+                case "type":
+                    products.sort(Comparator.comparing(Product::getType));
+                    break;
+                default:
+                    break;
             }
         }
+    
         return products.stream().map(this::mapToProductDTO).toList();
     }
 
