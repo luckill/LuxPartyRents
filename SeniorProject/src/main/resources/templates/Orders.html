@@ -58,13 +58,19 @@
 <script>
     async function loadOrders() {
         try {
+            const jwtToken = localStorage.getItem('jwtToken');
+            if (!jwtToken)
+            {
+                console.error("No JWT token found.");
+                return;
+            }
             const response = await fetch('/order/getAll',
             {
                 method: "GET",
                 headers:
                 {
                     "Content_type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+                    "Authorization": `Bearer ${jwtToken}`
                 }
             });
             const data = await response.json();
@@ -75,6 +81,7 @@
             // Append orders to container
             data.forEach(order => {
                 const orderRow = document.createElement('tr');
+                orderRow.classList.add('clickable-row');
                 orderRow.innerHTML = `
                     <td>${order.id}</td>
                     <td>${order.date}</td>
@@ -83,6 +90,9 @@
                     <td>${order.rentalTime}</td>
                     <td>${order.status}</td>
                 `;
+                orderRow.addEventListener('click', () => {
+                    window.location.href = `/order_detail?id=${order.id}`; // Change to the desired URL
+                });
                 container.appendChild(orderRow);
             });
 

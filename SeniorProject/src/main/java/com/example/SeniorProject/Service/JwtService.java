@@ -13,13 +13,14 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.function.Function;
 
 @Service
 public class JwtService
 {
 	@Value("${security.jwt.secret-key}")
-    private String secreteKey;
+    private String secretKey;
     @Value("${security.jwt.expiration-time}")
     private Long expirationTime;
 
@@ -88,9 +89,22 @@ public class JwtService
                 .getBody();
     }
 
+    public long getRemainingValidTime(String token)
+    {
+        Date expiration = extractExpiration(token);
+        Date now = new Date();
+        if (expiration.before(now)) {
+            return 0;  // Token has already expired
+        }
+
+        // Calculate remaining time in milliseconds and convert to minutes, seconds, etc.
+        long remainingMillis = expiration.getTime() - now.getTime();
+        return TimeUnit.MILLISECONDS.toSeconds(remainingMillis);  // Return remaining time in seconds
+    }
+
     private Key getSignInKey()
 	{
-        byte[] keyBytes = Decoders.BASE64.decode(secreteKey);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

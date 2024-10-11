@@ -1,16 +1,15 @@
 package com.example.SeniorProject.DTOs;
 
-import com.example.SeniorProject.Model.Customer;
-import com.example.SeniorProject.Model.Product;
-import org.hibernate.query.Order;
+import com.example.SeniorProject.Model.*;
 
+import java.time.*;
 import java.util.HashSet;
 import java.util.Set;
 
 public class OrderDTO
 {
     private int id;
-    private String date;
+    private LocalDate creationDate;
     private int rentalTime;
     private boolean paid;
     private String status;
@@ -20,12 +19,12 @@ public class OrderDTO
     {
 
     }
-    public OrderDTO(String date, int rentalTime, boolean paid, String status)
+    public OrderDTO(LocalDate date, int rentalTime, boolean paid, OrderStatus status)
     {
-        this.date = date;
+        this.creationDate = date;
         this.rentalTime = rentalTime;
         this.paid = paid;
-        this.status = status;
+        this.status = status.toString();
         this.products = new HashSet<>();
     }
 
@@ -39,14 +38,14 @@ public class OrderDTO
 		this.id = id;
 	}
 
-	public String getDate()
+	public LocalDate getCreationDate()
     {
-        return date;
+        return creationDate;
     }
 
-    public void setDate(String date)
+    public void setCreationDate(LocalDate creationDate)
     {
-        this.date = date;
+        this.creationDate = creationDate;
     }
 
     public int getRentalTime()

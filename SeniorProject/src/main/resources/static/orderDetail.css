@@ -1,4 +1,5 @@
-body, html {
+body, html
+{
     height: 100%;
     margin: 0;
     justify-content: center;
@@ -10,6 +11,42 @@ body, html {
 
 }
 
+.loading
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: rgba(54, 54, 54, 0.87);
+    z-index: 999;
+}
+
+.loading .loading-box
+{
+    background-color: #333333;
+    padding: 50px;
+    border-radius: 30px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+
+}
+
+.loading .loading-box .spinner-border
+{
+    width: 3rem;
+    height: 3rem;
+}
+
+.loading .loading-box p
+{
+    margin-top: 15px;
+    font-size: 1.2rem;
+}
+
 #container
 {
     width: 95%;
@@ -17,40 +54,47 @@ body, html {
     margin-right: auto;
 }
 
-.main-content {
+.main-content
+{
     padding: 20px;
     color: white; /* Main content font color */
 }
 
-.order-title {
-    font-size: 24px;
+.order-title
+{
+    font-size: 28px;
     font-weight: bold;
     color: white; /* Title font color */
 }
 
-.order-summary, .item-summary {
+.order-summary, .item-summary, .customer-summary
+{
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     color: white;
 }
 
-.item-summary table {
+.item-summary table
+{
     color: white; /* White text for table */
 }
 
-.item-summary table th, .item-summary table td {
+.item-summary table th, .item-summary table td
+{
     color: white; /* White text inside table headers and cells */
 }
 
-.item-summary table td img {
+.item-summary table td img
+{
     width: 50px;
     height: 50px;
     border-radius: 4px;
     margin-right: 10px; /* Added margin for spacing */
 }
 
-.order-summary .total {
+.order-summary .total
+{
     font-weight: bold;
     border-top: 2px solid #e0e0e0;
     padding-top: 10px;
@@ -58,7 +102,8 @@ body, html {
     color: white;
 }
 
-.button-group .btn {
+.button-group .btn
+{
     margin-right: 10px; /* Add some spacing between buttons */
 }
 

@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.*;
+import java.time.*;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,9 +21,14 @@ public class Account implements UserDetails
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
     private int id;
+
+    @Column(name = "creation_date")
+    private LocalDate createdAt;
+
     @NotNull
     @Column(name = "email")
     private String email;
+
     @NotNull
     @Size(min = 8, message = "password must be at least 8 character long")
     @Column(name = "password")
@@ -31,9 +37,11 @@ public class Account implements UserDetails
     @NotNull
     @Column(name = "is_verified")
     private boolean isVerified;
+
     @NotNull
     @Column(name = "failed_attempt")
     private int failedLoginAttempt;
+
     @NotNull
     @Column(name = "account_locked")
     private boolean isLocked;
@@ -54,6 +62,7 @@ public class Account implements UserDetails
     public Account(String email, String password, boolean isAdmin)
     {
         this.email = email;
+        this.createdAt = LocalDate.now();
         this.password = password;
         this.failedLoginAttempt = 0;
         this.isLocked = false;
@@ -114,7 +123,8 @@ public class Account implements UserDetails
     }
 
     @Override
-    public String getUsername() {
+    public String getUsername()
+    {
         return email;
     }
 
@@ -149,20 +159,46 @@ public class Account implements UserDetails
     }
 
 
-    public boolean isVerified() {
+    public boolean isVerified()
+    {
         return isVerified;
     }
 
-    public void setVerified(boolean verified) {
+    public void setVerified(boolean verified)
+    {
         isVerified = verified;
     }
-    public Role getRole() {
+
+    public Role getRole()
+    {
         return role;
     }
 
-    public Account setRole(Role role) {
+    public Account setRole(Role role)
+    {
         this.role = role;
 
         return this;
+    }
+
+    public void setCustomer(Customer customer)
+    {
+        this.customer = customer;
+    }
+
+    @NotNull
+    public boolean isLocked()
+    {
+        return isLocked;
+    }
+
+    public void setLocked(@NotNull boolean locked)
+    {
+        isLocked = locked;
+    }
+
+    public LocalDate getCreatedAt()
+    {
+        return createdAt;
     }
 }

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .content {
+            margin-bottom: 30px;
+        }
+
+        .content h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+
+        .total {
+            text-align: right;
+        }
+
+        .total p {
+            font-size: 18px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Potapov Weddings</h1>
+        <p>Your Trusted Wedding Partner</p>
+    </div>
+
+    <div class="content">
+        <h2>Customer Information</h2>
+        <p><strong>Name:</strong> {{ customer.name }}</p>
+        <p><strong>Address:</strong> {{ customer.address }}</p>
+        <p><strong>Phone:</strong> {{ customer.phoneNumber }}</p>
+        <p><strong>Email:</strong> {{ customer.email }}</p>
+
+        <h2>Order Details</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop through the products -->
+            <tr th:each="product : ${products}">
+                <td th:text="${product.name}"></td>
+                <td th:text="${product.quantity}"></td>
+                <td th:text="${product.price}"></td>
+                <td th:text="${product.price * product.quantity}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="total">
+            <p><strong>Subtotal:</strong> {{ order.subtotal }}</p>
+            <p><strong>Tax:</strong> {{ order.tax }}</p>
+            <p><strong>Total:</strong> {{ order.totalPrice }}</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for choosing Potapov Weddings. We wish you a lifetime of happiness!</p>
+    </div>
+</div>
+
+</body>
+</html>
