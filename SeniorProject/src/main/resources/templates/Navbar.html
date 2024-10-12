@@ -106,6 +106,8 @@
                         if (response.ok)
                         {
                             localStorage.removeItem("jwtToken");
+                            localStorage.removeItem("isLoggedIn")
+                            localStorage.removeItem("Role")
                             window.location.href = '/';
                         }
                         else
