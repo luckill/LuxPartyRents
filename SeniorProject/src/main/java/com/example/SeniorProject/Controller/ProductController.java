@@ -22,14 +22,14 @@ public class ProductController {
     private ProductRepository productRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-        @PostMapping(path="/addProduct") // Map ONLY POST Requests
-        @PreAuthorize("hasAnyRole('ADMIN')")
-        public @ResponseBody String addProduct (@RequestBody ProductDTO productDTO)
-        {
-                Product product = new Product(productDTO.getQuantity(), productDTO.getPrice(), productDTO.getType(), productDTO.getName(), productDTO.getDescription());
-                productRepository.save(product);
-                return "Product added successfully";
-        }
+    @PostMapping(path="/addProduct") // Map ONLY POST Requests
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public @ResponseBody String addProduct (@RequestBody ProductDTO productDTO)
+    {
+        Product product = new Product(productDTO.getQuantity(), productDTO.getPrice(), productDTO.getType(), productDTO.getName(), productDTO.getDescription());
+        productRepository.save(product);
+        return "Product added successfully";
+    }
 
     @GetMapping(path="/getAll")
     public @ResponseBody List<ProductDTO> getAllProducts()
