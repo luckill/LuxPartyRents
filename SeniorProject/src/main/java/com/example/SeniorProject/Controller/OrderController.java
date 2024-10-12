@@ -4,10 +4,14 @@ import com.example.SeniorProject.Email.EmailDetails;
 import com.example.SeniorProject.Model.*;
 import com.example.SeniorProject.DTOs.*;
 import com.example.SeniorProject.Service.EmailService;
+import com.example.SeniorProject.Service.PdfService;
 import com.fasterxml.jackson.databind.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +39,9 @@ public class OrderController
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private PdfService pdfService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -339,6 +346,34 @@ public class OrderController
         }
         CustomerDTO customerDTO = new CustomerDTO(customer.getFirstName(), customer.getLastName(), customer.getEmail(), customer.getPhone());
         return ResponseEntity.status(HttpStatus.OK).body(customerDTO);
+    }
+
+    @GetMapping(path = "/generateInvoice")
+    public ResponseEntity<ByteArrayResource> generateInvoice(@RequestParam int orderId) {
+        // Fetch the order by ID
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        // Fetch the customer associated with the order
+        Customer customer = order.getCustomer();
+
+        // Populate model for invoice
+        Map<String, Object> model = new HashMap<>();
+        model.put("order", order);
+        model.put("customer", customer);
+
+        // Generate the PDF using the PdfService
+        ByteArrayResource pdfContent = pdfService.generateInvoicePDF(model);
+
+        // Prepare the HTTP response with the generated PDF
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "invoice_" + orderId + ".pdf");
+
+        // Return the PDF as a response entity
+        return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
     }
 
     private OrderDTO mapToOrderDTO(Order order)
