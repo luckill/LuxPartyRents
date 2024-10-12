@@ -1,8 +1,9 @@
 package com.example.SeniorProject.Controller;
 
 import com.example.SeniorProject.Model.*;
+import com.example.SeniorProject.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -18,6 +19,8 @@ public class AccountController {
     private AccountRepository accountRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private JwtService jwtService;
 
     @GetMapping("/getAccount/{id}")
     @PreAuthorize("isAuthenticated()")
@@ -43,5 +46,26 @@ public class AccountController {
         }
         accountRepository.save(account);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/getAccountInfo")
+    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token) {
+        String jwtToken = token.replace("Bearer ", "");
+
+        // Validate the token and extract username
+        if (jwtService.isTokenExpired(jwtToken))
+        {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your session has expired, please log in again");
+        }
+
+        String username = jwtService.extractUsername(jwtToken);
+        Account account = accountRepository.findAccountByEmail(username);
+
+        if (account == null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with email " + username);
+        }
+
+        return ResponseEntity.ok(account);
     }
 }
