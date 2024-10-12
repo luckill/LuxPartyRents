@@ -18,7 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Controller
-@RequestMapping(path="/products")
+@RequestMapping(path="/product")
 public class ProductController {
     @Autowired
     private ProductRepository productRepository;

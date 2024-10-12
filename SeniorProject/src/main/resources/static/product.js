@@ -33,7 +33,7 @@ function fetchProducts(sortBy = '', searchType = '', searchTerm = '') {
     return;
   }
   
-  let url = '/products/getAll';
+  let url = '/product/getAll';
   if (sortBy) {
     url += `?sortBy=${sortBy}`; // Add sorting query parameter if present
   }
@@ -41,7 +41,7 @@ function fetchProducts(sortBy = '', searchType = '', searchTerm = '') {
   if (searchType && searchTerm) {
     url += (sortBy ? '&' : '?') + `searchType=${searchType}&searchTerm=${searchTerm}`;
   }
-  console.log(url);
+ 
   fetch(url, {
     method: "GET",
     headers: {
@@ -62,6 +62,16 @@ function fetchProducts(sortBy = '', searchType = '', searchTerm = '') {
                      </tr>`;
     });
     document.getElementById('tableRows').innerHTML = rows;
+
+    // Add click event listeners to each row
+    const tableRows = document.querySelectorAll('#tableRows tr');
+    tableRows.forEach(row => {
+        row.addEventListener('click', function() {
+            console.log("Ran");
+            const productId = this.dataset.id; // Get the product ID
+            window.location.href = `/theProduct?id=${productId}`; // Redirect to the product page
+        });
+    });
   })
   .catch(error => console.log('Error fetching data:', error));
 }
@@ -70,7 +80,6 @@ function fetchProducts(sortBy = '', searchType = '', searchTerm = '') {
 function searchProducts() {
   const searchType = document.getElementById("col-type-dropdown").value.toLowerCase();
   const searchTerm = document.getElementById("searchInput").value;
-  console.log(`Searching for ${searchTerm} by ${searchType}`);
   
   // Return base and skip the search
   if (!searchTerm) {
@@ -84,8 +93,7 @@ function searchProducts() {
       return;
   }
 
-  let url = `/products/search?type=${searchType}&term=${searchTerm}`;
-  console.log(url);
+  let url = `/product/search?type=${searchType}&term=${searchTerm}`;
 
   fetch(url, {
       method: "GET",
