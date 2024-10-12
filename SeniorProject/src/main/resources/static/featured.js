@@ -161,10 +161,6 @@ function populateCards(items) {
 
     // Loop through the items and create cards
     Object.keys(items).forEach(itemKey => {
-        // Skip if itemKey is already in featuredItems
-        // if (featuredItems.includes(items[itemKey].Name)) {
-        //     return; // Skip this iteration
-        // }
         // Clone the card template
         const clonedCard = cardTemplate.cloneNode(true);
 
@@ -188,7 +184,20 @@ function populateCards(items) {
             // if im clicking on the same image
             if (featuredItems[selectedSlotIndex] == items[itemKey].Name) {
                 // Removing picture
-                featuredItems.splice(selectedSlotIndex, 1);
+                if (featuredItems.length == 1) {
+                    let featuredItemLabel = document.getElementById("itemChangeModalLabel");
+                    featuredItemLabel.innerHTML = "You must have at least one featured item!";
+                    featuredItemLabel.classList.add("text-danger");
+                    // Set a timeout to revert the message after 3 seconds
+                    setTimeout(() => {
+                        // Revert back to the original text and remove the danger class
+                        featuredItemLabel.innerHTML = "Change Item:";
+                        featuredItemLabel.classList.remove("text-danger");
+                    }, 2000); // 2000 milliseconds = 2 seconds 
+                    return;
+                } else {
+                    featuredItems.splice(selectedSlotIndex, 1);
+                }
             } else {
                 featuredItems[selectedSlotIndex] = items[itemKey].Name;
             }
