@@ -1,7 +1,9 @@
 package com.example.SeniorProject.Model;
 
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.*;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -19,14 +21,25 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
 
     @Query(" SELECT p FROM Product p WHERE p.name = ?1")
     List<Product> getProductByName(String name);
+    
     @Query(" SELECT p FROM Product p WHERE p.type=?1")
     List<Product> getProductByType(String type);
 
     @Query(" SELECT p FROM Product p WHERE p.id=?1")
     List<Product> getProductById(int id);
+    // For searching all together: Search name
+    @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<Product> findAllByNameContaining(@Param("searchTerm") String searchTerm);
+    // For searching all together: Search type
+    @Query("SELECT p FROM Product p WHERE LOWER(p.type) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<Product> findAllByTypeContaining(@Param("searchTerm") String searchTerm);
+    // For searching all together: Search id      
+    @Query("SELECT p FROM Product p WHERE p.id = :searchTerm")
+    List<Product> findAllByIdContaining(@Param("searchTerm") Integer searchTerm);
 
     @Transactional
     @Modifying
     @Query(" DELETE FROM Product p WHERE p.id=?1")
     void deleteById(int id);
+
 }
