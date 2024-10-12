@@ -101,6 +101,16 @@
 			<artifactId>s3</artifactId>
 			<version>2.20.35</version> <!-- Choose latest version -->
 		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>secretsmanager</artifactId>
+			<version>2.20.30</version> <!-- Or the latest available version -->
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sts</artifactId>  <!-- This is optional, but can be useful for assuming roles -->
+			<version>2.20.30</version> <!-- Or the latest available version -->
+		</dependency>
 
 	</dependencies>
 
