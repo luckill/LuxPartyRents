@@ -110,7 +110,20 @@
 			<groupId>com.sparkjava</groupId>
 			<artifactId>spark-core</artifactId>
 			<version>2.9.4</version>
+		</dependency>		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>secretsmanager</artifactId>
+			<version>2.20.30</version> <!-- Or the latest available version -->
 		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sts</artifactId>  <!-- This is optional, but can be useful for assuming roles -->
+			<version>2.20.30</version> <!-- Or the latest available version -->
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.27</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
