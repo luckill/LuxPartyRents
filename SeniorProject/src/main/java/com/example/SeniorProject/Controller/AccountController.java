@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/account")
-public class AccountController 
+public class AccountController
 {
 
     @Autowired
@@ -35,7 +35,7 @@ public class AccountController
     // Existing method to get account by id
     @GetMapping("/getAccount/{id}")
     @PreAuthorize("isAuthenticated()")
-    public @ResponseBody Iterable<Account> getAccountById(@PathVariable int id) 
+    public @ResponseBody Iterable<Account> getAccountById(@PathVariable int id)
     {
         return accountRepository.getAccountById(id);
     }
@@ -52,7 +52,7 @@ public class AccountController
     // Existing method to turn a user into an admin
     @PostMapping("/turnAdmin/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> turnAdmin(@PathVariable int id, @RequestParam String apiKey) 
+    public ResponseEntity<?> turnAdmin(@PathVariable int id, @RequestParam String apiKey)
     {
         String key = secretsManagerService.getSecretValue("adminAccountKey");
         if(key == null)
@@ -74,7 +74,7 @@ public class AccountController
     }
 
     @GetMapping("/getAccountInfo")
-    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token) 
+    public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token)
     {
         String jwtToken = token.replace("Bearer ", "");
 
