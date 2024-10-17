@@ -24,7 +24,7 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 	- Type: Relational
 	- MySQL
 * Deployment: 
-	- Digital Ocean Server and Digital ocean MySQL database.
+	- AWS.
 
 # Installation
 1. Clone the repository.

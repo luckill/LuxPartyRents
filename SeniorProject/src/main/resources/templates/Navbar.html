@@ -1,127 +1,150 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Potapov Weddings</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potapov Weddings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-aFq/bzH65dt+w6FI2ooMVUpc+21e0SRygnTpmBvdBgSdnuTN7QbdgL+OapgHtvPp"
+          crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+</head>
 
-    <body class="bg-transparent">
-
-        <div th:fragment="navbar">
-            <nav class="navbar navbar-expand-lg bg-transparent" data-bs-theme="dark">
-                <div class="container-fluid">
-                    <div class="navbar-brand"></div>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
-                            aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse mb-4" id="navbarColor01">
-                        <ul class="nav nav-underline navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link" aria-current="page" href="/">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/rental">Rentals</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/gallery">Gallery</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/faq">FAQ</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/about">About Us</a>
-                            </li>
-                        </ul>
-                        <form class="d-flex" id="other-page-form" role="search" method="get" action="/rental">
-                            <input class="form-control me-2" type="search" placeholder="Search Products" name="kw" aria-label="Search" id="product-search">
-                            <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
-                        </form>
-                    </div>
-                </div>
-            </nav>
+<body class="bg-transparent">
+<div th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg bg-transparent" data-bs-theme="dark">
+        <div class="container-fluid">
+            <div class="navbar-brand"></div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+                    aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse mb-4" id="navbarColor01">
+                <ul class="nav nav-underline navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/rental">Rentals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/gallery">Gallery</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About Us</a>
+                    </li>
+                    <!-- Links visible only to Admin -->
+                    <li class="nav-item admin-only" style="display:none;">
+                        <a class="nav-link" href="/products">Products</a> <!-- Visible to Admin -->
+                    </li>
+                    <li class="nav-item admin-only" style="display:none;">
+                        <a class="nav-link" href="/Orders">Orders (Admin)</a> <!-- Visible to Admin -->
+                    </li>
+                    <!-- Links visible to all logged-in users (admin or normal users) -->
+                    <li class="nav-item logged-in-only" style="display:none;">
+                        <a class="nav-link" href="/account_details">Account Details</a> <!-- Visible to all users -->
+                    </li>
+                    <li class="nav-item user-only" style="display:none;">
+                        <a class="nav-link" href="/user_order">User Orders</a> <!-- Visible to Users -->
+                    </li>
+                </ul>
+                <form class="d-flex" id="other-page-form" role="search" method="get" action="/rental">
+                    <input class="form-control me-2" type="search" placeholder="Search Products" name="kw"
+                           aria-label="Search" id="product-search">
+                    <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
+                </form>
+            </div>
         </div>
+    </nav>
+</div>
 
-        <div th:fragment="header">
-            <header class="py-3 border-bottom">
-                <div class="row flex-nowrap justify-content-between align-items-center">
-                    <div class="col-3 pt-1"></div>
-                    <div class="col-6 text-center">
-                        <a class="fs-1 text-white -bg-transparent text-end text-decoration-none" href="/">Potapov Weddings</a>
-                    </div>
-                    <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
-                        <a id="loginButton" class="btn btn-outline-light mx-2" href="/login">Login</a>
-                        <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
-                        <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()">Logout</button>
-                        <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart">Cart</a>
-                    </div>
-                </div>
-                <div class="container d-flex flex-wrap justify-content-center">
-                    <a class="d-flex align-self-center link-body-emphasis text-decoration-none">
-                        <span class="fs-6 text-white -bg-transparent text-center">Sacramento | South Carolina</span>
-                    </a>
-                </div>
-            </header>
-            <script>
-                const currentPage = window.location.pathname.split("/").pop();
-                const navLinks = document.querySelectorAll(".nav-link");
+<div th:fragment="header">
+    <header class="py-3 border-bottom">
+        <div class="row flex-nowrap justify-content-between align-items-center">
+            <div class="col-3 pt-1"></div>
+            <div class="col-6 text-center">
+                <a class="fs-1 text-white -bg-transparent text-end text-decoration-none" href="/">Potapov Weddings</a>
+            </div>
+            <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
+                <a id="loginButton" class="btn btn-outline-light mx-2" href="/login">Login</a>
+                <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
+                <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()" style="display:none;">Logout</button>
+                <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart" style="display:none;">Cart</a>
+            </div>
+        </div>
+        <div class="container d-flex flex-wrap justify-content-center">
+            <a class="d-flex align-self-center link-body-emphasis text-decoration-none">
+                <span class="fs-6 text-white -bg-transparent text-center">Sacramento | South Carolina</span>
+            </a>
+        </div>
+    </header>
 
-                navLinks.forEach(link =>
-                {
-                    const linkPage = link.getAttribute("href").split("/").pop(); // Get only the last part of the href
-                    if (linkPage === currentPage || (currentPage === "" && linkPage === "index.html"))
-                    {
-                        link.classList.add("active"); // Add the 'active' class to the current page link
-                    }
-                })
-                document.addEventListener("DOMContentLoaded", function()
-                {
-                    const path = window.location.pathname;
-                    const pagesToHideButtons = ["/signUp", "/login"];
-                    if (pagesToHideButtons.includes(path))
-                    {
-                        document.getElementById("loginButton").style.display = "none";
-                        document.getElementById("signUpButton").style.display = "none";
-                        document.getElementById("shoppingCartButton").style.display = "none";
-                        document.getElementById("other-page-form").remove();
-                    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const userRole = localStorage.getItem('Role'); // Admin or User
+
+            if (isLoggedIn === "true") {
+                // Hide/Show links based on the user's role
+                document.getElementById('loginButton').style.display = 'none';
+                document.getElementById('signUpButton').style.display = 'none';
+                document.getElementById('logOutButton').style.display = 'block';
+                document.getElementById('shoppingCartButton').style.display = 'block';
+
+                // Show Account Details link for all logged-in users
+                document.querySelectorAll('.logged-in-only').forEach(item => {
+                    item.style.display = 'block';
                 });
 
-                function logout()
-                {
-                    fetch("/auth/logout",
-                    {
-                        method: "POST",
-                        headers:
-                        {
-                            "Content_type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
-                        }
-                    })
-                    .then(function (response)
-                    {
-                        if (response.ok)
-                        {
-                            localStorage.removeItem("jwtToken");
-                            localStorage.removeItem("isLoggedIn")
-                            localStorage.removeItem("Role")
-                            window.location.href = '/';
-                        }
-                        else
-                        {
-                            // Handle errors, you can display a message to the user
-                            console.error('Error:', response.statusText);
-                        }
-                    })
-                    .catch(error =>
-                    {
-                        console.error('Error:', error);
+                // Show admin-specific links if the role is ADMIN
+                if (userRole === "ADMIN") {
+                    document.querySelectorAll('.admin-only').forEach(item => {
+                        item.style.display = 'block';
                     });
                 }
-            </script>
-        </div>
-    </body>
+
+                // Show user-specific links if the role is USER
+                if (userRole === "USER") {
+                    document.querySelectorAll('.user-only').forEach(item => {
+                        item.style.display = 'block';
+                    });
+                }
+            } else {
+                // Hide admin/user specific links if not logged in
+                document.querySelectorAll('.admin-only, .user-only, .logged-in-only').forEach(item => {
+                    item.style.display = 'none';
+                });
+            }
+        });
+
+        function logout() {
+            fetch("/auth/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    localStorage.removeItem("jwtToken");
+                    localStorage.removeItem("isLoggedIn");
+                    localStorage.removeItem("Role");
+                    window.location.href = '/';
+                } else {
+                    console.error('Error:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</div>
+</body>
 </html>
