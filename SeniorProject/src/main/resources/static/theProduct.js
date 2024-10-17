@@ -19,6 +19,14 @@ window.onload = function() {
             document.querySelector('.price').value = product.price;
             document.querySelector('.type').value = product.type;
             document.querySelector('.description').value = product.description;
+
+            let imgLink = "https://d3snlw7xiuobl9.cloudfront.net/";
+            imgLink = imgLink.concat(product.name, ".jpg");// Assuming product.imageUrl contains the URL of the image
+            console.log(imgLink);
+            imageView.style.backgroundImage = `url(${imgLink})`;
+            imageView.textContent = ""; // Clear placeholder text
+            imageView.style.border = 0;
+            placeholderImg.style.display = "none";
         })
         .catch(error => console.log('Error fetching product details:', error));
     }

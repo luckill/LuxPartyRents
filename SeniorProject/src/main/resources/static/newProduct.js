@@ -7,7 +7,7 @@ function addProduct() {
     const inputFile = document.getElementById("input-file");
     let file = inputFile.files[0];
     if (file) {
-        let newName = name.concat(".png")
+        let newName = name.concat(".jpg")
         const newFileName = newName; // Specify your new file name
         file = renameFile(file, newFileName);
         console.log(file); // Log the renamed file
