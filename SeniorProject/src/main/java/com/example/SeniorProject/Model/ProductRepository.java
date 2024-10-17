@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.*;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer>
 {
@@ -20,7 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
     void updateProductQuantityById(int quantity, int id);
 
     @Query(" SELECT p FROM Product p WHERE p.name = ?1")
-    List<Product> getProductByName(String name);
+    Product getProductByName(String name);
     
     @Query(" SELECT p FROM Product p WHERE p.type=?1")
     List<Product> getProductByType(String type);

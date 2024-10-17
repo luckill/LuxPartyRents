@@ -56,6 +56,15 @@ public class Product {
         this.name = name;
         this.description = description;
     }
+    public Product(int id, int quantity, double price, String type, String name, String description) {
+        this.id =id;
+        this.quantity = quantity;
+        this.price = price;
+        this.deposit = price / 2;
+        this.type = type;
+        this.name = name;
+        this.description = description;
+    }
 
     public Product(int quantity, double price, String type, String name, String description, boolean deliverOnly, boolean featureProduct)
     {
