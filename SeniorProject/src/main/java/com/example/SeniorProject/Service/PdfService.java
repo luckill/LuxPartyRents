@@ -30,7 +30,7 @@ public class PdfService {
             // Company Name and Invoice Title
             contentStream.beginText();
             contentStream.newLineAtOffset(220, 750); // Centered
-            contentStream.showText("Potapov Weddings"); // Company Name
+            contentStream.showText("Lux Party Rents"); // Company Name
             contentStream.endText();
 
             // Draw a line below the company name

@@ -16,45 +16,8 @@
 
 <body class="bg-transparent">
     <section class="top">
-        <header class="py-3 border-bottom">
-            <div class="row flex-nowrap justify-content-between align-items-center">
-                <div class="col-3 pt-2"></div>
-                <div class="col-6 text-center">
-                    <a class="fs-1 text-white -bg-transparent text-end text-decoration-none" href="/">Potapov
-                        Weddings</a>
-                </div>
-                <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
-                    <a class="btn btn btn-outline-light" href="#">Account</a>
-                </div>
-            </div>
-            <div class="container d-flex flex-wrap justify-content-center">
-                <a class="d-flex align-self-center link-body-emphasis text-decoration-none">
-                    <span class="fs-6 text-white -bg-transparent text-center">Sacramento | South Carolina</span>
-                </a>
-            </div>
-        </header>
-        <nav class="navbar navbar-expand-lg bg-transparent" data-bs-theme="dark">
-            <div class="container-fluid">
-                <div class="navbar-brand"></div>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
-                    aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse mb-4" id="navbarColor01">
-                    <ul class="nav nav-underline navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Account Details</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/products">Products</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Orders</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <div th:replace="~{Navbar :: header}"></div>
+        <div th:replace="~{Navbar :: navbar}"></div>
     </section>
 
 
@@ -65,9 +28,16 @@
             <button type="button" style="margin-left: 10%;" class="btn btn-outline-light"
                 onclick="window.location.href='/newProduct'">Add</button>
             <form class="search" role="search"></form>
-            <input class="form-control me-2" style="width: 200px;" type="search" placeholder="Order Number"
-                aria-label="Search">
-            <button class="btn btn-outline-light" style="margin-right: 10%;" type="submit">Search</button>
+                <div class="dropdown w-25 d-flex"> <!-- Added margin-start to create a gap -->
+                    <select class="form-select wide-dropdown me-2" id="col-type-dropdown" name="type" onchange=""> <!-- Only filters when search has values in it -->
+                        <option value="Name">Name</option>
+                        <option value="ID">ID</option>
+                        <option value="Type">Type</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <input class="form-control me-2" style="width: 200px;" type="search" placeholder="Search" id="searchInput" aria-label="Search">
+                <button class="btn btn-outline-light" style="margin-right: 10%;" type="submit" id="searchButton">Search</button>
             </form>
         </div>
     </section>
@@ -77,14 +47,16 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Type</th>
+                        <!-- Dropdown button acts as a filter -->
+                        <th>ID <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-id"></button></th>
+                        <th>Name <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-name"></button></th>
+                        <th>Price <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-price"></button></th>
+                        <th>Quantity <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-quantity"></button></th>
+                        <th>Type <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-type"></button></th>
                     </tr>
                 </thead>
                 <tbody id="tableRows">
+                    <!-- Items will show up here -->
                 </tbody>
             </table>
         </div>
