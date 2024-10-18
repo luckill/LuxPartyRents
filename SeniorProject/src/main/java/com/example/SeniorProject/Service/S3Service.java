@@ -22,21 +22,27 @@ public class S3Service
 {
     private final S3Client s3Client;
 
-    public S3Service(@Value("${aws.accessKeyId}") String accessKeyId, @Value("${aws.secretKey}") String secretKey)
+    @Value("${aws.s3.bucket}")
+    private String bucketName;
+
+    public S3Service(@Value("${aws.accessKeyId}") String accessKeyId, @Value("${aws.secretKey}") String secretKey, @Value("${aws.s3.region}") String region)
     {
         AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
         this.s3Client = S3Client.builder()
-                .region(Region.US_WEST_1)
+                .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
                 .build();
     }
 
     public void uploadFile(MultipartFile multipartFile)
     {
+        if(multipartFile.isEmpty())
+        {
+            throw new IllegalArgumentException("File is empty");
+        }
         try
         {
             File file = convertMultiPartFileToFile(multipartFile);
-            String bucketName = "luxpartyrentsresources";
             String keyName = Paths.get(multipartFile.getOriginalFilename()).getFileName().toString();
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
@@ -44,20 +50,28 @@ public class S3Service
                     .acl(ObjectCannedACL.PUBLIC_READ)
                     .build();
             s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
-
-            System.out.println("File uploaded successfully to S3 bucket: " + bucketName);
-        } catch (S3Exception e) {
+            if (file.delete())
+            {
+                System.out.println("Temporary file deleted successfully.");
+            }
+            else
+            {
+                System.out.println("Failed to delete the temporary file.");
+            }
+        } catch (S3Exception e)
+        {
             e.printStackTrace();
         }
-
-
     }
     private File convertMultiPartFileToFile(MultipartFile file)
     {
         File convFile = new File(file.getOriginalFilename());
-        try (FileOutputStream fos = new FileOutputStream(convFile)) {
+        try (FileOutputStream fos = new FileOutputStream(convFile))
+        {
             fos.write(file.getBytes());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
         return convFile;

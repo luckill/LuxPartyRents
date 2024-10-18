@@ -32,15 +32,23 @@ public class Product {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "deliver_only")
+    private boolean deliverOnly;
+
+    @Column(name = "feature_Product")
+    private boolean featureProduct;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference("order_product")
     private Set<OrderProduct> orderProducts = new HashSet<>();
 
-    public Product() {
+    public Product()
+    {
         // Default constructor
     }
 
-    public Product(int quantity, double price, String type, String name, String description) {
+    public Product(int quantity, double price, String type, String name, String description)
+    {
         this.quantity = quantity;
         this.price = price;
         this.deposit = price / 2;
@@ -58,6 +66,12 @@ public class Product {
         this.description = description;
     }
 
+    public Product(int quantity, double price, String type, String name, String description, boolean deliverOnly, boolean featureProduct)
+    {
+        this(quantity, price, type, name, description);
+        this.deliverOnly = deliverOnly;
+        this.featureProduct = featureProduct;
+    }
 
     // Getters and Setters
 
@@ -138,5 +152,25 @@ public class Product {
     public void setDeposit(double deposit)
     {
         this.deposit = deposit;
+    }
+
+    public boolean isDeliverOnly()
+    {
+        return deliverOnly;
+    }
+
+    public void setDeliverOnly(boolean deliverOnly)
+    {
+        this.deliverOnly = deliverOnly;
+    }
+
+    public boolean isFeatureProduct()
+    {
+        return featureProduct;
+    }
+
+    public void setFeatureProduct(boolean featureProduct)
+    {
+        this.featureProduct = featureProduct;
     }
 }

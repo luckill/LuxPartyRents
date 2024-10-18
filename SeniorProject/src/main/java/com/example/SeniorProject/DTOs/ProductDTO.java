@@ -2,8 +2,6 @@ package com.example.SeniorProject.DTOs;
 
 public class ProductDTO
 {
-	/*    public Product(int quantity, double price, String type, String name, String description, String location) {
-	 */
 	private int id;
 	private String name;
 	private double price;
@@ -11,6 +9,8 @@ public class ProductDTO
 	private int quantity;
 	private String type;
 	private String description;
+	private boolean deliveryOnly;
+	private boolean featureProduct;
 
 	public ProductDTO()
 	{
@@ -36,6 +36,12 @@ public class ProductDTO
 		this(id,name,price, type);
 		this.quantity = quantity;
 		this.description = description;
+	}
+
+	public ProductDTO(int id, String name, double price, int quantity, String type, String description, boolean deliverOnly)
+	{
+		this(id,name,price,quantity,type,description);
+		this.deliveryOnly = deliverOnly;
 	}
 
 	public int getId()
@@ -106,5 +112,25 @@ public class ProductDTO
 	public void setDeposit(double deposit)
 	{
 		this.deposit = deposit;
+	}
+
+	public boolean isDeliveryOnly()
+	{
+		return deliveryOnly;
+	}
+
+	public void setDeliveryOnly(boolean deliveryOnly)
+	{
+		this.deliveryOnly = deliveryOnly;
+	}
+
+	public boolean isFeatureProduct()
+	{
+		return featureProduct;
+	}
+
+	public void setFeatureProduct(boolean featureProduct)
+	{
+		this.featureProduct = featureProduct;
 	}
 }
