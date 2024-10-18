@@ -84,17 +84,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(this.mapToProductDTO(result));
     }
 
-    private ProductDTO mapToProductDTO(Product product)
-    {
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setId(product.getId());
-        productDTO.setName(product.getName());
-        productDTO.setPrice(product.getPrice());
-        productDTO.setType(product.getType());
-        productDTO.setQuantity(product.getQuantity());
-        productDTO.setDescription(product.getDescription());
-        return productDTO;
-    }
+
     // Meant for searching with the given column types
     @GetMapping(path="/search")
     public ResponseEntity<?> searchProducts(@RequestParam String type, @RequestParam String term)
@@ -106,5 +96,17 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
         }
         return ResponseEntity.ok(result.stream().map(this::mapToProductDTO).toList());
-    }    
+    }
+
+    private ProductDTO mapToProductDTO(Product product)
+    {
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setId(product.getId());
+        productDTO.setName(product.getName());
+        productDTO.setPrice(product.getPrice());
+        productDTO.setType(product.getType());
+        productDTO.setQuantity(product.getQuantity());
+        productDTO.setDescription(product.getDescription());
+        return productDTO;
+    }
 }

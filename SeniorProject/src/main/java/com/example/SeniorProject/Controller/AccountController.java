@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.server.*;
 
 import java.util.Optional;
 
@@ -19,34 +20,32 @@ import java.util.Optional;
 @RequestMapping("/account")
 public class AccountController
 {
-
     @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private SecretsManagerService secretsManagerService;
-
+    private AccountService accountService;
 
     // Existing method to get account by id
     @GetMapping("/getAccount/{id}")
     @PreAuthorize("isAuthenticated()")
-    public @ResponseBody Iterable<Account> getAccountById(@PathVariable int id)
+    public ResponseEntity<?> getAccountById(@PathVariable int id)
     {
-        return accountRepository.getAccountById(id);
+        try
+        {
+            Account account = accountService.getAccountById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(account);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+        }
     }
 
     // Existing method to delete an account
     @DeleteMapping("/deleteAccount/{id}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> deleteAccount(@PathVariable int id)
+    public ResponseEntity<?> deleteAccount(@PathVariable int id)
     {
-        accountRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        accountService.deleteAccount(id);
+        return ResponseEntity.status(HttpStatus.OK).body("your account has been successfully deleted.");
     }
 
     // Existing method to turn a user into an admin
@@ -54,44 +53,28 @@ public class AccountController
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> turnAdmin(@PathVariable int id, @RequestParam String apiKey)
     {
-        String key = secretsManagerService.getSecretValue("adminAccountKey");
-        if(key == null)
+        try
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No API key found in AWS Secret Manager.");
+            accountService.turnAdmin(id, apiKey);
+            return ResponseEntity.status(HttpStatus.OK).body("you have successfully converted this account to admin.");
         }
-        if(!key.equals(apiKey))
+        catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("API key does not match.");
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
         }
-
-        Account account = accountRepository.getAccountById(id).get(0);
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ADMIN);
-        if (optionalRole.isPresent()) {
-            account.setRole(optionalRole.get());
-        }
-        accountRepository.save(account);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/getAccountInfo")
     public ResponseEntity<?> getUserInfo(@RequestHeader("Authorization") String token)
     {
-        String jwtToken = token.replace("Bearer ", "");
-
-        // Validate the token and extract username
-        if (jwtService.isTokenExpired(jwtToken))
+        try
         {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your session has expired, please log in again");
+            Account account = accountService.getUserInfo(token);
+            return ResponseEntity.status(HttpStatus.OK).body(account);
         }
-
-        String username = jwtService.extractUsername(jwtToken);
-        Account account = accountRepository.findAccountByEmail(username);
-
-        if (account == null)
+        catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with email " + username);
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
         }
-
-        return ResponseEntity.ok(account);
     }
 }

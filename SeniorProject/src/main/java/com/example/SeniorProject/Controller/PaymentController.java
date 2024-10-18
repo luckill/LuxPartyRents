@@ -6,19 +6,9 @@ import com.example.SeniorProject.Model.OrderRepository;
 import com.example.SeniorProject.Model.OrderStatus;
 import com.example.SeniorProject.Model.PaymentRequest;
 import com.example.SeniorProject.Service.PaymentService;
-import com.stripe.model.PaymentIntent;
-import com.stripe.param.PaymentIntentCreateParams;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
 import java.util.Map;
-
-import com.stripe.Stripe;
-
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 
 @RestController
 @RequestMapping("/api/payment/secure")
