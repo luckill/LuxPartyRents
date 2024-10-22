@@ -93,7 +93,8 @@ public class JwtService
     {
         Date expiration = extractExpiration(token);
         Date now = new Date();
-        if (expiration.before(now)) {
+        if (expiration.before(now))
+        {
             return 0;  // Token has already expired
         }
 

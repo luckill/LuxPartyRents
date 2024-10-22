@@ -29,15 +29,6 @@ public class Customer
     @Size(min = 10, max = 10)
     @Column(name = "customer_phone")
     private String phone;
-    @Column(name = "address")
-    private String address;
-    @Column(name = "city")
-    private String city;
-    @Column(name = "state")
-    private String state;
-    @Size(min = 5,max = 5, message = "zip code must be at most 5 character")
-    @Column(name = "zip_code")
-    private String zipCode;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "customer", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -53,16 +44,12 @@ public class Customer
 
     }
 
-    public Customer(String firstName, String lastName, String email, String phone, String address, String city, String state, String zipCode)
+    public Customer(String firstName, String lastName, String email, String phone)
     {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phone = phone;
-        this.address = address;
-        this.city = city;
-        this.state = state;
-        this.zipCode = zipCode;
     }
 
     public int getId()
@@ -110,46 +97,6 @@ public class Customer
         this.phone = phone;
     }
 
-    public String getAddress()
-    {
-        return address;
-    }
-
-    public void setAddress(String address)
-    {
-        this.address = address;
-    }
-
-    public String getCity()
-    {
-        return city;
-    }
-
-    public void setCity(String city)
-    {
-        this.city = city;
-    }
-
-    public String getState()
-    {
-        return state;
-    }
-
-    public void setState(String state)
-    {
-        this.state = state;
-    }
-
-    public String getZipCode()
-    {
-        return zipCode;
-    }
-
-    public void setZipCode(String zipCode)
-    {
-        this.zipCode = zipCode;
-    }
-
     public List<Order> getOrders()
     {
         return orders;
@@ -168,5 +115,10 @@ public class Customer
     public void setAccount(Account account)
     {
         this.account = account;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
     }
 }

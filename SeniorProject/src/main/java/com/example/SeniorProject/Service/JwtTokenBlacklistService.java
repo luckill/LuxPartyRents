@@ -3,6 +3,8 @@ package com.example.SeniorProject.Service;
 import com.example.SeniorProject.Model.*;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.*;
+
 import java.time.*;
 import java.util.*;
 
@@ -31,15 +33,13 @@ public class JwtTokenBlacklistService
         return blacklistedTokenRepository.existsByToken(token);
     }
 
-    public void invalidateTokensForUser(String username) {
-        // Optionally, implement logic to invalidate tokens based on the user, if necessary.
-        // If you need to associate tokens with users, you could modify the BlacklistedToken model.
-    }
-
-    public ResponseEntity<?> deleteExpiredTokens(LocalDateTime localDateTime)
+    public void deleteExpiredTokens(LocalDateTime localDateTime)
     {
         List<BlacklistedToken> tokens = blacklistedTokenRepository.findExpiredBlacklistTokens(LocalDateTime.now());
+        if (tokens.isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No expire tokens found");
+        }
         blacklistedTokenRepository.deleteAll(tokens);
-        return ResponseEntity.ok().build();
     }
 }

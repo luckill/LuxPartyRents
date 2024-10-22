@@ -138,7 +138,7 @@ public class EmailService
     }
 
     // User/CX Email notifications
-    private void sendCxPickupNotification ( Order order){
+    public void sendCxPickupNotification ( Order order){
         //setting the up the email
         EmailDetails CxEmailDetails = new EmailDetails();
         CxEmailDetails.setRecipient(order.getCustomer().getEmail());
@@ -157,7 +157,7 @@ public class EmailService
 
     }//Pickup
 
-    private void sendCxReturnNotification ( Order order){
+    public void sendCxReturnNotification ( Order order){
         //setting the up the email
         EmailDetails CxEmailDetails = new EmailDetails();
         CxEmailDetails.setRecipient(order.getCustomer().getEmail());
@@ -178,7 +178,7 @@ public class EmailService
 
     //Note that sendCxCanceledNotification requires a CanceledReason to be
     //passed into the function for the email to be complete.
-    private void sendCxCanceledNotification ( String CanceledReason, Order order){
+    public void sendCxCanceledNotification ( String CanceledReason, Order order){
         //setting the up the email
         EmailDetails CxEmailDetails = new EmailDetails();
         CxEmailDetails.setRecipient(order.getCustomer().getEmail());

@@ -28,6 +28,10 @@ public class PasswordService
 
     public void sendResetToken(String email, HttpServletRequest request)
     {
+        if(email == null || email.isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "missing email");
+        }
         String token = tokenService.generateToken(email);
         String url = "http://" + request.getServerName() + ":" + request.getServerPort()  + "/resetPassword?token=" + token;
         EmailDetails emailDetails = new EmailDetails();
@@ -45,6 +49,10 @@ public class PasswordService
     public Map<String, String> verifyResetToken(String token)
     {
         String email = tokenService.validateToken(token);
+        if(token == null)
+        {
+            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST, "missing token");
+        }
         if (email == null)
         {
             Map<String,String> errorResponse = new HashMap<>();
@@ -62,7 +70,12 @@ public class PasswordService
     {
         if (token == null || token.isEmpty())
         {
-            throw  new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing token.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing token.");
+        }
+
+        if (accountInfo == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing account info.");
         }
 
         String email = tokenService.validateToken(token);
