@@ -28,7 +28,7 @@ public class CustomerController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -42,7 +42,7 @@ public class CustomerController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -57,7 +57,7 @@ public class CustomerController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -67,12 +67,12 @@ public class CustomerController
     {
         try
         {
-            customerService.deleteCustomer(id);
-            return ResponseEntity.status(HttpStatus.OK).build();
+            String message = customerService.deleteCustomer(id);
+            return ResponseEntity.status(HttpStatus.OK).body(message);
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 }

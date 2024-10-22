@@ -12,6 +12,10 @@ public class TokenService
 
     public String generateToken(String email)
     {
+        if (email == null)
+        {
+            throw new IllegalArgumentException("Email cannot be null");
+        }
         String token = email + ":" + System.currentTimeMillis();
         String encodedToken = Base64.getEncoder().encodeToString(token.getBytes());
 
@@ -43,5 +47,10 @@ public class TokenService
         if (tokenData != null) {
             tokenData.setUsed(true);
         }
+    }
+
+    public Map<String, TokenData> getTokenStore()
+    {
+        return tokenStore;
     }
 }

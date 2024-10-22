@@ -3,12 +3,10 @@ package com.example.SeniorProject.Service;
 import com.example.SeniorProject.Model.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.*;
 import org.springframework.stereotype.*;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.*;
 
-import java.io.*;
+import java.util.*;
 
 @Service
 public class CustomerService
@@ -34,7 +32,7 @@ public class CustomerService
     public Customer getUserById(int id)
     {
         Customer customer = customerRepository.findById(id).orElse(null);
-        if(customer == null)
+        if (customer == null)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
         }
@@ -43,63 +41,47 @@ public class CustomerService
 
     public void updateCustomer(Customer customer)
     {
+
+        // Fetch existing customer from the database
+        Customer existingCustomer = customerRepository.findById(customer.getId()).orElse(null);
+
+        if (existingCustomer == null)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
+        }
+
+        // Update fields if they are not null
+        if (customer.getFirstName() != null && (!existingCustomer.getFirstName().equals(customer.getFirstName())))
+        {
+            existingCustomer.setFirstName(customer.getFirstName());
+        }
+        if (customer.getLastName() != null && (!existingCustomer.getLastName().equals(customer.getLastName())))
+        {
+            existingCustomer.setLastName(customer.getLastName());
+        }
+        if (customer.getPhone() != null && (!existingCustomer.getPhone().equals(customer.getPhone())))
+        {
+            existingCustomer.setPhone(customer.getPhone());
+        }
         try
         {
-            // Fetch existing customer from the database
-            Customer existingCustomer = customerRepository.findById(customer.getId()).orElse(null);
-
-            if (existingCustomer == null)
-            {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
-            }
-
-            // Update fields if they are not null
-            if (customer.getFirstName() != null)
-            {
-                existingCustomer.setFirstName(customer.getFirstName());
-            }
-            if (customer.getLastName() != null)
-            {
-                existingCustomer.setLastName(customer.getLastName());
-            }
-            if (customer.getPhone() != null)
-            {
-                existingCustomer.setPhone(customer.getPhone());
-            }
-            if (customer.getAddress() != null)
-            {
-                existingCustomer.setAddress(customer.getAddress());
-            }
-            if (customer.getCity() != null)
-            {
-                existingCustomer.setCity(customer.getCity());
-            }
-            if (customer.getState() != null)
-            {
-                existingCustomer.setState(customer.getState());
-            }
-            if (customer.getZipCode() != null)
-            {
-                existingCustomer.setZipCode(customer.getZipCode());
-            }
-
-            // Save updated customer
             customerRepository.save(existingCustomer);
         }
-        catch (Exception ex)
+        // Save updated customer
+        catch(Exception ex)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while updating the customer");
         }
     }
 
-    public ResponseEntity<?> deleteCustomer(int id)
+    public String deleteCustomer(int id)
     {
-        Account account = accountRepository.findById(id).orElse(null);
-        if (account == null)
+        Optional<Account> account = accountRepository.findById(id);
+        if (account.isEmpty())
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found");
         }
         customerRepository.deleteById(id);
-        return ResponseEntity.ok("Customer has been successfully deleted");
+        return "Your customer profile has been successfully deleted";
     }
 }

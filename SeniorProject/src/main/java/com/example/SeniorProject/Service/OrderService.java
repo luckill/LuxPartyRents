@@ -38,10 +38,6 @@ public class OrderService
     {
         // Check if the order already exists
         int orderId = generateUniqueOrderId();
-        if (orderRepository.existsById(id))
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Order with this ID already exists.");
-        }
 
         // Find the customer by ID
         Customer customer = customerRepository.findById(id).orElse(null);
@@ -101,38 +97,31 @@ public class OrderService
     // Cancel an order
     public void cancelOrder(int orderId)
     {
-        try
+        // Find the order by ID
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null)
         {
-            // Find the order by ID
-            Order order = orderRepository.findById(orderId).orElse(null);
-            if (order == null)
-            {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Order not found");
-            }
-
-            // Check if the order is already cancelled
-            if (order.getStatus() == OrderStatus.CANCELLED)
-            {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Order is already cancelled");
-            }
-
-            // Set the order status to 'cancelled'
-            order.setStatus(OrderStatus.CANCELLED);
-
-            // Save the order with the updated status
-            orderRepository.save(order);
-
-            // Send notification to admin for order cancellation
-            sendAdminNotification(
-                    "Order Cancelled",
-                    "Order ID " + order.getId() + " has been cancelled by " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
-                    order
-            );
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Order not found");
         }
-        catch (Exception e)
+
+        // Check if the order is already cancelled
+        if (order.getStatus() == OrderStatus.CANCELLED)
         {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error cancelling order");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Order is already cancelled");
         }
+
+        // Set the order status to 'cancelled'
+        order.setStatus(OrderStatus.CANCELLED);
+
+        // Save the order with the updated status
+        orderRepository.save(order);
+
+        // Send notification to admin for order cancellation
+        sendAdminNotification(
+                "Order Cancelled",
+                "Order ID " + order.getId() + " has been cancelled by " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
+                order
+        );
     }
 
     // Fetching the current orders for a customer (status = 'active')
@@ -166,6 +155,10 @@ public class OrderService
     public List<OrderDTO> getAllOrders()
     {
         List<Order> orders = orderRepository.findAll();
+        if (orders.isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No orders found.");
+        }
         return orders.stream().map(this::mapToOrderDTO).collect(Collectors.toList());
     }
 
@@ -195,14 +188,22 @@ public class OrderService
         {
             order.setPaid(orderDTO.isPaid());
         }
-        if (!orderDTO.getStatus().equals(order.getStatus().toString()))
+        if (orderDTO.getStatus() != null)
         {
-            if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.RETURNED)
+            if (!orderDTO.getStatus().equals(order.getStatus().toString()))
             {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Order is already returned or cancelled");
+                if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.RETURNED)
+                {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Order is already returned or cancelled");
+                }
+                order.setStatus(OrderStatus.valueOf(orderDTO.getStatus()));
             }
-            order.setStatus(OrderStatus.valueOf(orderDTO.getStatus()));
         }
+        else
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - order status have null value");
+        }
+
         orderRepository.save(order);
     }
 
@@ -269,7 +270,7 @@ public class OrderService
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
         }
-        Customer customer = customerRepository.findById(order.getCustomer().getId()).orElse(null);
+        Customer customer = order.getCustomer();
         if (customer == null)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");

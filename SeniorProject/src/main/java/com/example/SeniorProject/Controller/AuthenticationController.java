@@ -66,13 +66,6 @@ public class AuthenticationController
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/invalidate")
-    public ResponseEntity<?> invalidateTokens(@RequestBody String username)
-    {
-        jwtTokenBlacklistService.invalidateTokensForUser(username);
-        return ResponseEntity.ok().build();
-    }
-
     @DeleteMapping("/deleteExpiredTokens")
     public ResponseEntity<?> deleteExpiredTokens()
     {

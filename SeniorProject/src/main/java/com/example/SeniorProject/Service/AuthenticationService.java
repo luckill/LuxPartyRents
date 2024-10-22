@@ -4,12 +4,14 @@ import com.example.SeniorProject.DTOs.LoginUserDTO;
 import com.example.SeniorProject.DTOs.RegisterUserDTO;
 import com.example.SeniorProject.Exception.BadRequestException;
 import com.example.SeniorProject.Model.*;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.*;
 
 import java.util.Optional;
 
@@ -37,20 +39,8 @@ public class AuthenticationService
         {
             throw new BadRequestException("AAn account associated with this email already exists.");
         }
-        if (customerRepository.findAccountByCustomerName(input.getFirstName(), input.getLastName()) != null)
-        {
-            throw new BadRequestException("An account associated with your name already exists. Please log in instead. If you are trying to create a new account, please delete the current one first.");
-        }
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
-        if (accountRepository.findAccountByEmail(input.getEmail()) != null)
-        {
-            throw new BadRequestException("Account associated by this email already exists");
-        }
-        if (customerRepository.findAccountByCustomerName(input.getFirstName(), input.getLastName()) != null)
-        {
-            throw new BadRequestException("An account that is associate with your name already existed. please login instead. if you are trying to recreate n account please delete for current account first.");
-        }
-        Customer customer = new Customer(input.getFirstName(), input.getLastName(), input.getEmail(), input.getPhoneNumber(), "", "", "", "");
+        Customer customer = new Customer(input.getFirstName(), input.getLastName(), input.getEmail(), input.getPhoneNumber());
         Account account = new Account(input.getEmail(), passwordEncoder.encode(input.getPassword()), false);
         if (!optionalRole.isEmpty())
         {
@@ -64,6 +54,10 @@ public class AuthenticationService
     public Account authenticate(LoginUserDTO input)
     {
         Account account = accountRepository.findAccountByEmail(input.getEmail());
+        if(account == null)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no account associated with this email");
+        }
 
         if (account.getIsLock())
         {
