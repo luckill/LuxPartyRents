@@ -209,7 +209,16 @@ function calculateTotalCost() {
     document.getElementById("taxAmount").innerHTML = "$" + tax.toFixed(2);
     document.getElementById("depositAmount").innerHTML = "$" + totalDeposit.toFixed(2);
     document.getElementById("completeTotal").innerHTML = "$" + totalCost.toFixed(2);
+
+
 }
 
 // Load cart when the page loads
 window.onload = loadCartFromCookies;
+function redirectToCheckout() {
+    window.location.href = '/checkout'; // Replace with your checkout URL
+}
+
+document.getElementById("termsCheckbox").addEventListener("change", function() {
+    document.getElementById("checkoutButton").disabled = !this.checked;
+});
