@@ -136,6 +136,14 @@ public class ProductService {
                 return productRepository.findById(id).orElse(null);
         }
 
+        public Product markProductAsFeatured(int id) {
+                Product product = productRepository.findById(id).orElse(null);
+                if (product == null) {
+                    return null;
+                }
+                product.setFeatureProduct(true); // Set the featuredProduct flag
+                return productRepository.save(product); // Save the updated product back to the database
+            }
 
         public ProductDTO mapToProductDTO(Product product)
         {
@@ -182,4 +190,19 @@ public class ProductService {
 
                 return result;
         }
+
+        public List<Product> findAllByNameContaining(String name) {
+                if (name != null) {
+                        return productRepository.findAllByNameContaining(name);
+                } else {
+                        return productRepository.findAll();
+                }
+                
+        }
+
+        public List<Product> getFeaturedProducts() {
+                return productRepository.findAllByFeatureProduct(true);
+        }
+
+        
 }

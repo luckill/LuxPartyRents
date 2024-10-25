@@ -38,6 +38,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
     @Query("SELECT p FROM Product p WHERE p.id = :searchTerm")
     List<Product> findAllByIdContaining(@Param("searchTerm") Integer searchTerm);
 
+    @Query("SELECT p FROM Product p WHERE p.featureProduct = :featureProduct")
+    List<Product> findAllByFeatureProduct(@Param("featureProduct") boolean featureProduct);
+    
     @Transactional
     @Modifying
     @Query(" DELETE FROM Product p WHERE p.id=?1")

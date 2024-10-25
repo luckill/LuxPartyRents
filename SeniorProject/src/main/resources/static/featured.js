@@ -2,77 +2,51 @@
 // Realistically, the button would only show up if the person logged in is an admin.
 // document.addEventListener('DOMContentLoaded', addCardClickEvents);
 document.addEventListener('DOMContentLoaded', function() {
-    const savedFeaturedItems = localStorage.getItem('featuredItems');
-    if (savedFeaturedItems) {
-        featuredItems = JSON.parse(savedFeaturedItems);
-    }
     createFeaturedItems();
     // Initialize the container and populate it with all items
-    populateCards(Items);
+    populateModal();
 });
 
 document.getElementById("edit-button").addEventListener('click', handleEditButton);
 
-const maxItems = 3;
-let featuredItems = ["Black Dinner Plate"]; // This will be the list that contains all featured items
+const maxItems = 6;
 let isEditing = false;
-let selectedSlotIndex = null;
+let selectedSlotIndex = 0;
+let featuredItems = [null, null, null, null, null, null];
 // Get the card template and container
 const cardTemplate = document.getElementById('featured-item-list-card');
 const container = document.getElementById('featured-item-list-container');
 
-// Hard-coded for now. Need to talk to team about connecting to back-end. If we choose back-end the state will also be saved to backend.
-const Items = {
-    'Black Dinner Plate': {
-        'Name': 'Black Dinner Plate',
-        'Location': 'blackplate.jpg',
-        'Description': 'Gorgeous plate lined with gold.'
-    },
-    'Vintage Flowervase': {
-        'Name': 'Vintage Flowervase',
-        'Location': 'flowervase.jpg',
-        'Description': 'Gorgeous vintage flowervase.'
-    },
-    'Dinner Table': {
-        'Name': 'Dinner Table',
-        //'Location': 'plastictable.JPG',     // Plastic table location doesnt seem to work right now so we will set it to something else
-        'Location': 'flowervase.jpg',
-        'Description': 'A sturdy dinner table with a sleek design.'
-    },
-    'Glass Cups': {
-        'Name': 'Glass Cups',
-        'Location': 'glasscups.jpg',
-        'Description': 'A beautiful set of glass cups. Useful for decor or actual drinking.'
-    },
-    'Goblet': {
-        'Name': 'Goblet',
-        'Location': 'goblet.jpg',
-        'Description': 'A one-of-a-kind goblet that will make your decorations complete.'
-    },
-    'Wine Cups': {
-        'Name': 'Wine Cups',
-        'Location': 'winecup.jpg',
-        'Description': 'A set of wine cups that are sturdy with a gorgeous design!'
-    },
-};
+async function createFeaturedItems() {
+    console.log("ran create");
+    // Await the result from getFeaturedItems
+    const featuredItemsGotten = await getFeaturedItems();
 
-function createFeaturedItems() {
-    for (let i = 0; i < featuredItems.length; i++) {
-        addItemCard(featuredItems[i]);
+    // Check if featuredItems is an array
+    if (Array.isArray(featuredItemsGotten)) {
+        // Iterate over the featured items and add each card
+        for (let i = 0; i < featuredItemsGotten.length; i++) {
+            addItemCard(featuredItemsGotten[i]);
+        }
+    } else {
+        console.error("Featured items are not in the expected format:", featuredItemsGotten);
     }
 }
 
 function removeAllFeaturedCards() {
     // Select all cloned item cards
     const clonedItemCards = document.querySelectorAll('#item-card-clone, #empty-card-clone');
-    
+    console.log(clonedItemCards);
     // Loop through each cloned card and remove it from the DOM
     clonedItemCards.forEach(card => {
+        console.log("should run 6 times");
         card.remove();
     });
 }
 
 function addItemCard(item) {
+    //console.log(item);
+    
     // Select the empty card and the container
     const itemCard = document.getElementById('item-card');
     const container = document.getElementById('featured-items-container');
@@ -80,24 +54,61 @@ function addItemCard(item) {
     // Clone the empty card
     const clonedCard = itemCard.cloneNode(true);
 
-    // Change id
-    clonedCard.id = "item-card-clone";
+    // Change id to ensure it is unique
+    //clonedCard.id = `item-card-clone-${item.id}`; // Ensure unique ID
+    clonedCard.id = `item-card-clone`; // Ensure unique ID
+
     // Change values
     let cardName = clonedCard.querySelector("#card-name");
     let cardDescription = clonedCard.querySelector("#card-description");
     let cardItemImage = clonedCard.querySelector("#card-item-image");
+
     if (!cardName || !cardDescription || !cardItemImage) {
-        console.error("There was an error!");
+        console.error("There was an error finding card elements!");
+        return; // Exit if elements are not found
     }
-    // Set values to card
-    cardName.innerHTML = Items[item].Name;
-    cardDescription.innerHTML = Items[item].Description;
-    cardItemImage.src = 'https://d3snlw7xiuobl9.cloudfront.net/' + Items[item].Location;
+
+    // Set values to card using properties directly from the item object
+    cardName.innerHTML = item.name; // Assuming 'name' is a property of the item object
+    cardDescription.innerHTML = item.description; // Assuming 'description' is a property of the item object
+    cardItemImage.src = `https://d3snlw7xiuobl9.cloudfront.net/${item.name}.jpg`; // Assuming 'location' is a property of the item object
+
     // Remove the 'd-none' class to make it visible
     clonedCard.classList.remove('d-none');
+    
+    // Add event listener to the cloned card
     clonedCard.addEventListener('click', handleCardClick);
+    
     // Append the cloned card to the container
     container.appendChild(clonedCard); 
+}
+
+async function getFeaturedItems() {
+    const jwtToken = localStorage.getItem('jwtToken');
+    if (!jwtToken) {
+        console.error("No JWT token found.");
+        return;
+    } 
+    try {
+        const response = await fetch("/product/getFeatured", {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtToken}`
+            }
+        });
+        
+        if (response.ok) {
+            featuredItems = await response.json();
+            console.log(featuredItems);
+            return featuredItems;
+        } else {
+            console.error("Failed to fetch featured products");
+            return [];
+        }
+    } catch (error) {
+        console.error("Error fetching featured products:", error);
+    }
 }
 
 function handleEditButton() {
@@ -112,15 +123,14 @@ function handleEditButton() {
         isEditing = false;
         // Remove empty cells if any
         deleteEmptyCards();
-        localStorage.setItem('featuredItems', JSON.stringify(featuredItems));
     }
     
 }
 
 // While in edit mode show editing interface
 function showEditInterface() {
-    if (featuredItems.length == 3) { return; }
-    for (let i = 0; i < (3 - featuredItems.length); i++) {
+    console.log("showEdit");
+    for (let i = 0; i < (maxItems - featuredItems.length); i++) {
         duplicateEmptyCard();
     }
 }
@@ -150,71 +160,112 @@ function deleteEmptyCards() {
     const clones = document.querySelectorAll('#empty-card-clone');
     // Loop through each element and remove it
     clones.forEach(clone => {
+        console.log("ran");
         clone.remove();
     });
 }
-// Modal
-// Function to populate the container with cards based on Items
-function populateCards(items) {
-    // Clear the container first
+
+async function populateModal() {
+    const jwtToken = localStorage.getItem('jwtToken');
+    if (!jwtToken) {
+        console.error("No JWT token found.");
+        return;
+    }
+    try {
+        const response = await fetch("/product/getAll", {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const featuredProducts = await response.json();
+            populateModalWithFeaturedProducts(featuredProducts); 
+        } else {
+            console.error("Failed to fetch featured products");
+        }
+    } catch (error) {
+        console.error("Error fetching featured products:", error);
+    }
+}
+
+
+function populateModalWithFeaturedProducts(products) {
+    // Select the card template and modal container
+    const templateCard = document.getElementById("featured-item-list-card");
+    const container = document.getElementById("featured-item-list-container"); // Ensure you select the container correctly
+
+    // Clear any previously populated items
     container.innerHTML = '';
 
-    // Loop through the items and create cards
-    Object.keys(items).forEach(itemKey => {
+    products.forEach((product, index) => {
         // Clone the card template
-        const clonedCard = cardTemplate.cloneNode(true);
+        const cardClone = templateCard.cloneNode(true);
+        cardClone.classList.remove("d-none");  // Make the cloned card visible
 
-        // Remove the 'd-none' class to make it visible
-        clonedCard.classList.remove('d-none');
+        // Populate the cloned card with product details
+        cardClone.querySelector(".list-card-name").textContent = product.name;
+        cardClone.querySelector(".list-card-desc").textContent = product.description || "Description not available.";
+        cardClone.querySelector(".list-card-img").src = `https://d3snlw7xiuobl9.cloudfront.net/${product.name.replace(/\s+/g, '')}.jpg` || "default-image-url.jpg";  // Use product image or a default image
 
-        // Get the elements inside the cloned card
-        const cardImg = clonedCard.querySelector('.list-card-img');
-        const cardTitle = clonedCard.querySelector('.list-card-name');
-        const cardDesc = clonedCard.querySelector('.list-card-desc');
+        // Add a click event listener to the cloned card
+        cardClone.addEventListener('click', async () => {
+            console.log(`Clicked on: ${product.name}`);
 
-        // Populate the cloned card with data from the Items object
-        cardImg.src = `https://d3snlw7xiuobl9.cloudfront.net/${items[itemKey].Location}`;
-        cardTitle.textContent = items[itemKey].Name;
-        cardDesc.textContent = items[itemKey].Description;
-
-        // Add a click event listener to each cloned card
-        clonedCard.addEventListener('click', () => {
-            // Add to featuredItems
-            if (selectedSlotIndex == null) { return; }
-            // if im clicking on the same image
-            if (featuredItems[selectedSlotIndex] == items[itemKey].Name) {
-                // Removing picture
-                if (featuredItems.length == 1) {
-                    let featuredItemLabel = document.getElementById("itemChangeModalLabel");
-                    featuredItemLabel.innerHTML = "You must have at least one featured item!";
-                    featuredItemLabel.classList.add("text-danger");
-                    // Set a timeout to revert the message after 3 seconds
-                    setTimeout(() => {
-                        // Revert back to the original text and remove the danger class
-                        featuredItemLabel.innerHTML = "Change Item:";
-                        featuredItemLabel.classList.remove("text-danger");
-                    }, 2000); // 2000 milliseconds = 2 seconds 
-                    return;
-                } else {
-                    featuredItems.splice(selectedSlotIndex, 1);
-                }
-            } else {
-                featuredItems[selectedSlotIndex] = items[itemKey].Name;
+            // Check if the product is already featured
+            if (product.featuredProduct == true) {
+                console.log('This item is already featured.');
+                return; // Exit if it's already featured
             }
-            removeAllFeaturedCards();
-            createFeaturedItems();
-            showEditInterface();
-            // Get the modal instance and hide it
+
+            // Mark the product as featured
+            const success = await markProductAsFeatured(product.id);
+            if (success) {
+                // Optionally, you could create a new card for the featured item or update the UI
+                console.log("success");
+                removeAllFeaturedCards();
+                createFeaturedItems(); // Refresh the featured items
+                showEditInterface();
+                deleteEmptyCards();
+            } else {
+                alert('Error marking product as featured.');
+            }
+            // Close the modal
             const modalElement = document.getElementById('item-change-modal');
-            const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the existing modal instance
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
             if (modalInstance) {
                 modalInstance.hide(); // Close the modal if it was open
             }
         });
 
-        // Append the cloned card to the container
-        container.appendChild(clonedCard);
+        // Append the populated card to the modal container
+        container.appendChild(cardClone);
     });
+}
+
+async function markProductAsFeatured(productId) {
+    const jwtToken = localStorage.getItem('jwtToken');
+    if (!jwtToken) {
+        console.error("No JWT token found.");
+        return false;
+    }
+
+    try {
+        const response = await fetch(`/product/markAsFeatured?id=${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtToken}`
+            }
+        });
+
+        return response.ok; // Return true if the update was successful
+    } catch (error) {
+        console.error("Error marking product as featured:", error);
+        return false;
+    }
 }
 
 // Get the search input and search button
@@ -222,33 +273,55 @@ const searchInput = document.getElementById('featured-item-search');
 const searchButton = document.getElementById('featured-item-search-btn');
 
 // Function to handle search and filter items
-function handleSearch() {
-    const searchValue = searchInput.value.toLowerCase();
+async function handleModalSearch() {
+    if (searchInput.value == null || searchInput.value == "") {
+        console.log("ran");
+        populateModal();
+        return;
+    }
 
-    // Filter the items based on the search value
-    const filteredItems = Object.keys(Items).filter(itemKey => {
-        return Items[itemKey].Name.toLowerCase().includes(searchValue);
-    }).reduce((obj, key) => {
-        obj[key] = Items[key];
-        return obj;
-    }, {});
+    const searchValue = searchInput.value.trim().toLowerCase();
+    const jwtToken = localStorage.getItem('jwtToken');
+    
+    if (!jwtToken) {
+        console.error("No JWT token found.");
+        return;
+    }
 
-    // Repopulate the container with filtered items
-    populateCards(filteredItems);
+    try {
+        // Make the API call to fetch filtered products
+        const response = await fetch(`/product/searchModal?name=${searchValue}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtToken}`
+            }
+        });
+
+        if (response.ok) {
+            const filteredProducts = await response.json();
+            console.log(filteredProducts);
+            populateModalWithFeaturedProducts(filteredProducts); // Use the function to populate the modal
+        } else {
+            console.error("Failed to fetch filtered products");
+        }
+    } catch (error) {
+        console.error("Error fetching filtered products:", error);
+    }
 }
 
 // Listen for Enter key press in the search input
 searchInput.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
         event.preventDefault(); // Prevent the default form submission if inside a form
-        handleSearch();
+        handleModalSearch();
     }
 });
 
 // Listen for click event on the search button
 searchButton.addEventListener('click', function(event) {
     event.preventDefault(); // Prevent default form behavior (if in a form)
-    handleSearch();
+    handleModalSearch();
 });
 
 // Function to handle card click
@@ -267,11 +340,12 @@ function handleCardClick() {
         const index = cards.indexOf(clickedCard);
         selectedSlotIndex = index - 3;    // Accounting for the 2 template cards and we want 0 indexing
         // Change values in featuredItems based on index
+        
         // Show the modal
         const modal = new bootstrap.Modal(document.getElementById('item-change-modal'));
         let searchInput = document.getElementById('featured-item-search');
         modal.show();
         searchInput.value = "";
-        handleSearch();
+        handleModalSearch();
     }
 }
