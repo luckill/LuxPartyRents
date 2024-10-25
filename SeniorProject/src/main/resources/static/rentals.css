@@ -306,6 +306,10 @@ cursor: not-allowed;
   margin: 0 5px; /* Margin */
 }
 
+.item-frame {
+  margin-bottom: 5%; /* Add vertical space between items */
+}
+
 .custom-cart {
   background-color: #343a40; /* Dark grey background */
   color: white; /* White text */
