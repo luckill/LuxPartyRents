@@ -60,9 +60,9 @@
                     <div class="dropdown ms-2"> <!-- Added margin-start to create a gap -->
                         <select class="form-select wide-dropdown" id="type-dropdown" name="type" onchange="loadProductsByType()">
                             <option value="">Select Type</option>
-                            <option value="Dinnerware">Dinnerware</option>
+                            <!-- <option value="Dinnerware">Dinnerware</option>
                             <option value="Extra Stuff">Extra Stuff</option>
-                            <option value="Tool">Tool</option>
+                            <option value="Tool">Tool</option> -->
                             <!-- Add more options as needed -->
                         </select>
                     </div>
@@ -214,6 +214,44 @@ document.getElementById('search-form').addEventListener('submit', function(event
     searchProducts(event); // Call the search function
 });
 
+async function loadDistinctTypes() {
+    const jwtToken = localStorage.getItem('jwtToken');
+
+    if (!jwtToken) {
+        console.error("No JWT token found.");
+        return;
+    }
+    try {
+        const response = await fetch("/rental/types", {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtToken}`
+            }
+        });
+
+        if (response.ok) {
+            const types = await response.json();
+            populateTypeDropdown(types); // Call function to populate the dropdown
+        } else {
+            console.error("Failed to fetch distinct product types");
+        }
+    } catch (error) {
+        console.error("Error fetching distinct product types:", error);
+    }
+}
+
+function populateTypeDropdown(types) {
+    const typeDropdown = document.getElementById('type-dropdown'); // Get the dropdown element
+    typeDropdown.innerHTML = ''; // Clear existing options
+    typeDropdown.appendChild(new Option("Select Type", "")); // Add default option
+
+    types.forEach(type => {
+        const option = new Option(type, type);
+        typeDropdown.appendChild(option); // Add each type as an option
+    });
+}
+
 async function searchProducts(event) {
     const searchTerm = document.getElementById('product-search').value;
     const selectedType = document.getElementById('type-dropdown').value;
@@ -281,6 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Other initialization code can go here
      // Initial load
      loadProducts(currentPage);
+     loadDistinctTypes();
 });
     </script>
 </body>
