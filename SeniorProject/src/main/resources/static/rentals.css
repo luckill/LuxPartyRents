@@ -28,7 +28,7 @@ img {
 
 .dropdown:hover .dropdown-content {
   display: block;
-}
+} 
 
 .desc {
   padding: 15px;
@@ -335,7 +335,7 @@ cursor: not-allowed;
 
 .notification {
   background-color: #4caf50;
-  color: white;
+  color: w  ite;
   padding: 15px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
