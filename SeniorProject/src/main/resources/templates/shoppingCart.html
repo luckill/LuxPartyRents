@@ -21,122 +21,159 @@
 <div th:replace="~{Navbar :: header}"></div>
 <div th:replace="~{Navbar :: navbar}"></div>
 
-<div class="container-fluid">
-    <div class="row align-items-start">
-        <div id="shoppingCol" class="col-8 text-white">
-            <div id="cartEmpty" class="col-12 bg-dark py-5 rounded-3 d-none">
-                <div class="container-fluid">
-                    <h3>Your cart is empty!</h3>
-                    <p>This is the part of the description where I tell you to go back to our <a href="/rental">rentals</a> tab and add stuff to your cart</p>
-                </div>
-            </div>
-            <!-- template -->
-            <div id="cartItemCard" class="container-fluid bg-dark py-4 mb-2 rounded-3 d-none">
-                <div class="row">
-                    <div class="col-3">
-                        <img id="itemImage" class="img-fluid rounded" src="https://d3snlw7xiuobl9.cloudfront.net/flowervase.jpg" alt="ProductImage">
+<div class="container mt-5" id="alert-container">
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading" id="alert-heading"></h4>
+        <p id="alert-message"></p>
+        <hr>
+        <p class="mb-0" id="alert-footer"></p>
+    </div>
+</div>
+
+<div id="page-content">
+    <div class="container-fluid">
+        <div class="row align-items-start">
+            <div id="shoppingCol" class="col-8 text-white">
+                <div id="cartEmpty" class="col-12 bg-dark py-5 rounded-3 d-none">
+                    <div class="container-fluid">
+                        <h3>Your cart is empty!</h3>
+                        <p>This is the part of the description where I tell you to go back to our <a href="/rental">rentals</a> tab and add stuff to your cart</p>
                     </div>
-                    <div class="col-6 text-start">
-                        <h3 id="itemName">Flowervase</h3>
-                        <p id="itemDescription">This is the description of the item that you have in your cart!</p>
-                        <div class="container-fluid row">
-                            <input id="itemAmountInput" class="col-2 rounded-3" type="number" placeholder="Amt" aria-label="Amt" value="1">
-                            <div class="col-10">
-                                <button type="button" class="btn btn-outline-danger deleteButton">Delete</button>
+                </div>
+                <!-- template -->
+                <div id="cartItemCard" class="container-fluid bg-dark py-4 mb-2 rounded-3 d-none">
+                    <div class="row">
+                        <div class="col-3">
+                            <img id="itemImage" class="img-fluid rounded" src="https://d3snlw7xiuobl9.cloudfront.net/flowervase.jpg" alt="ProductImage">
+                        </div>
+                        <div class="col-6 text-start">
+                            <h3 id="itemName">Flowervase</h3>
+                            <p id="itemDescription">This is the description of the item that you have in your cart!</p>
+                            <div class="container-fluid row">
+                                <input id="itemAmountInput" class="col-2 rounded-3" type="number" placeholder="Amt" aria-label="Amt" value="1">
+                                <div class="col-10">
+                                    <button type="button" class="btn btn-outline-danger deleteButton">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3 text-end">
+                            <h5 id="itemCost">$24.99</h5>
+                        </div>
+                    </div>
+                </div>
+                <!-- end of template -->
+            </div>
+            <div id="totalCol" class="col-4 container-fluid text-white bg-secondary rounded-3 p-3">
+                <div class="container-fluid bg-secondary text-center">
+                    <div id="totalItemCount" class="fw-bolder">Your Cart (0)</div>
+                    <hr>
+                    <div id="itemCardContainer" class="container-fluid">
+                        <div id="totalEmpty" class="d-none">Empty</div>
+                        <!-- template -->
+                        <div id="totalItemCard" class="container-fluid p-2 m-1 bg-dark bg-opacity-50 rounded-3 d-none">
+                            <div class="row">
+                                <div id="itemAmount" class="col-3 text-start">x1</div>
+                                <div id="itemName" class="col-6">Flowervase</div>
+                                <div id="itemCost" class="col-3 text-end">$24.99</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-3 text-end">
-                        <h5 id="itemCost">$24.99</h5>
+                    <hr class="rounded" style="border: 3px solid black;">
+                    <div class="row">
+                        <div class="col-6 text-start fw-bold">Subtotal:</div>
+                        <div id="subtotalAmount" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
+                    <div class="row">
+                        <div class="col-6 text-start fw-bold">Deposit:</div>
+                        <div id="depositAmount" class="col-6 text-end fw-bold">$50.00</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 text-start fw-bold">Tax:</div>
+                        <div id="taxAmount" class="col-6 text-end fw-bold">$0.00</div>
+                    </div>
+                    <hr class="rounded" style="border: 3px solid black;">
+                    <div class="row">
+                        <div class="col-6 text-start fw-bold">Total:</div>
+                        <div id="completeTotal" class="col-6 text-end fw-bold">$50.00</div>
+                    </div>
+                    <hr class="rounded" style="border: 3px solid black;">
+                    <!--Eric Work here!!!-->
+                    <div class="form-check text-start">
+                        <input class="form-check-input" type="checkbox" id="termsCheckbox">
+                        <label class="form-check-label" for="termsCheckbox">
+                            I have read, and agree to <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>.
+                        </label>
+                    </div>
+                    <hr class="rounded" style="border: 3px solid black;">
+                    <button id="checkoutButton" class="btn btn-primary fw-bold w-100" onclick="redirectToCheckout()" disabled>Checkout</button>
                 </div>
             </div>
-            <!-- end of template -->
         </div>
-        <div id="totalCol" class="col-4 container-fluid text-white bg-secondary rounded-3 p-3">
-            <div class="container-fluid bg-secondary text-center">
-                <div id="totalItemCount" class="fw-bolder">Your Cart (0)</div>
-                <hr>
-                <div id="itemCardContainer" class="container-fluid">
-                    <div id="totalEmpty" class="d-none">Empty</div>
-                    <!-- template -->
-                    <div id="totalItemCard" class="container-fluid p-2 m-1 bg-dark bg-opacity-50 rounded-3 d-none">
-                        <div class="row">
-                            <div id="itemAmount" class="col-3 text-start">x1</div>
-                            <div id="itemName" class="col-6">Flowervase</div>
-                            <div id="itemCost" class="col-3 text-end">$24.99</div>
-                        </div>
-                    </div>
+    </div>
+
+    <!-- Terms and Conditions Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <hr class="rounded" style="border: 3px solid black;">
-                <div class="row">
-                    <div class="col-6 text-start fw-bold">Subtotal:</div>
-                    <div id="subtotalAmount" class="col-6 text-end fw-bold">$0.00</div>
+                <div class="modal-body">
+                    <p>By placing an order with Lux Party Rents, you acknowledge that you have read, understood, and agree to the following terms of service:</p>
+
+                    <h6>1. Agreement to Terms</h6>
+                    <p>By using Lux Party Rents' services, you confirm your acceptance of these terms of service and agree to all service costs associated with your order.</p>
+
+                    <h6>2. Security Deposit</h6>
+                    <p>A security deposit is required to rent items from Lux Party Rents. This deposit will be refunded upon the return of rented items in the same or otherwise acceptable condition.</p>
+
+                    <h6>3. Responsibility for Items</h6>
+                    <p>The individual renting the items assumes full responsibility for the care and safekeeping of all rented items.</p>
+                    <p>Any damage to or loss of items will result in a deduction from the security deposit.</p>
+
+                    <p>By placing your order, you agree to adhere to these terms of service.</p>
                 </div>
-                <div class="row">
-                    <div class="col-6 text-start fw-bold">Deposit:</div>
-                    <div id="depositAmount" class="col-6 text-end fw-bold">$50.00</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
-                <div class="row">
-                    <div class="col-6 text-start fw-bold">Tax:</div>
-                    <div id="taxAmount" class="col-6 text-end fw-bold">$0.00</div>
-                </div>
-                <hr class="rounded" style="border: 3px solid black;">
-                <div class="row">
-                    <div class="col-6 text-start fw-bold">Total:</div>
-                    <div id="completeTotal" class="col-6 text-end fw-bold">$50.00</div>
-                </div>
-                <hr class="rounded" style="border: 3px solid black;">
-                <!--Eric Work here!!!-->
-                <div class="form-check text-start">
-                    <input class="form-check-input" type="checkbox" id="termsCheckbox">
-                    <label class="form-check-label" for="termsCheckbox">
-                        I have read, and agree to <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>.
-                    </label>
-                </div>
-                <hr class="rounded" style="border: 3px solid black;">
-                <button id="checkoutButton" class="btn btn-primary fw-bold w-100" onclick="redirectToCheckout()" disabled>Checkout</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Terms and Conditions Modal -->
-<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>By placing an order with Lux Party Rents, you acknowledge that you have read, understood, and agree to the following terms of service:</p>
-
-                <h6>1. Agreement to Terms</h6>
-                <p>By using Lux Party Rents' services, you confirm your acceptance of these terms of service and agree to all service costs associated with your order.</p>
-
-                <h6>2. Security Deposit</h6>
-                <p>A security deposit is required to rent items from Lux Party Rents. This deposit will be refunded upon the return of rented items in the same or otherwise acceptable condition.</p>
-
-                <h6>3. Responsibility for Items</h6>
-                <p>The individual renting the items assumes full responsibility for the care and safekeeping of all rented items.</p>
-                <p>Any damage to or loss of items will result in a deduction from the security deposit.</p>
-
-                <p>By placing your order, you agree to adhere to these terms of service.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script src="shoppingCart.js"></script>
 <script>
+    window.onload=function()
+    {
+        const jwtToken = localStorage.getItem("jwtToken");
+        const alertContainer = document.getElementById("alert-container");
+        const pageContent = document.getElementById('page-content');
+        const alertHeading = document.getElementById('alert-heading');
+        const alertMessage = document.getElementById('alert-message');
+        const alertFooter = document.getElementById('alert-footer');
+
+        if (jwtToken)
+        {
+            pageContent.style.display = 'block';
+            alertContainer.style.display = 'none';
+        }
+        else
+        {
+            alertContainer.style.display = 'block'; // Show alert for unauthenticated users
+            pageContent.style.display = 'none';
+            console.error("No JWT token found.");
+            alertHeading.textContent = 'Unauthorized';
+            alertMessage.textContent = 'You need to log in to access this page.';
+            alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
+        }
+    }
         // Enable checkout button only when terms checkbox is checked
-        document.getElementById("termsCheckbox").addEventListener("change", function() {
-            document.getElementById("checkoutButton").disabled = !this.checked;
-        });
-    </script>
+    document.getElementById("termsCheckbox").addEventListener("change", function()
+    {
+        document.getElementById("checkoutButton").disabled = !this.checked;
+    });
+</script>
 </body>
 </html>

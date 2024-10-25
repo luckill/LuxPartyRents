@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -17,80 +17,90 @@
 <div th:replace="~{Navbar :: header}"></div>
 <div th:replace="~{Navbar :: navbar}"></div>
 <div id="container" class="bg-transparent">
-    <div class="row">
-        <div class="col-md-10 main-content">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="order-title">Order number #<span id="order-number"></span>, created at <span id="order-date"></span></div>
-            </div>
-
-            <div class="loading" id="loading" style="display: none;"> <!-- Loading indicator -->
-                <div class="loading-box">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p>Loading order details...</p>
+    <div class="container mt-5" id="alert-container">
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading" id="alert-heading"></h4>
+            <p id="alert-message"></p>
+            <hr>
+            <p class="mb-0" id="alert-footer"></p>
+        </div>
+    </div>
+    <div id="page-content">
+        <div class="row">
+            <div class="col-md-10 main-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="order-title">Order number #<span id="order-number"></span>, created at <span id="order-date"></span></div>
                 </div>
-            </div>
 
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="customer-summary">
-                        <h5>Customer Details</h5>
-                        <p><strong>Name:</strong></p>
-                        <p><strong>Email:</strong></p>
-                        <p><strong>Phone Number:</strong></p>
+                <div class="loading" id="loading" style="display: none;"> <!-- Loading indicator -->
+                    <div class="loading-box">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Loading order details...</p>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="order-summary">
-                        <h5>Order Summary</h5>
-                        <ul class="list-unstyled">
-                            <li><span>Current status:</span> confirmed</li>
-                            <li><span>Payment:</span><span> Card - 65482</span></li>
-                            <li><span>Subtotal:</span><span> $375.00</span></li>
-                            <li><span>Deposit:</span><span> -$500.00</span></li>
-                            <li class="total d-flex justify-content-between"><strong>Total</strong><strong>$370.00</strong></li>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="customer-summary">
+                            <h5>Customer Details</h5>
+                            <p><strong>Name:</strong></p>
+                            <p><strong>Email:</strong></p>
+                            <p><strong>Phone Number:</strong></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="order-summary">
+                            <h5>Order Summary</h5>
+                            <ul class="list-unstyled">
+                                <li><span>Current status:</span> confirmed</li>
+                                <li><span>Payment:</span><span> Card - 65482</span></li>
+                                <li><span>Subtotal:</span><span> $375.00</span></li>
+                                <li><span>Deposit:</span><span> -$500.00</span></li>
+                                <li class="total d-flex justify-content-between"><strong>Total</strong><strong>$370.00</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="item-summary">
+                            <h5>Item Summary</h5>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                                </thead>
+                                <tbody id="order-container">
+                                <!-- dynamically loaded product info-->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group d-flex justify-content-center">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-outline-primary btn-lg mx-2 dropdown-toggle"  data-bs-toggle="dropdown">
+                            Change order status
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" onclick="changeOrderStatus('CONFIRMED')">confirmed</a></li>
+                            <li><a class="dropdown-item" onclick="changeOrderStatus('READY_FOR_PICK_UP')">ready for pickup</a></li>
                         </ul>
                     </div>
+                    <button type= "button" class="btn btn-outline-primary btn-lg mx-2" onclick="cancelOrder()">Cancel order</button>
+                    <button type= "button" class="btn-btn-outline-primary btn-lg mx-2">return deposit</button>
                 </div>
-            </div>
 
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="item-summary">
-                        <h5>Item Summary</h5>
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Type</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                            </tr>
-                            </thead>
-                            <tbody id="order-container">
-                                <!-- dynamically loaded product info-->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
-
-            <div class="button-group d-flex justify-content-center">
-                <div class="dropdown">
-                    <button type="button" class="btn btn-outline-primary btn-lg mx-2 dropdown-toggle"  data-bs-toggle="dropdown">
-                        Change order status
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" onclick="changeOrderStatus('CONFIRMED')">confirmed</a></li>
-                        <li><a class="dropdown-item" onclick="changeOrderStatus('READY_FOR_PICK_UP')">ready for pickup</a></li>
-                    </ul>
-                </div>
-                <button type= "button" class="btn btn-outline-primary btn-lg mx-2" onclick="cancelOrder()">Cancel order</button>
-                <button type= "button" class="btn-btn-outline-primary btn-lg mx-2">return deposit</button>
-            </div>
-
         </div>
     </div>
 </div>
