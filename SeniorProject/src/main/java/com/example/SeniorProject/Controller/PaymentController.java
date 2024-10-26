@@ -19,25 +19,20 @@ public class PaymentController {
         @Autowired
         OrderRepository orderRepository;
         @PostMapping("/create-payment-intent")
-        public Map<String, Object> createPaymentIntent(@RequestBody PaymentRequest paymentRequest) throws Exception {
-                Order order1 = new Order();
-                order1.setPrice(1009);
-                order1.setId(4);
-                order1.setStatus(OrderStatus.RECEIVED);
-                orderRepository.save(order1);
+        public Map<String, Object> createPaymentIntent(@RequestBody PaymentRequest paymentRequest, @RequestBody int orderId) throws Exception {
+                Map<String, Object> response = paymentService.payALl(orderId);
+                return response;
+        }
 
-                int orderID = paymentRequest.getOrderID();
+        @PostMapping("/create-refund-intent")
+        public Map<String, Object> createRefund(@RequestBody PaymentRequest paymentRequest, @RequestBody int orderId, @RequestBody double amount) throws Exception {
+                Map<String, Object> response = paymentService.refund(orderId, amount);
+                return response;
+        }
 
-                // Retrieve the order and its price based on orderID
-                // Assume you have a method to get order details
-                Order order = orderRepository.getOrderById(orderID);
-                if (order == null) {
-                        throw new Exception("Order not found");
-                }
-
-                double price = order.getPrice();
-
-                Map<String, Object> response = paymentService.payALl(10.10);
+        @GetMapping("/paymentInfo")
+        public Map<String, Object> getPaymentInfo( @RequestBody int orderId) throws Exception {
+                Map<String, Object> response = paymentService.getCharge(orderId);
                 return response;
         }
 }
