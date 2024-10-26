@@ -143,7 +143,17 @@ public class ProductService {
                 }
                 product.setFeatureProduct(true); // Set the featuredProduct flag
                 return productRepository.save(product); // Save the updated product back to the database
-            }
+        }
+
+        public Product markProductAsUnfeatured(int id) {
+                Product product = productRepository.findById(id).orElse(null);
+                if (product == null) {
+                    return null;
+                }
+                product.setFeatureProduct(false); // Set the featuredProduct flag
+                return productRepository.save(product); // Save the updated product back to the database
+        }
+
 
         public ProductDTO mapToProductDTO(Product product)
         {
@@ -192,7 +202,7 @@ public class ProductService {
         }
 
         public List<Product> findAllByNameContaining(String name) {
-                if (name != null) {
+                if (name != null && !name.isEmpty()) {
                         return productRepository.findAllByNameContaining(name);
                 } else {
                         return productRepository.findAll();
@@ -204,5 +214,8 @@ public class ProductService {
                 return productRepository.findAllByFeatureProduct(true);
         }
 
+        public List<Product> getAllProducts() {
+                return productRepository.findAll(); // Fetch all products from the database
+        }        
         
 }

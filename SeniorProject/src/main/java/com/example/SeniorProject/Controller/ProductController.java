@@ -85,6 +85,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(this.mapToProductDTO(result));
     }
 
+    
 
     // Meant for searching with the given column types
     @GetMapping(path="/search")
@@ -121,6 +122,16 @@ public class ProductController {
         return ResponseEntity.ok("Product marked as featured successfully");
     }
 
+    @PostMapping(path = "/markAsUnfeatured")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?> markProductAsUnfeatured(@RequestParam int id) {
+        Product updatedProduct = productService.markProductAsUnfeatured(id);
+        if (updatedProduct == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+        }
+        return ResponseEntity.ok("Product marked as featured successfully");
+    }
+
     private ProductDTO mapToProductDTO(Product product)
     {
         ProductDTO productDTO = new ProductDTO();
@@ -131,5 +142,12 @@ public class ProductController {
         productDTO.setQuantity(product.getQuantity());
         productDTO.setDescription(product.getDescription());
         return productDTO;
+    }
+
+    // New endpoint to fetch all products
+    @GetMapping("/allProducts")
+    public ResponseEntity<List<Product>> getAllProducts() {
+        List<Product> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
     }
 }
