@@ -157,6 +157,7 @@ function handleEditButton() {
 
 // While in edit mode show editing interface
 function showEditInterface() {
+    console.log(featuredItems);
     for (let i = 0; i < (maxItems - featuredItems.length); i++) {
         duplicateEmptyCard();
     }
@@ -198,7 +199,7 @@ async function populateModal() {
     }
     try {
         console.log("ran");
-        const response = await fetch(`/product/searchModal?name={encodedURIComponent('')}`, {
+        const response = await fetch(`/product/searchModal?name=${encodeURIComponent('')}`, {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
