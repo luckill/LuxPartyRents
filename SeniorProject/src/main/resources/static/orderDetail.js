@@ -1,3 +1,35 @@
+window.onload = function()
+{
+    const jwtToken = localStorage.getItem("jwtToken");
+    const role = localStorage.getItem("Role");
+    const alertContainer = document.getElementById("alert-container");
+    const pageContent = document.getElementById('page-content');
+    const alertHeading = document.getElementById('alert-heading');
+    const alertMessage = document.getElementById('alert-message');
+    const alertFooter = document.getElementById('alert-footer');
+
+    if (jwtToken)
+    {
+        pageContent.style.display = 'block';
+        alertContainer.style.display = 'none';
+    }
+    else
+    {
+        alertContainer.style.display = 'block'; // Show alert for unauthenticated users
+        pageContent.style.display = 'none';
+        console.error("No JWT token found.");
+        alertHeading.textContent = 'Unauthorized';
+        alertMessage.textContent = 'You need to log in to access this page.';
+        alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
+    }
+
+    if (role !== "ADMIN")
+    {
+        document.getElementById("changeOrderStatusBtn").style.display = "none";
+        document.getElementById("returnPaymentBtn").style.display = "none";
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async() =>
 {
     const loadingIndicator = document.getElementById('loading');
@@ -72,10 +104,15 @@ function cancelOrder()
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
     const jwtToken = localStorage.getItem('jwtToken');
+    const role = localStorage.getItem("Role")
     if (!jwtToken)
     {
         displayError("No valid authentication information found. Please log in again.")
         return;
+    }
+    if (role === "USER")
+    {
+        window.location.href="/";
     }
     fetch(`/order/cancel?orderId=${id}`,
         {
@@ -104,6 +141,10 @@ function cancelOrder()
         });
 }
 
+function returnPayment()
+{
+    // to be develop
+}
 function changeOrderStatus(status)
 {
     const urlParams = new URLSearchParams(window.location.search);

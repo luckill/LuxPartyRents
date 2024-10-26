@@ -1,10 +1,38 @@
 // This mainly handles filtering
-window.onload = function() {
-    const jwtToken = localStorage.getItem('jwtToken');
-    if (!jwtToken)
+window.onload = function()
+{
+    const jwtToken = localStorage.getItem("jwtToken");
+    const role = localStorage.getItem("Role");
+    const alertContainer = document.getElementById("alert-container");
+    const pageContent = document.getElementById('page-content');
+    const alertHeading = document.getElementById('alert-heading');
+    const alertMessage = document.getElementById('alert-message');
+    const alertFooter = document.getElementById('alert-footer');
+
+    if (jwtToken)
     {
+        if (role === "ADMIN")
+        {
+            pageContent.style.display = 'block';
+            alertContainer.style.display = 'none';
+        }
+        else
+        {
+            alertContainer.style.display = 'block'; // Show the alert
+            pageContent.style.display="none"
+            alertHeading.textContent = 'Access Denied';
+            alertMessage.innerHTML = '<strong>Error!!!</strong> - This page is for admin use only, and you are not authorized to access it. If you believe you should have access, please contact your administrator.';
+            alertFooter.innerHTML = 'Return to the <a href="/" class="alert-link">home page</a>.';
+        }
+    }
+    else
+    {
+        alertContainer.style.display = 'block'; // Show alert for unauthenticated users
+        pageContent.style.display = 'none';
         console.error("No JWT token found.");
-        return;
+        alertHeading.textContent = 'Unauthorized';
+        alertMessage.textContent = 'You need to log in to access this page.';
+        alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
     }
     
     // Fetch and display products
