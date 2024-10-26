@@ -88,7 +88,7 @@
 
                 <div class="button-group d-flex justify-content-center">
                     <div class="dropdown">
-                        <button type="button" class="btn btn-outline-primary btn-lg mx-2 dropdown-toggle"  data-bs-toggle="dropdown">
+                        <button id="changeOrderStatusBtn" type="button" class="btn btn-outline-primary btn-lg mx-2 dropdown-toggle" data-bs-toggle="dropdown">
                             Change order status
                         </button>
                         <ul class="dropdown-menu">
@@ -96,8 +96,8 @@
                             <li><a class="dropdown-item" onclick="changeOrderStatus('READY_FOR_PICK_UP')">ready for pickup</a></li>
                         </ul>
                     </div>
-                    <button type= "button" class="btn btn-outline-primary btn-lg mx-2" onclick="cancelOrder()">Cancel order</button>
-                    <button type= "button" class="btn-btn-outline-primary btn-lg mx-2">return deposit</button>
+                    <button type="button" class="btn btn-outline-primary btn-lg mx-2" onclick="cancelOrder()">Cancel order</button>
+                    <button id="returnPaymentBtn" type="button" class="btn btn-outline-primary btn-lg mx-2" onclick="returnPayment()">return deposit</button>
                 </div>
 
             </div>

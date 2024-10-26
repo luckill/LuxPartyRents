@@ -22,6 +22,12 @@ window.onload = function()
         alertMessage.textContent = 'You need to log in to access this page.';
         alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
     }
+
+    if (role !== "ADMIN")
+    {
+        document.getElementById("changeOrderStatusBtn").style.display = "none";
+        document.getElementById("returnPaymentBtn").style.display = "none";
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async() =>
@@ -98,10 +104,15 @@ function cancelOrder()
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
     const jwtToken = localStorage.getItem('jwtToken');
+    const role = localStorage.getItem("Role")
     if (!jwtToken)
     {
         displayError("No valid authentication information found. Please log in again.")
         return;
+    }
+    if (role === "USER")
+    {
+        window.location.href="/";
     }
     fetch(`/order/cancel?orderId=${id}`,
         {
@@ -130,6 +141,10 @@ function cancelOrder()
         });
 }
 
+function returnPayment()
+{
+    // to be develop
+}
 function changeOrderStatus(status)
 {
     const urlParams = new URLSearchParams(window.location.search);
