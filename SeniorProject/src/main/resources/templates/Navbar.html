@@ -68,6 +68,9 @@
                 <a class="fs-1 text-white -bg-transparent text-end text-decoration-none" href="/">Lux Party Rents</a>
             </div>
             <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
+                <!-- Added user-greeting element to display first name -->
+                <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span id="firstNameDisplay"></span>!</span>
+                
                 <a id="loginButton" class="btn btn-outline-light mx-2" href="/login">Login</a>
                 <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
                 <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()" style="display:none;">Logout</button>
@@ -85,6 +88,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const userRole = localStorage.getItem('Role'); // Admin or User
+            const firstName = localStorage.getItem('firstName'); // Retrieve first name from local storage
 
             if (isLoggedIn === "true") {
                 // Hide/Show links based on the user's role
@@ -92,6 +96,12 @@
                 document.getElementById('signUpButton').style.display = 'none';
                 document.getElementById('logOutButton').style.display = 'block';
                 document.getElementById('shoppingCartButton').style.display = 'block';
+
+                // Display user's first name
+                if (firstName) {
+                    document.getElementById('user-greeting').style.display = 'inline';
+                    document.getElementById('firstNameDisplay').textContent = firstName;
+                }
 
                 // Show Account Details link for all logged-in users
                 document.querySelectorAll('.logged-in-only').forEach(item => {
@@ -132,6 +142,7 @@
                     localStorage.removeItem("jwtToken");
                     localStorage.removeItem("isLoggedIn");
                     localStorage.removeItem("Role");
+                    localStorage.removeItem("firstName"); // Remove first name
                     window.location.href = '/';
                 } else {
                     console.error('Error:', response.statusText);
