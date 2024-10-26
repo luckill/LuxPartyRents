@@ -92,6 +92,9 @@ public class OrderService
                 order
         );
 
+        //Send notification to Customer about creation of new order, and pick up
+        emailService.sendCxPickupNotification(order);
+
         return mapToOrderDTO(order);
     }
 
@@ -123,6 +126,10 @@ public class OrderService
                 "Order ID " + order.getId() + " has been cancelled by " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
                 order
         );
+
+        //Send notification to customer about order cancellation
+        emailService.sendCxCanceledNotification(
+                "Order canceled by Customer", order);
     }
 
     // Fetching the current orders for a customer (status = 'active')
@@ -367,13 +374,13 @@ public class OrderService
     //Takes in all orders that are set at status RECEIVED and compares there
     //order pick up date against the order rental time requested
     private void OrderDueCheck (/*Order dbtable goes here*/){
-        /*for loop that goes through the dbtable checking for all orders
+        /*TODO: for loop that goes through the dbtable checking for all orders
          * that are set as RECEIVED, if they are RECEIVED then they should
          * compare pick up date against the order rental time by checking the
          * date that it would be after the rental time as passed.
          * ie if order pick up is 10/25/24 and rental time is 2 days then
          * pick up should 10/27/24
-         * this should at end of day every day. 
+         * this should at end of day every day.
          */
     }
 

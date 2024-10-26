@@ -150,31 +150,17 @@ public class EmailService
                 + order.getCustomer().getFirstName() + " "
                 + order.getCustomer().getLastName() + " your Order, "
                 + order.getId() + " pickup is on, " + order.getCreationDate();
+                /*TODO: order.getCreationDate() needs to be updated for when
+                 * getPickUpDate() is made.
+                 */
+
+
 
         //sending email
         CxEmailDetails.setMessageBody(emailBody);
         sendSimpleEmail(CxEmailDetails);
 
     }//Pickup
-
-    public void sendCxReturnNotification ( Order order){
-        //setting the up the email
-        EmailDetails CxEmailDetails = new EmailDetails();
-        CxEmailDetails.setRecipient(order.getCustomer().getEmail());
-        CxEmailDetails.setSubject("Wedding Rental Return Reminder");
-
-        //filling the email body
-        String emailBody = "I hope your special day was memory worthy!\n"
-                + "Below is important return information for your rental\n"
-                + order.getCustomer().getFirstName() + " "
-                + order.getCustomer().getLastName() + " your Order, "
-                + order.getId() + " return is on, " + order.getRentalTime();
-
-        //sending email
-        CxEmailDetails.setMessageBody(emailBody);
-        sendSimpleEmail(CxEmailDetails);
-
-    }//Return
 
     //Note that sendCxCanceledNotification requires a CanceledReason to be
     //passed into the function for the email to be complete.
@@ -187,8 +173,7 @@ public class EmailService
         //filling the email body
         String emailBody = order.getCustomer().getFirstName() + " "
                 + order.getCustomer().getLastName() + " your Order, "
-                + order.getId() + " has been canceled for, " + CanceledReason
-                + "\n Please reach out to our service number for any questions.";
+                + order.getId() + " has been canceled for, " + CanceledReason;
 
         //sending email
         CxEmailDetails.setMessageBody(emailBody);
