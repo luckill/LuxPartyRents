@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charge Refund Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1>Charge Refund Details</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Refund Information</h5>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Charge ID:</strong> <span id="charge-id"></span></li>
+                <li class="list-group-item"><strong>Amount:</strong> <span id="amount"></span></li>
+                <li class="list-group-item"><strong>Currency:</strong> <span id="currency"></span></li>
+                <li class="list-group-item"><strong>Status:</strong> <span id="status"></span></li>
+                <li class="list-group-item"><strong>Created:</strong> <span id="created"></span></li>
+                <li class="list-group-item"><strong>Last 4 Digits:</strong> <span id="last-4"></span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Replace with the actual order ID you want to fetch
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+        const jwtToken = localStorage.getItem('jwtToken');
+        if (!jwtToken) {
+            console.error("No JWT token found.");
+            return;
+        }
+
+        // Fetch payment information from the backend
+        fetch(`/paymentInfo`, {
+            method: 'GET', // Change to POST if your backend expects POST
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtToken}`
+            },
+            body: JSON.stringify({ orderId }) // For GET requests, use URL parameters instead
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Assuming the response has the expected structure
+            document.getElementById("charge-id").innerText = data.id;
+            document.getElementById("amount").innerText = `$${(data.amount / 100).toFixed(2)}`; // Convert cents to dollars
+            document.getElementById("currency").innerText = data.currency.toUpperCase();
+            document.getElementById("status").innerText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+            document.getElementById("created").innerText = new Date(data.created * 1000).toLocaleString(); // Convert Unix timestamp
+            document.getElementById("last-4").innerText = data.last4;
+        })
+        .catch(error => {
+            console.error('Error fetching payment info:', error);
+            alert('Failed to load payment information.');
+        });
+    });
+</script>
+
+</body>
+</html>

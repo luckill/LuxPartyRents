@@ -1,22 +1,35 @@
 package com.example.SeniorProject.Controller;
 
+import com.example.SeniorProject.DTOs.CustomerDTO;
 import com.example.SeniorProject.Model.*;
 import com.example.SeniorProject.Service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.*;
+
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/customer")
 public class CustomerController
 {
     @Autowired
+    private CustomerRepository customerRepository;
+    @Autowired
     private CustomerService customerService;
+    @Autowired
+    private AccountRepository accountRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     private final ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    private JwtService jwtService;
+
 
     @PostMapping("/findAccount")
     public ResponseEntity<?> checkIfAccountExist(@RequestParam("email") String email)
@@ -48,31 +61,56 @@ public class CustomerController
 
     @PutMapping("/updateCustomer")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> updateCustomer(@RequestBody Customer customer)
+    public ResponseEntity<?> updateCustomer(@RequestBody CustomerDTO customer)
     {
-        try
-        {
+
+        try {
             customerService.updateCustomer(customer);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        catch (ResponseStatusException exception)
+            return ResponseEntity.ok("Customer has been successfully updated");
+        }catch (ResponseStatusException exception)
         {
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
+        // Fetch existing customer from the database
+
     }
 
-    @DeleteMapping("/deleteCustomer/{id}")
+
+
+    @DeleteMapping("/deleteCustomer")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> deleteCustomer(@PathVariable int id)
+    public ResponseEntity<?> deleteCustomer(@RequestBody CustomerDTO customer) {
+        Account account=accountRepository.findAccountByEmail(customer.getEmail());
+        Account costAccount=customerRepository.findAccountByCustomerName(customer.getFirstName(), customer.getLastName());
+        if (account!=null && costAccount != null) {
+            accountRepository.deleteById(account.getId());
+            customerRepository.deleteById(costAccount.getId());
+        }
+
+
+        return ResponseEntity.ok("Customer has been successfully deleted");
+    }
+
+    @GetMapping("/getCustomerInfo")
+    public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token)
     {
-        try
+        String jwtToken = token.replace("Bearer ", "");
+
+        // Validate the token and extract username
+        if (jwtService.isTokenExpired(jwtToken))
         {
-            String message = customerService.deleteCustomer(id);
-            return ResponseEntity.status(HttpStatus.OK).body(message);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your session has expired, please log in again");
         }
-        catch (ResponseStatusException exception)
+
+        String username = jwtService.extractUsername(jwtToken);
+        Account account = accountRepository.findAccountByEmail(username);
+        Customer customer = customerRepository.findCustomersByEmail(account.getEmail());
+
+        if (customer == null)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with email " + username);
         }
+
+        return ResponseEntity.ok(customer);
     }
 }
