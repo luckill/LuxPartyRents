@@ -1,5 +1,6 @@
 package com.example.SeniorProject.Service;
 
+import com.example.SeniorProject.DTOs.CustomerDTO;
 import com.example.SeniorProject.Model.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
@@ -39,7 +40,7 @@ public class CustomerService
         return customer;
     }
 
-    public void updateCustomer(Customer customer)
+    public void updateCustomer(CustomerDTO customer)
     {
 
         // Fetch existing customer from the database
