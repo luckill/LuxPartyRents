@@ -2,6 +2,7 @@ package com.example.SeniorProject.DTOs;
 
 public class CustomerDTO
 {
+    private int id;
     private String firstName;
     private String lastName;
     private String email;
@@ -53,5 +54,13 @@ public class CustomerDTO
     public void setPhone(String phone)
     {
         this.phone = phone;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
