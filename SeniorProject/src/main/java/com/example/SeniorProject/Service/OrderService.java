@@ -221,6 +221,7 @@ public class OrderService
     // Return an order
     public void returnOrder(int orderId)
     {
+        //checking to see if order exists
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null)
         {
@@ -231,6 +232,28 @@ public class OrderService
         {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Order is already returned");
         }
+
+        //returning the products within order
+
+        for (OrderProduct orderProduct : order.getOrderProducts()){
+            //checking to make sure product exists before updating it
+            // and that quantity of the order is not 0
+            Product product = orderProduct.getProduct();
+            int quantity = orderProduct.getQuantity();
+            if (product == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
+            }else if (quantity == 0)
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Insufficient product quantity.");
+            }else{}
+
+            //update product quantity and save
+            product.setQuantity(product.getQuantity() + quantity );
+            productRepository.save(product);
+        }
+        
+
         // Update the order status to "Returned"
         order.setStatus(OrderStatus.RETURNED);
 
