@@ -16,22 +16,7 @@
         <!-- New Navbar Implementation -->
         <div th:replace="~{Navbar :: header}"></div>
         <div th:replace="~{Navbar :: navbar}"></div>
-        <!--
-        <form class="d-flex" id="search-form">
-            <input class="form-control me-0" type="search" name="kw" placeholder="Search Products" aria-label="Search" list="product-list" autocomplete="off" id="product-search">
-            <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
-                    
-            <div class="dropdown ms-2"> <!-- Added margin-start to create a gap -->
-               <!-- <select class="form-select wide-dropdown" id="type-dropdown" name="type" onchange="loadProductsByType()">
-                    <option value="">Select Type</option>
-                    <!-- <option value="Dinnerware">Dinnerware</option>
-                    <option value="Extra Stuff">Extra Stuff</option>
-                    <option value="Tool">Tool</option> -->
-                    <!-- Add more options as needed -->
-               <!-- </select>
-            </div>
-        </form>
-        -->
+
         <div class="container-fluid p-5">
             <div class="row" id="product-container">
                 <!-- Product items will be dynamically inserted here -->
@@ -193,6 +178,7 @@
 
 
     document.getElementById('search-form').addEventListener('submit', function(event) {
+        console.log(event);
         event.preventDefault(); // Prevent the default form submission
         searchProducts(event); // Call the search function
     });

@@ -50,10 +50,19 @@
                         <a class="nav-link" href="/user_order">User Orders</a> <!-- Visible to Users -->
                     </li>
                 </ul>
-                <form class="d-flex" id="other-page-form" role="search" method="get" action="/rental">
-                    <input class="form-control me-2" type="search" placeholder="Search Products" name="kw"
-                           aria-label="Search" id="product-search">
+                <form class="d-flex" id="search-form">
+                    <input class="form-control me-0" type="search" name="kw" placeholder="Search Products" aria-label="Search" list="product-list" autocomplete="off" id="product-search">
                     <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
+                            
+                    <div class="dropdown ms-2"> <!-- Added margin-start to create a gap -->
+                       <select class="form-select wide-dropdown" id="type-dropdown" name="type" onchange="loadProductsByType()">
+                            <option value="">Select Type</option>
+                            <option value="Dinnerware">Dinnerware</option>
+                            <option value="Extra Stuff">Extra Stuff</option>
+                            <option value="Tool">Tool</option>
+                            <!-- Add more options as needed -->
+                       </select>
+                    </div>
                 </form>
             </div>
         </div>
