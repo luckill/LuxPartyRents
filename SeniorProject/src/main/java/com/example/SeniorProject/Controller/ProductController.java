@@ -41,7 +41,7 @@ public class ProductController {
             @RequestParam(required = false) String searchType,
             @RequestParam(required = false) String searchTerm) {
         List<Product> products = productService.getAllProducts(sortBy, searchType, searchTerm);
-        System.out.println(products.toString());
+
         return products.stream().map(this::mapToProductDTO).toList();
     }
 

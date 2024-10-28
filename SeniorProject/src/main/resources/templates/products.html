@@ -20,14 +20,22 @@
         <div th:replace="~{Navbar :: navbar}"></div>
     </section>
 
+    <div class="container mt-5" id="alert-container">
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading" id="alert-heading"></h4>
+            <p id="alert-message"></p>
+            <hr>
+            <p class="mb-0" id="alert-footer"></p>
+        </div>
+    </div>
 
-
-    <section class="middle">
-        <h2>Products</h2>
-        <div class="d-flex justify-content-around">
-            <button type="button" style="margin-left: 10%;" class="btn btn-outline-light"
-                onclick="window.location.href='/newProduct'">Add</button>
-            <form class="search" role="search"></form>
+    <div id="page-content" style="display: none">
+        <section class="middle">
+            <h2>Products</h2>
+            <div class="d-flex justify-content-around">
+                <button type="button" style="margin-left: 10%;" class="btn btn-outline-light"
+                        onclick="window.location.href='/newProduct'">Add</button>
+                <form class="search" role="search"></form>
                 <div class="dropdown w-25 d-flex"> <!-- Added margin-start to create a gap -->
                     <select class="form-select wide-dropdown me-2" id="col-type-dropdown" name="type" onchange=""> <!-- Only filters when search has values in it -->
                         <option value="Name">Name</option>
@@ -38,14 +46,14 @@
                 </div>
                 <input class="form-control me-2" style="width: 200px;" type="search" placeholder="Search" id="searchInput" aria-label="Search">
                 <button class="btn btn-outline-light" style="margin-right: 10%;" type="submit" id="searchButton">Search</button>
-            </form>
-        </div>
-    </section>
+                </form>
+            </div>
+        </section>
 
-    <section class="last">
-        <div id="container">
-            <table class="table">
-                <thead>
+        <section class="last">
+            <div id="container">
+                <table class="table">
+                    <thead>
                     <tr>
                         <!-- Dropdown button acts as a filter -->
                         <th>ID <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-id"></button></th>
@@ -54,13 +62,15 @@
                         <th>Quantity <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-quantity"></button></th>
                         <th>Type <button type="button" class="btn text-light btn-sm dropdown-toggle" id="sort-type"></button></th>
                     </tr>
-                </thead>
-                <tbody id="tableRows">
+                    </thead>
+                    <tbody id="tableRows">
                     <!-- Items will show up here -->
-                </tbody>
-            </table>
-        </div>
-    </section>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
 
 </body>
 

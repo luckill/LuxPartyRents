@@ -13,66 +13,114 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
     <Style>
-        body{
+        body {
             background: url("https://d3snlw7xiuobl9.cloudfront.net/rose.jpg") no-repeat center fixed;
             background-size: cover;
         }
+
         .middle h2 {
             color: white;
             text-align: center;
             font-size: 35px;
-          }
+        }
     </Style>
 </head>
 <body class="bg-transparent">
 <div th:replace="~{Navbar :: header}"></div>
 <div th:replace="~{Navbar :: navbar}"></div>
 
-<section class="middle">
-    <h2>Orders</h2>
-</section>
-
-<!-- Moved the table section below "Orders" and "Search Rentals" -->
-<section class="order_table">
-    <div id="container">
-        <div class="table-responsive">
-            <table class="table table-dark table-striped">
-                <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Order Date</th>
-                    <th>Payment Status</th>
-                    <th>Price</th>
-                    <th>Rental Time</th>
-                    <th>Order Status</th>
-                </tr>
-                </thead>
-                <tbody id="orders-container">
-                <!-- Order items will be dynamically inserted here -->
-                </tbody>
-            </table>
-        </div>
+<div class="container mt-5" id="alert-container">
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading" id="alert-heading"></h4>
+        <p id="alert-message"></p>
+        <hr>
+        <p class="mb-0" id="alert-footer"></p>
     </div>
-</section>
+</div>
+
+<div id="page-content" style="display: none">
+    <section class="middle">
+        <h2>Orders</h2>
+    </section>
+
+    <!-- Moved the table section below "Orders" and "Search Rentals" -->
+    <section class="order_table">
+        <div id="container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                        <th>Payment Status</th>
+                        <th>Price</th>
+                        <th>Rental Time</th>
+                        <th>Order Status</th>
+                    </tr>
+                    </thead>
+                    <tbody id="orders-container">
+                    <!-- Order items will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
 
 <script>
+    window.onload = function () {
+        const jwtToken = localStorage.getItem("jwtToken");
+        const role = localStorage.getItem("Role");
+        const alertContainer = document.getElementById("alert-container");
+        const pageContent = document.getElementById('page-content');
+        const alertHeading = document.getElementById('alert-heading');
+        const alertMessage = document.getElementById('alert-message');
+        const alertFooter = document.getElementById('alert-footer');
+
+        if (jwtToken)
+        {
+            if (role === "ADMIN")
+            {
+                pageContent.style.display = 'block';
+                alertContainer.style.display = 'none';
+            }
+            else
+            {
+                alertContainer.style.display = 'block'; // Show the alert
+                pageContent.style.display = "none"
+                alertHeading.textContent = 'Access Denied';
+                alertMessage.innerHTML = "<strong>Error!!!</strong> - This page is for admin use only, and you are not authorze to access it. If you believe you should have access, please contact your administrator.";
+                alertFooter.innerHTML = 'Return to the <a href="/" class="alert-link">home page</a>.';
+            }
+        }
+        else
+        {
+            alertContainer.style.display = 'block'; // Show alert for unauthenticated users
+            pageContent.style.display = 'none';
+            console.error("No JWT token found.");
+            alertHeading.textContent = 'Unauthorized';
+            alertMessage.textContent = 'You need to log in to access this page.';
+            alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
+        }
+    }
+
     async function loadOrders() {
         try {
             const jwtToken = localStorage.getItem('jwtToken');
-            if (!jwtToken)
-            {
+            if (!jwtToken) {
                 console.error("No JWT token found.");
                 return;
             }
             const response = await fetch('/order/getAll',
-            {
-                method: "GET",
-                headers:
                 {
-                    "Content_type": "application/json",
-                    "Authorization": `Bearer ${jwtToken}`
-                }
-            });
+                    method: "GET",
+                    headers:
+                        {
+                            "Content_type": "application/json",
+                            "Authorization": `Bearer ${jwtToken}`
+                        }
+                });
             const data = await response.json();
 
             const container = document.getElementById('orders-container');
