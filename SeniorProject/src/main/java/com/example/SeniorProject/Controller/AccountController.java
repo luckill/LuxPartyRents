@@ -4,7 +4,6 @@ import com.example.SeniorProject.Model.*;
 import com.example.SeniorProject.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
-import com.example.SeniorProject.Service.SecretsManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,5 +75,15 @@ public class AccountController
         {
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
         }
+    }
+
+    @DeleteMapping("/deleteUnverifiedAccounts")
+        public ResponseEntity<?> deleteUnverifiedAccounts() {
+    try {
+        accountService.deleteAllUnverifiedAccounts();
+        return ResponseEntity.status(HttpStatus.OK).body("All unverified accounts have been successfully deleted.");
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting unverified accounts.");
+    }
     }
 }
