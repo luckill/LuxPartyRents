@@ -18,13 +18,5 @@ public interface AccountRepository extends JpaRepository<Account, Integer>
     @Query(" DELETE FROM Customer c WHERE c.id=?1")
     void deleteById(int id);
 
-    @Query("SELECT a FROM Account a WHERE a.verified = false")
-    List<Account> findUnverifiedAccounts();
-
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM Account a WHERE a.verified = false")
-    void deleteAllUnverifiedAccounts();
-
 
 }
