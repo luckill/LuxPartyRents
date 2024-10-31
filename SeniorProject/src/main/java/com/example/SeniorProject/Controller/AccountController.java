@@ -86,4 +86,30 @@ public class AccountController
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting unverified accounts.");
     }
     }
+
+    @GetMapping("/customerId")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getCustomerId(@RequestHeader("Authorization") String token) {
+    try {
+        Account account = accountService.getUserInfo(token);
+
+        // Check if the account is found
+        if (account == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+        }
+
+        // Get the associated Customer
+        Customer customer = account.getCustomer();
+
+        // Check if the Customer is associated with the Account
+        if (customer == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer ID not found");
+        }
+
+        // Return the Customer ID
+        return ResponseEntity.ok(customer.getId());
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+    }
+}
 }
