@@ -4,7 +4,7 @@
 
 
 # Synopsis
-Potapov Wedding is an equipment rental website. This project aims to help improve the efficiency and productivity of the client’s rental process while also providing an online store to help automate more of the client’s work that the client is doing manually.
+LUs Party Rents is an equipment rental website. This project aims to help improve the efficiency and productivity of the client’s rental process while also providing an online store to help automate more of the client’s work that the client is doing manually.
 
 # Features
 * Feature 1: An admin page for the client to personalize the website and keep track of rentals and inventory.
@@ -22,9 +22,9 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 	- Framework: java Spring
 * Database:
 	- Type: Relational
-	- MySQL
+	- AWS RDS MySQL Database
 * Deployment: 
-	- AWS.
+	- AWS EC2 instance.
 
 # Installation
 1. Clone the repository.
@@ -50,7 +50,6 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 # ERD
 ![ERD](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/e40a376b-79ba-4caa-bf8d-1f68b42b19e2)
 
-
 # Prototype
 ![home](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/f6db66d4-432b-45a2-b8a9-71bf5c116996)
 
@@ -60,32 +59,12 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 
 ![rental2](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/b02c8eee-6c50-4e70-809c-74d2bb4a510a)
 
-
-
 # Testing
 [Placeholder for testing instructions. To be filled in CSC 191.]
 # Deployment
 [Placeholder for deployment instructions. To be filled in CSC 191.]
 # Developer Instructions
 [Placeholder for developer instructions. To be filled in CSC 191.]
-
-
-# Timeline
-![time1](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/579878d3-b7cc-42d7-9441-cc6dc4ba223b)
-## What is done:
-- Milestone 1: Creating a mock-up for visualization and researching our stack and database.
-- Milestone 2: Code each of the pages with a consistent navbar based on our mock-up
-- Milestone 3: Adding and linking with a database to test logging in and signing up.
-- Milestone 4: Adding the CRUD functions for the products for the admin.
-
-![time2](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/d7491127-1ed5-43da-a563-e9269e1fbd81)
-## What is expected to be done:
-- Milestone 5: Adding functionality to each page, link the frontend web page with backend using javascript.
-- Milestone 6: Add pay functionality with stripe API, admin account functionality, customer reminder function.
-- Milestone 7: Create a pdf generator using java.
-- Milestone 8: Create a task scheduler that can run tasks automatically at a specified time and date.
-- Milestone 9: Add authentication and authorization for each page
-- Milestone 10: Calculate delivery charge with google map API.
 
 # Contributors
 Team Members:
