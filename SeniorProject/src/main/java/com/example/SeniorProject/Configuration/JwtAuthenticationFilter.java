@@ -21,14 +21,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
 	private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final JwtTokenBlacklistService jwtTokenBlacklistService;
 
-    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtService jwtService, UserDetailsService userDetailsService, JwtTokenBlacklistService jwtTokenBlacklistService)
+    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtService jwtService, UserDetailsService userDetailsService)
     {
         this.handlerExceptionResolver = handlerExceptionResolver;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
-        this.jwtTokenBlacklistService = jwtTokenBlacklistService;
     }
 
 	@Override
@@ -43,10 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
                 return;
             }
             final String jwt  = header.substring(7);
-            if (jwtTokenBlacklistService.isTokenBlacklisted(jwt)) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is blacklisted");
-                return;
-            }
 
             final String userEmail = jwtService.extractUsername(jwt);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

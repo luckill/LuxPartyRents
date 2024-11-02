@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +20,7 @@
 <body class="bg-transparent container-fluid">
 <div th:replace="~{Navbar :: header}"></div>
 <div th:replace="~{Navbar :: navbar}"></div>
+<div th:replace="~{Navbar :: sessionManagement}"></div>
 
 <div class="container mt-5" id="alert-container">
     <div class="alert alert-danger" role="alert">
