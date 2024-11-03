@@ -51,36 +51,32 @@ public class AuthenticationService
         customerRepository.save(customer);
     }
 
-    public Account authenticate(LoginUserDTO input)
-    {
+    public Account authenticate(LoginUserDTO input) {
         Account account = accountRepository.findAccountByEmail(input.getEmail());
-        if(account == null)
-        {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no account associated with this email");
+        if (account == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No account associated with this email");
         }
-
-        if (account.getIsLock())
-        {
+    
+        if (account.getIsLock()) {
             throw new LockedException("Your account is locked due to multiple failed login attempts. Please reset your password.");
         }
-
-        try
-        {
+    
+        try {
+            // Perform authentication
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(input.getEmail(), input.getPassword()));
+    
             // Reset failed attempts on successful login
             account.setFailedLoginAttempt(0);
             accountRepository.save(account);
+    
             return account;
-        }
-        catch (BadCredentialsException e)
-        {
+        } catch (BadCredentialsException e) {
             // Increment failed attempts
             int attempts = account.getFailedLoginAttempt() + 1;
             account.setFailedLoginAttempt(attempts);
-
+    
             // Lock the account if attempts exceed 3
-            if (attempts >= 3)
-            {
+            if (attempts >= 3) {
                 account.setIsLocked(true);
                 accountRepository.save(account);
                 throw new LockedException("Your account is locked due to multiple failed login attempts. Please reset your password.");

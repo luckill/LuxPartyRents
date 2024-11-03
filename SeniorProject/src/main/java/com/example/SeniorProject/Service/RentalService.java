@@ -1,6 +1,9 @@
 package com.example.SeniorProject.Service;
 
 import com.example.SeniorProject.Model.*;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
@@ -46,5 +49,9 @@ public class RentalService
         {
             return rentalRepository.findAll(pageable);
         }
+    }
+    
+    public List<String> getDistinctProductTypes() {
+        return rentalRepository.findDistinctProductTypes();
     }
 }

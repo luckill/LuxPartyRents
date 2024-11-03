@@ -39,23 +39,23 @@ public class AuthenticationController
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticate(@RequestBody LoginUserDTO loginUserDTO)
-    {
-        try
-        {
-            Account authenticatedUser = authenticationService.authenticate(loginUserDTO);
-            String jwtToken = jwtService.generateToken(authenticatedUser);
-            LoginResponse loginResponse = new LoginResponse(authenticatedUser,jwtToken, jwtService.getExpirationTime());
-            return ResponseEntity.ok(loginResponse);
-        }
-        catch (BadRequestException exception)
-        {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid credentials provided.");
-        }
-        catch (LockedException exception)
-        {
-            return ResponseEntity.status(HttpStatus.LOCKED).body("your account is id locked");
-        }
+public ResponseEntity<?> authenticate(@RequestBody LoginUserDTO loginUserDTO) {
+    try {
+        Account authenticatedUser = authenticationService.authenticate(loginUserDTO);
+        String jwtToken = jwtService.generateToken(authenticatedUser);
+
+        // Get customer details from the authenticated user
+        Customer customer = authenticatedUser.getCustomer();
+        String firstName = customer != null ? customer.getFirstName() : "";
+
+        // Create a login response containing the user's first name
+        LoginResponse loginResponse = new LoginResponse(authenticatedUser, jwtToken, jwtService.getExpirationTime(), firstName);
+        return ResponseEntity.ok(loginResponse);
+    } catch (BadRequestException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid credentials provided.");
+    } catch (LockedException exception) {
+        return ResponseEntity.status(HttpStatus.LOCKED).body("Your account is locked.");
+    }
     }
 
     @PostMapping("/logout")

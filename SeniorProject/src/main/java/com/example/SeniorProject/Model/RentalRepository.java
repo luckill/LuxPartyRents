@@ -13,6 +13,9 @@ public interface RentalRepository extends JpaRepository<Product, Integer> {
     @Query("SELECT p.name FROM Product p")
     List<String> findAllProductNames();
 
+    @Query("SELECT DISTINCT p.type FROM Product p")
+    List<String> findDistinctProductTypes();
+
     // New search method for keyword
     Page<Product> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 

@@ -13,8 +13,8 @@ let itemCartDiv = document.getElementById("cartItemCard");
 let itemTotalDiv = document.getElementById("totalItemCard");
 
 let myCart = [];
-let totalAmountOfItems = 0;
 let totalCost = 0.00;
+let totalAmountOfItems = 0;
 let subtotal = 0.00;
 let tax = 0.00;
 let totalDeposit = 0.00;
@@ -38,22 +38,22 @@ function getCookieValue(cookieName) {
 }
 
 // Function to fetch product details from the server
-async function fetchProductDetails(productId) {
-    try {
-        const response = await fetch(`/product/getById?id=${productId}`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+async function fetchProductById(productId) {
+    const jwtToken = localStorage.getItem('jwtToken');
+
+    const response = await fetch(`/product/getById?id=${productId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`
         }
-        const data = await response.json();
-        if (data.status === 404) {
-            console.error('Product not found');
-            return null;
-        }
-        return data;
-    } catch (error) {
-        console.error('Error fetching product details:', error);
-        return null;
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch product');
     }
+
+    return await response.json();
 }
 
 // Function to load cart from cookies and fetch product details
@@ -62,14 +62,14 @@ async function loadCartFromCookies() {
     if (cartCookie) {
         const cartItems = JSON.parse(cartCookie);
         for (const item of cartItems) {
-            const productDetails = await fetchProductDetails(item.productId);
+            const productDetails = await fetchProductById(item.productId);
             if (productDetails) {
                 myCart.push({
                     id: productDetails.id,
                     name: productDetails.name,
                     price: productDetails.price,
                     description: productDetails.description,
-                    deposit: productDetails.price / 2, // Calculating deposit as half the price
+                    deposit: productDetails.deposit, 
                     amount: item.quantity
                 });
             }
@@ -138,37 +138,56 @@ function duplicateCartItem(item) {
         }
     })
 
-    // Handle delete button
-    let deleteButton = clonedCartItem.querySelector(".deleteButton");
-    deleteButton.addEventListener("click", function() {
-        // Remove from array
-        myCart = myCart.filter(cartItem => cartItem.id !== item.id);
-        
-        // Remove from DOM
-        document.getElementById("shoppingCol").removeChild(clonedCartItem);
-
-        // Remove from total items list
-        let totalItemDiv = document.querySelector("#cloned" + item.id + "TotalItem");
-        if (totalItemDiv) {
-            document.getElementById("itemCardContainer").removeChild(totalItemDiv);
-        }
-        
-        // Recalculate totals
-        totalAmountOfItems = 0;
-        totalCost = 0;
-        calculateTotalItems();
-        calculateTotalCost();
-        
-        // Handle empty cart display
-        if (myCart.length === 0) {
-            emptyCartDiv.classList.remove("d-none");
-            emptyTotalDiv.classList.remove("d-none");
-        }
-    });
+     // Handle delete button
+     let deleteButton = clonedCartItem.querySelector(".deleteButton");
+     deleteButton.addEventListener("click", function() {
+         deleteItem(item.id); // Call deleteItem with the item's ID
+     });
 
     // Append
     clonedCartItem.classList.remove("d-none");
     document.getElementById("shoppingCol").appendChild(clonedCartItem);
+}
+
+function deleteItem(productId) {
+    // Retrieve the cart from cookies
+    const cart = JSON.parse(getCookie('cart')) || [];
+
+    // Filter out the product with the specified productId
+    const updatedCart = cart.filter(item => item.productId !== productId);
+
+    // Update the cart in cookies
+    setCookie('cart', JSON.stringify(updatedCart), 7);
+
+     // Clear the existing display
+     myCart = []; // Clear the myCart array
+     document.getElementById("shoppingCol").innerHTML = ""; // Clear the cart items from the display
+     document.getElementById("itemCardContainer").innerHTML = ""; // Clear total items display
+
+     loadCartFromCookies();
+    // Optionally, update the total cost
+    calculateTotalCost();
+    calculateTotalItems(); // Optionally update item count display
+
+    
+}
+
+function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + d.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
 }
 
 function duplicateTotalItem(item) {
@@ -214,9 +233,76 @@ function calculateTotalCost() {
 }
 
 // Load cart when the page loads
-window.onload = loadCartFromCookies;
+window.onload = loadCartFromCookies();
+
 function redirectToCheckout() {
     window.location.href = '/checkout'; // Replace with your checkout URL
+}
+
+function checkout() {
+    const token = localStorage.getItem('jwtToken');
+
+    if (!token) {
+        console.error("User is not logged in.");
+        return;
+    }
+
+    // Fetch the customer ID from the AccountController
+    fetch('/account/customerId', {
+        method: 'GET',
+        headers: {
+            'Authorization': "Bearer " + token // Include the token as a Bearer token
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to retrieve customer ID: " + response.statusText);
+        }
+        return response.text(); // Customer ID will be returned as plain text
+    })
+    .then(customerId => {
+        // Proceed with creating the order
+        const creationDate = new Date();
+        const localDateString = creationDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        calculateTotalCost();
+        const orderData = {
+            creationDate: localDateString,
+            rentalTime: 1, // Set rental time as needed
+            paid: 0, // Set to true if the payment is made
+            //payment_reference: "UNPAID",
+            price: totalCost, // Use the calculated total cost
+            orderProducts: myCart.map(item => ({
+                product: {
+                    id: item.id // Wrap the id in an object
+                },
+                quantity: item.amount // This remains the same
+            }))
+        };
+
+        // Create the order
+        return fetch(`/order/create?id=${customerId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + token
+            },
+            body: JSON.stringify(orderData)
+        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok: " + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Order created successfully:", data);
+        redirectToCheckout(); // Redirect to checkout or handle success as needed
+    })
+    .catch(error => {
+        console.error("Error during checkout:", error);
+        redirectToCheckout(); // TEMP PLACEHOLDER REMOVE LATER WHEN FIXED
+    });
 }
 
 document.getElementById("termsCheckbox").addEventListener("change", function() {

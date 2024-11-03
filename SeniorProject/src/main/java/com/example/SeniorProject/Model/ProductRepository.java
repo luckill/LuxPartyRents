@@ -14,6 +14,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
     @Modifying
     @Query(" UPDATE Product p SET p.price = ?1 WHERE p.id=?2")
     void updateProductPriceById(int price, int id);
+    
 
     @Transactional
     @Modifying
@@ -38,6 +39,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
     @Query("SELECT p FROM Product p WHERE p.id = :searchTerm")
     List<Product> findAllByIdContaining(@Param("searchTerm") Integer searchTerm);
 
+    @Query("SELECT p FROM Product p WHERE p.featureProduct = :featureProduct")
+    List<Product> findAllByFeatureProduct(@Param("featureProduct") boolean featureProduct);
+    
     @Transactional
     @Modifying
     @Query(" DELETE FROM Product p WHERE p.id=?1")

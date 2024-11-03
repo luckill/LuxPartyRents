@@ -41,9 +41,11 @@ public class ProductController {
             @RequestParam(required = false) String searchType,
             @RequestParam(required = false) String searchTerm) {
         List<Product> products = productService.getAllProducts(sortBy, searchType, searchTerm);
+
         return products.stream().map(this::mapToProductDTO).toList();
     }
 
+    
     @PostMapping(path ="/update")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> updateProduct (@RequestBody ProductDTO productDTO)
@@ -83,6 +85,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(this.mapToProductDTO(result));
     }
 
+    
 
     // Meant for searching with the given column types
     @GetMapping(path="/search")
@@ -96,6 +99,38 @@ public class ProductController {
         }
         return ResponseEntity.ok(result.stream().map(this::mapToProductDTO).toList());
     }
+    // Searches in Modal
+    @GetMapping("/searchModal")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String name) {
+        List<Product> products = productService.findAllByNameContaining(name);
+        return ResponseEntity.ok(products);
+    }
+    // Gets all featured items
+    @GetMapping("/getFeatured")
+    public ResponseEntity<List<Product>> getFeaturedProducts() {
+        List<Product> featuredProducts = productService.getFeaturedProducts();
+        return ResponseEntity.ok(featuredProducts);
+    }
+
+    @PostMapping(path = "/markAsFeatured")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?> markProductAsFeatured(@RequestParam int id) {
+        Product updatedProduct = productService.markProductAsFeatured(id);
+        if (updatedProduct == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+        }
+        return ResponseEntity.ok("Product marked as featured successfully");
+    }
+
+    @PostMapping(path = "/markAsUnfeatured")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?> markProductAsUnfeatured(@RequestParam int id) {
+        Product updatedProduct = productService.markProductAsUnfeatured(id);
+        if (updatedProduct == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+        }
+        return ResponseEntity.ok("Product marked as featured successfully");
+    }
 
     private ProductDTO mapToProductDTO(Product product)
     {
@@ -107,5 +142,12 @@ public class ProductController {
         productDTO.setQuantity(product.getQuantity());
         productDTO.setDescription(product.getDescription());
         return productDTO;
+    }
+
+    // New endpoint to fetch all products
+    @GetMapping("/allProducts")
+    public ResponseEntity<List<Product>> getAllProducts() {
+        List<Product> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
     }
 }
