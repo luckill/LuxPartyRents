@@ -12,9 +12,11 @@
     </div>
 <body class="d-flex h-100 w-100 text-center text-bg-dark">
     <div class="cover-container w-100 h-100 p-3">
+
         <!-- New Navbar Implementation -->
         <div th:replace="~{Navbar :: header}"></div>
         <div th:replace="~{Navbar :: navbar}"></div>
+
         <div class="container-fluid p-5">
             <div class="row" id="product-container">
                 <!-- Product items will be dynamically inserted here -->
@@ -174,12 +176,65 @@
         await loadProducts(window.currentPage, searchTerm, selectedType);
     }
 
+
+    document.getElementById('search-form').addEventListener('submit', function(event) {
+        console.log(event);
+        event.preventDefault(); // Prevent the default form submission
+        searchProducts(event); // Call the search function
+    });
+
+    async function loadDistinctTypes() {
+        const jwtToken = localStorage.getItem('jwtToken');
+
+        if (!jwtToken) {
+            console.error("No JWT token found.");
+            return;
+        }
+        try {
+            const response = await fetch("/rental/types", {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${jwtToken}`
+                }
+            });
+
+            if (response.ok) {
+                const types = await response.json();
+                populateTypeDropdown(types); // Call function to populate the dropdown
+            } else {
+                console.error("Failed to fetch distinct product types");
+            }
+        } catch (error) {
+            console.error("Error fetching distinct product types:", error);
+        }
+    }
+
+    function populateTypeDropdown(types) {
+        const typeDropdown = document.getElementById('type-dropdown'); // Get the dropdown element
+        typeDropdown.innerHTML = ''; // Clear existing options
+        typeDropdown.appendChild(new Option("Select Type", "")); // Add default option
+
+        types.forEach(type => {
+            const option = new Option(type, type);
+            typeDropdown.appendChild(option); // Add each type as an option
+        });
+    }
+
+    async function searchProducts(event) {
+        const searchTerm = document.getElementById('product-search').value;
+        const selectedType = document.getElementById('type-dropdown').value;
+        currentSearchPage = 0; // Reset to the first page for search results
+        await loadProducts(currentSearchPage, searchTerm, selectedType); // Load products based on the search term
+    }
+
     async function loadNextPage() {
         window.currentPage++;
         const searchTerm = document.getElementById('product-search')?.value || '';
         const selectedType = document.getElementById('type-dropdown')?.value || '';
         await loadProducts(window.currentPage, searchTerm, selectedType);
     }
+
 
     async function loadPreviousPage() {
         if (window.currentPage > 0) {
@@ -224,9 +279,10 @@
                 alert('Product added to cart!');
             };
         }
-
+      
         // Initial load
         loadProducts(window.currentPage);
+        loadDistinctTypes();
     });
 
     // Expose necessary functions to global scope
@@ -236,6 +292,7 @@
     window.increaseQuantity = increaseQuantity;
     window.decreaseQuantity = decreaseQuantity;
 })();
+
     </script>
 </body>
 </html>

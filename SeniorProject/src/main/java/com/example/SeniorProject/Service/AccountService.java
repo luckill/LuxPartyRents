@@ -82,4 +82,8 @@ public class AccountService
 
         return account;
     }
+
+    public void deleteAllUnverifiedAccounts() {
+        accountRepository.deleteAllUnverifiedAccounts();
+    }
 }

@@ -33,4 +33,9 @@ public class RentalController {
     {
         return rentalService.searchProducts(keyword, type, pageable);
     }
+
+    @GetMapping(path = "/types")
+    public @ResponseBody List<String> getDistinctTypes() {
+        return rentalService.getDistinctProductTypes();
+    }
 }
