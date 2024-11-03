@@ -52,4 +52,10 @@ public class AwsController
         s3Service.uploadFile(file);
         return ResponseEntity.ok().body("Picture uploaded successfully.");
     }
+
+    @GetMapping("/healthcheck")
+    public ResponseEntity<?> healthCheck()
+    {
+        return ResponseEntity.ok().build();
+    }
 }
