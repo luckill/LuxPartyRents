@@ -33,23 +33,6 @@ window.onload = function()
         alertMessage.textContent = 'You need to log in to access this page.';
         alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
     }
-    // Fetch and display products
-    fetchProducts()
-
-    // Add click event listeners for sorting
-    document.getElementById('sort-id').addEventListener('click', () => sortTable('id'));
-    document.getElementById('sort-name').addEventListener('click', () => sortTable('name'));
-    document.getElementById('sort-price').addEventListener('click', () => sortTable('price'));
-    document.getElementById('sort-quantity').addEventListener('click', () => sortTable('quantity'));
-    document.getElementById('sort-type').addEventListener('click', () => sortTable('type'));
-
-    // Event listeners for search functionality
-    document.getElementById("searchInput").addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            searchProducts();
-        }
-    });
-    document.getElementById("searchButton").addEventListener("click", searchProducts);
 };
 function addProduct() {
     const form = document.getElementById('inventoryForm'); // Use the correct form ID
