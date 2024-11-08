@@ -11,6 +11,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,9 @@ public class PaymentService {
         @Value("${stripe.api.key}")
         private String stripeApiKey;
 
+        @Autowired
         OrderRepository orderRepository;
+
 
         static class CreatePaymentResponse {
                 private String clientSecret;
@@ -41,10 +44,19 @@ public class PaymentService {
                 }
         }
 
-        public Map<String, Object> payALl(int orderId) throws Exception {
+        public Map<String, Object> payAll(int orderId) throws Exception {
                 Stripe.apiKey = stripeApiKey;
+
+                //gets order form db
                 Order order = orderRepository.getOrderById(orderId);
+                if (order == null) {
+                        throw new Exception("Order not found with id: " + orderId);
+                }
+
+                //convert price into cents
                 long amountInCents = (long) (order.getPrice() * 100);
+
+                //creats paymentintent
                 PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                         .setAmount(amountInCents)
                         .setCurrency("usd")
@@ -58,6 +70,7 @@ public class PaymentService {
                         PaymentIntent paymentIntent = PaymentIntent.create(params);
                         CreatePaymentResponse paymentResponse = new CreatePaymentResponse(paymentIntent.getClientSecret(), paymentIntent.getId());
 
+                        //gets relevent info as response
                         Map<String, Object> response = new HashMap<>();
                         response.put("clientSecret", paymentResponse.clientSecret);
                         response.put("transactionId", paymentResponse.dpmCheckerLink); // Ensure this field exists
@@ -65,10 +78,15 @@ public class PaymentService {
                         response.put("currency", paymentIntent.getCurrency());
                         response.put("status", paymentIntent.getStatus());
                         response.put("id", paymentIntent.getId());
-                        order.setPaid(true);
-                        order.setStatus(OrderStatus.CONFIRMED);
+
+                        //update the order
+                        order.setPaid(false);
+                        order.setPaymentReference(paymentIntent.getId());
+                        order.setStatus(OrderStatus.RECEIVED);
                         orderRepository.save(order);
-                        System.out.println(response.toString());
+
+                        // Log and return the payment data
+                        System.out.println("Payment Intent Created: " + response.toString());
                         return response;
                 } catch (StripeException e) {
                         throw new Exception("Payment processing failed: " + e.getMessage());
@@ -119,6 +137,17 @@ public class PaymentService {
                         // logger.error("Error creating payment intent: ", e);
                         throw new Exception("Payment processing failed: " + e.getMessage());
                 }
+        }
+
+        public String paymentSucceeded(int orderId) throws Exception{
+                Order order = orderRepository.getOrderById(orderId);
+                if (order == null) {
+                        throw new Exception("Order not found with id: " + orderId);
+                }
+                order.setPaid(true);
+                order.setStatus(OrderStatus.CONFIRMED);
+                orderRepository.save(order);
+                return "payment sucessfull";
         }
 
 }

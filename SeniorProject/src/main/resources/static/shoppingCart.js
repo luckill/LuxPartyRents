@@ -240,7 +240,7 @@ function redirectToCheckout() {
 }
 
 function checkout() {
-    const token = localStorage.getItem('jwtToken');
+     const token = localStorage.getItem('jwtToken');
 
     if (!token) {
         console.error("User is not logged in.");
@@ -269,7 +269,6 @@ function checkout() {
             creationDate: localDateString,
             rentalTime: 1, // Set rental time as needed
             paid: 0, // Set to true if the payment is made
-            //payment_reference: "UNPAID",
             price: totalCost, // Use the calculated total cost
             orderProducts: myCart.map(item => ({
                 product: {
@@ -279,7 +278,8 @@ function checkout() {
             }))
         };
 
-        // Create the order
+        // Create the order and redirect with orderId
+        console.log(customerId);
         return fetch(`/order/create?id=${customerId}`, {
             method: 'POST',
             headers: {
@@ -291,17 +291,24 @@ function checkout() {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error("Network response was not ok: " + response.statusText);
+            throw new Error("Failed to create the order: " + response.statusText);
         }
-        return response.json();
+        return response.json();  // Assuming the backend returns the order object with the orderId
     })
-    .then(data => {
-        console.log("Order created successfully:", data);
-        redirectToCheckout(); // Redirect to checkout or handle success as needed
+    .then(order => {
+        // Assuming the order object returned has the orderId
+        const orderId = order.id; // This depends on how the order is returned
+        // Redirect to the payment page with orderId as a query parameter
+        console.log(order.id);
+        window.location.href = `/checkout?orderId=${order.id || order.orderId}`;
     })
     .catch(error => {
-        console.error("Error during checkout:", error);
-        redirectToCheckout(); // TEMP PLACEHOLDER REMOVE LATER WHEN FIXED
+        console.error("Checkout error:", error);
+        if (error.response) {
+            error.response.text().then(text => {
+                console.error("Response body: ", text); // Log the response body for more details
+            });
+        }
     });
 }
 
