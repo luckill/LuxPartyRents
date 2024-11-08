@@ -34,38 +34,57 @@ public class S3Service
                 .build();
     }
 
-    public void uploadFile(MultipartFile multipartFile)
+    public void uploadFile(MultipartFile multipartFile, String name)
     {
         if(multipartFile.isEmpty())
         {
             throw new IllegalArgumentException("File is empty");
         }
+        File renamedFile = null;
         try
         {
             File file = convertMultiPartFileToFile(multipartFile);
-            String keyName = Paths.get(multipartFile.getOriginalFilename()).getFileName().toString();
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(keyName)
-                    .acl(ObjectCannedACL.PUBLIC_READ)
-                    .build();
-            s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
-            if (file.delete())
+            renamedFile = new File(file.getParent(), name + ".jpg");  // Appending .jpg, adjust as needed
+            if (file.renameTo(renamedFile))
             {
-                System.out.println("Temporary file deleted successfully.");
+                System.out.println("File renamed to: " + renamedFile.getName());
             }
             else
             {
-                System.out.println("Failed to delete the temporary file.");
+                System.out.println("Failed to rename the file.");
+                renamedFile = file;  // Fallback to original if rename fails
             }
-        } catch (S3Exception e)
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(name + ".jpg")
+                    .acl(ObjectCannedACL.PUBLIC_READ)
+                    .build();
+            s3Client.putObject(putObjectRequest, RequestBody.fromFile(renamedFile));
+        }
+        catch (S3Exception e)
         {
             e.printStackTrace();
+        }
+        finally
+        {
+            // Clean up the temporary file
+            if (renamedFile != null && renamedFile.exists())
+            {
+                if (renamedFile.delete())
+                {
+                    System.out.println("Temporary file deleted successfully.");
+                }
+                else
+                {
+                    System.out.println("Failed to delete the temporary file.");
+                }
+            }
         }
     }
     private File convertMultiPartFileToFile(MultipartFile file)
     {
-        File convFile = new File(file.getOriginalFilename());
+        File convFile = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convFile))
         {
             fos.write(file.getBytes());
