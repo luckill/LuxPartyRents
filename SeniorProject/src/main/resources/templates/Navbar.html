@@ -164,14 +164,12 @@
 </div>
 
 <div th:fragment="sessionManagement">
-    <div id="container" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;">
-        <div id="countdownDisplay" style="display: none; background-color: #f8d7da; padding: 20px; border-radius: 5px; color: #721c24; font-weight: bold; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); text-align: center;">
+    <div class="container">
+        <div id="countdownDisplay" style="display: none; background-color: #f8d7da; padding: 20px; border-radius: 5px; color: #721c24; font-weight: bold; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); text-align: center; justify-content: center">
             <p>Session will expire in <span id="countdownTimer">30</span> seconds due to inactivity.</p>
             <button id="resetTimerButton" style="margin-top: 10px; padding: 10px 15px; font-size: 16px;">Stay Active</button>
         </div>
     </div>
-
-
     <script>
         let inactivityTimer, countdownTimer;
         let countdownActive = false;
@@ -225,10 +223,9 @@
             clearTimeout(inactivityTimer);
             document.getElementById("countdownDisplay").style.display = "none";
             countdownActive = false;
-
             inactivityTimer = setTimeout(() => {
                 startCountdown();
-            }, (5 * 60 * 1000) - (30 * 1000));
+            }, (1 * 60 * 1000) - (30 * 1000));
         }
 
         function startCountdown()
@@ -237,7 +234,6 @@
             let countdown = 30;
             document.getElementById("countdownTimer").textContent = countdown;
             document.getElementById("countdownDisplay").style.display = "block";
-            document.getElementById("container").style.display = "flex"
 
             // Set countdown start time in localStorage as string
             localStorage.setItem("countdownStart", Date.now().toString());
@@ -260,8 +256,6 @@
         {
             countdownActive = false;
             document.getElementById("countdownDisplay").style.display = "none";
-            document.getElementById("container").style.display = "none"
-
             clearInterval(countdownTimer);
             resetInactivityTimer();
             localStorage.removeItem("countdownStart");
