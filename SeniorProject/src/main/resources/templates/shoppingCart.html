@@ -76,8 +76,8 @@
                             <input type="text" id="startDate" class="form-control" placeholder="Select start date">
                         </div>
                         <div class="col-6">
-                            <label for="endDate">End Date:</label>
-                            <input type="text" id="endDate" class="form-control" placeholder="Select end date">
+                            <label for="endDate">Return Date:</label>
+                            <input type="text" id="endDate" class="form-control" placeholder="Return date" readonly>
                         </div>
                     </div>
                 </div>
@@ -188,23 +188,25 @@
         document.getElementById("checkoutButton").disabled = !this.checked;
     });
 
-    // Initialize flatpickr for date selection with max rental period of 4 days
+    // Initialize flatpickr for date selection with fixed return date 4 days after start date
     flatpickr("#startDate", {
         dateFormat: "Y-m-d",
         onChange: function(selectedDates, dateStr) {
-            // Set the end date picker to have a maximum date 4 days after the selected start date
-            const maxEndDate = new Date(selectedDates[0]);
-            maxEndDate.setDate(maxEndDate.getDate() + 4); // Add 4 days to start date
-            flatpickr("#endDate", {
-                dateFormat: "Y-m-d",
-                minDate: dateStr, // End date can't be before start date
-                maxDate: maxEndDate // Maximum of 4 days after the start date
-            });
+            // Calculate the return date as 4 days after the start date
+            const returnDate = new Date(selectedDates[0]);
+            returnDate.setDate(returnDate.getDate() + 3); // 3 days after start date to include the start date
+
+            // Format the return date as YYYY-MM-DD and set it to the endDate field
+            const formattedReturnDate = returnDate.toISOString().split('T')[0];
+            document.getElementById("endDate").value = formattedReturnDate;
         }
     });
 
+    // Make the end date field read-only
     flatpickr("#endDate", {
         dateFormat: "Y-m-d",
+        clickOpens: false, // Prevent users from opening the calendar on the end date field
+        allowInput: false // Disallow manual input
     });
 </script>
 </body>
