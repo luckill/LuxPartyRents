@@ -155,35 +155,4 @@ function sortTable(column) {
   fetchProducts(column, searchType, searchTerm); // Fetch sorted data based on the column clicked
 }
 
-function updateProduct() {
-  const form = document.getElementById('theProduct');
-  let formData = new FormData(form);
-  const jwtToken = localStorage.getItem('jwtToken');
-  if (!jwtToken)
-  {
-        console.error("No JWT token found.");
-        return;
-  }
-  fetch('/product/update',
-    {
-      method: 'POST',
-      headers:
-      {
-        'Content-Type': 'application/json',
-        "Authorization": `Bearer ${jwtToken}`
-      },
-      body: JSON.stringify(Object.fromEntries(formData))
-    })
-    .then(function (response) {
-      if (response.status === 200) {
-        window.location.href = '/products';
-      } else {
-        //error handling
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-
-}
 
