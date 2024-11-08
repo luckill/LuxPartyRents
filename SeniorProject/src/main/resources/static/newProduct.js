@@ -51,6 +51,8 @@ window.onload = function()
     });
     document.getElementById("searchButton").addEventListener("click", searchProducts);
 };
+
+
 function addProduct() {
     const form = document.getElementById('inventoryForm'); // Use the correct form ID
     // Create a FormData object
