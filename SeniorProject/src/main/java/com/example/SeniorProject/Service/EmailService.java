@@ -30,6 +30,11 @@ public class EmailService
     private String sender;
 
     private HashMap<String,String> emailMap = new HashMap<>();
+
+    public HashMap<String, String> getEmailMap() {
+        return emailMap;
+    }
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
