@@ -33,7 +33,7 @@ public class Order
     @NotNull
     @Column(nullable = false, name = "order_status")
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatus status = OrderStatus.RECEIVED;
 
     @NotNull
     private String paymentReference;

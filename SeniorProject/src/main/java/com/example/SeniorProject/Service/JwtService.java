@@ -13,7 +13,6 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
 import java.util.function.Function;
 
 @Service
@@ -45,7 +44,6 @@ public class JwtService
         return buildToken(extraClaims, userDetails, expirationTime);
     }
 
-
 	public long getExpirationTime()
 	{
         return expirationTime;
@@ -59,6 +57,7 @@ public class JwtService
 
 	private String buildToken(Map<String, Object> extraClaims,UserDetails userDetails, long expiration)
 	{
+        extraClaims.put("exp", System.currentTimeMillis() + expiration);
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -87,20 +86,6 @@ public class JwtService
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    public long getRemainingValidTime(String token)
-    {
-        Date expiration = extractExpiration(token);
-        Date now = new Date();
-        if (expiration.before(now))
-        {
-            return 0;  // Token has already expired
-        }
-
-        // Calculate remaining time in milliseconds and convert to minutes, seconds, etc.
-        long remainingMillis = expiration.getTime() - now.getTime();
-        return TimeUnit.MILLISECONDS.toSeconds(remainingMillis);  // Return remaining time in seconds
     }
 
     private Key getSignInKey()

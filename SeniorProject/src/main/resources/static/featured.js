@@ -113,17 +113,17 @@ function addItemCard(item) {
 }
 
 async function getFeaturedItems() {
-    const jwtToken = localStorage.getItem('jwtToken');
-    if (!jwtToken) {
+    //const jwtToken = localStorage.getItem('jwtToken');
+    /*if (!jwtToken) {
         console.error("No JWT token found.");
         return;
-    } 
+    } */
     try {
         const response = await fetch("/product/getFeatured", {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
-                "Authorization": `Bearer ${jwtToken}`
+                //"Authorization": `Bearer ${jwtToken}`
             }
         });
         

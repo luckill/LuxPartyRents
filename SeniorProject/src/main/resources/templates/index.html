@@ -92,7 +92,54 @@
 
     <!-- https://d3snlw7xiuobl9.cloudfront.net/blackplate.jpg -->
     <script src="search.js" charset="UTF-8" type="text/javascript"></script>  
-    <script src="featured.js" charset="UTF-8" type="text/javascript"></script> 
+    <script src="featured.js" charset="UTF-8" type="text/javascript"></script>
+    <script>
+        window.onload = function ()
+        {
+            const jwtToken = localStorage.getItem("jwtToken");
+            if (jwtToken)
+            {
+                const jwtPayload = parseJwt(jwtToken);
+                const expirationTime = jwtPayload.exp * 1000;
+                const currentTime = Date.now();
+                const timeUntilExpiration = expirationTime - currentTime;
+                if (timeUntilExpiration < 0)
+                {
+                    logout();
+                }
+            }
+        }
+
+        function parseJwt(token)
+        {
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        function logout() {
+            fetch("/auth/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        localStorage.clear();
+                        window.location.href = '/';
+                    } else {
+                        console.error('Error:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
 </body>
 
 </html>

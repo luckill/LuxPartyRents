@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,7 @@
     <section class="top">
         <div th:replace="~{Navbar :: header}"></div>
         <div th:replace="~{Navbar :: navbar}"></div>
+        <div th:replace="~{Navbar :: sessionManagement}"></div>
     </section>
 
     <div class="container mt-5" id="alert-container">
