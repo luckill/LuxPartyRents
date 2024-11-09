@@ -50,16 +50,13 @@
                         <a class="nav-link" href="/user_order">User Orders</a> <!-- Visible to Users -->
                     </li>
                 </ul>
-                <form class="d-flex" id="search-form">
+                <form class="d-flex" id="search-form" action="/rental" method="get">
                     <input class="form-control me-0" type="search" name="kw" placeholder="Search Products" aria-label="Search" list="product-list" autocomplete="off" id="product-search">
                     <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
                             
                     <div class="dropdown ms-2"> <!-- Added margin-start to create a gap -->
-                       <select class="form-select wide-dropdown" id="type-dropdown" name="type" onchange="loadProductsByType()">
+                       <select class="form-select wide-dropdown" id="type-dropdown" name="type">
                             <option value="">Select Type</option>
-                            <option value="Dinnerware">Dinnerware</option>
-                            <option value="Extra Stuff">Extra Stuff</option>
-                            <option value="Tool">Tool</option>
                             <!-- Add more options as needed -->
                        </select>
                     </div>
@@ -94,6 +91,44 @@
     </header>
 
     <script>
+        async function loadDistinctTypes() {
+            const jwtToken = localStorage.getItem('jwtToken');
+
+            if (!jwtToken) {
+                console.error("No JWT token found.");
+                return;
+            }
+            try {
+                const response = await fetch("/rental/types", {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization": `Bearer ${jwtToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const types = await response.json();
+                    populateTypeDropdown(types); // Call function to populate the dropdown
+                } else {
+                    console.error("Failed to fetch distinct product types");
+                }
+            } catch (error) {
+                console.error("Error fetching distinct product types:", error);
+            }
+        }
+
+        function populateTypeDropdown(types) {
+            const typeDropdown = document.getElementById('type-dropdown'); // Get the dropdown element
+            typeDropdown.innerHTML = ''; // Clear existing options
+            typeDropdown.appendChild(new Option("Select Type", "")); // Add default option
+
+            types.forEach(type => {
+                const option = new Option(type, type);
+                typeDropdown.appendChild(option); // Add each type as an option
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const userRole = localStorage.getItem('Role'); // Admin or User
@@ -136,6 +171,7 @@
                     item.style.display = 'none';
                 });
             }
+            loadDistinctTypes();
         });
 
         function logout() {

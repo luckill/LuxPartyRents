@@ -39,8 +39,10 @@
 
     async function loadProducts(page, searchTerm = '', selectedType = ''){
         try {
+            console.log(`/rental/getAll?page=${page}&size=${pageSize}&kw=${encodeURIComponent(searchTerm)}&type=${encodeURIComponent(selectedType)}`);
             const response = 
-                await fetch (`/rental/getAll?page=${page}&size=${pageSize}&kw=${encodeURIComponent(searchTerm)}&type=${encodeURIComponent(selectedType)}`);   
+                await fetch (`/rental/getAll?page=${page}&size=${pageSize}&kw=${encodeURIComponent(searchTerm)}&type=${encodeURIComponent(selectedType)}`); 
+               
             const data = await response.json(); 
 
             const container = document.getElementById('product-container');
@@ -173,7 +175,7 @@
         const searchTerm = document.getElementById('product-search')?.value || '';
         const selectedType = document.getElementById('type-dropdown')?.value || '';
         window.currentPage = 0; // Reset to first page
-        await loadProducts(window.currentPage, searchTerm, selectedType);
+        await loadProducts(window.current, searchTerm, selectedType);
     }
 
 
@@ -211,6 +213,7 @@
     }
 
     function populateTypeDropdown(types) {
+        console.log("ran");
         const typeDropdown = document.getElementById('type-dropdown'); // Get the dropdown element
         typeDropdown.innerHTML = ''; // Clear existing options
         typeDropdown.appendChild(new Option("Select Type", "")); // Add default option
@@ -219,13 +222,6 @@
             const option = new Option(type, type);
             typeDropdown.appendChild(option); // Add each type as an option
         });
-    }
-
-    async function searchProducts(event) {
-        const searchTerm = document.getElementById('product-search').value;
-        const selectedType = document.getElementById('type-dropdown').value;
-        currentSearchPage = 0; // Reset to the first page for search results
-        await loadProducts(currentSearchPage, searchTerm, selectedType); // Load products based on the search term
     }
 
     async function loadNextPage() {
@@ -254,6 +250,9 @@
 
     // Initialize event listeners when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
+        (async function() {
+        await loadDistinctTypes(); // Wait for dropdown to populate
+
         // Search form listener
         const searchForm = document.querySelector('#search-form');
         if (searchForm) {
@@ -279,10 +278,28 @@
                 alert('Product added to cart!');
             };
         }
-      
-        // Initial load
-        loadProducts(window.currentPage);
-        loadDistinctTypes();
+
+        const searchParams = new URLSearchParams(window.location.search);
+        const searchTerm = searchParams.get('kw') || '';
+        const selectedType = searchParams.get('type') || '';
+        
+        if (searchTerm) {
+            document.getElementById('product-search').value = searchTerm;
+        }
+        if (selectedType) {
+            document.getElementById('type-dropdown').value = selectedType;
+            console.log(`Selected type set to: ${document.getElementById('type-dropdown').value}`);
+        }
+        
+        if (searchTerm || selectedType) {
+            loadProducts(window.currentPage, searchTerm, selectedType);
+        } else {
+            loadProducts(window.currentPage);
+        }
+        
+    })();
+        
+        
     });
 
     // Expose necessary functions to global scope
