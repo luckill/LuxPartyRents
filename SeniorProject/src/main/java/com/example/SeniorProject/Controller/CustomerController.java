@@ -4,6 +4,7 @@ import com.example.SeniorProject.DTOs.CustomerDTO;
 import com.example.SeniorProject.Model.*;
 import com.example.SeniorProject.Service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -92,13 +93,11 @@ public class CustomerController
     }
 
     @GetMapping("/getCustomerInfo")
-    public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token)
-    {
+    public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token) {
         String jwtToken = token.replace("Bearer ", "");
 
         // Validate the token and extract username
-        if (jwtService.isTokenExpired(jwtToken))
-        {
+        if (jwtService.isTokenExpired(jwtToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your session has expired, please log in again");
         }
 
@@ -106,11 +105,15 @@ public class CustomerController
         Account account = accountRepository.findAccountByEmail(username);
         Customer customer = customerRepository.findCustomersByEmail(account.getEmail());
 
-        if (customer == null)
-        {
+        if (customer == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with email " + username);
         }
 
-        return ResponseEntity.ok(customer);
+        // Map the Customer entity to CustomerDTO
+        CustomerDTO customerDTO = new CustomerDTO(customer.getFirstName(), customer.getLastName(), customer.getEmail(), customer.getPhone());
+
+        // Add any other fields from Customer to the DTO as needed
+
+        return ResponseEntity.ok(customerDTO);
     }
 }
