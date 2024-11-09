@@ -135,6 +135,11 @@ public class OrderService
     // Fetching the current orders for a customer (status = 'active')
     public List<OrderDTO> getCurrentOrders(int customerId)
     {
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+        if (customer == null)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Customer not found");
+        }
         List<Order> currentOrders = orderRepository.findCurrentOrdersByCustomerId(customerId);
         if (currentOrders.isEmpty())
         {
@@ -149,6 +154,11 @@ public class OrderService
     // Fetch past orders for a customer (status = 'completed')
     public List<OrderDTO> getPastOrders(int customerId)
     {
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+        if (customer == null)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Customer not found");
+        }
         List<Order> pastOrders = orderRepository.findPastOrdersByCustomerId(customerId);
         if (pastOrders.isEmpty())
         {
@@ -188,31 +198,39 @@ public class OrderService
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Order not found");
         }
 
-        if (orderDTO.getRentalTime() != order.getRentalTime() && orderDTO.getRentalTime() != 0)
-        {
-            order.setRentalTime(orderDTO.getRentalTime());
-        }
         if (orderDTO.isPaid() != order.isPaid())
         {
             order.setPaid(orderDTO.isPaid());
+            orderRepository.save(order);
         }
+
         if (orderDTO.getStatus() != null)
         {
             if (!orderDTO.getStatus().equals(order.getStatus().toString()))
             {
+                try
+                {
+                    OrderStatus.fromString(orderDTO.getStatus());
+                }
+                catch (IllegalArgumentException exception)
+                {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Invalid order status");
+                }
                 if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.RETURNED)
                 {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Order is already returned or cancelled");
+                    if (order.getStatus() == OrderStatus.CANCELLED)
+                    {
+                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Order has already been cancelled");
+                    }
+                    if (order.getStatus() == OrderStatus.RETURNED && OrderStatus.valueOf(orderDTO.getStatus()) != OrderStatus.COMPLETED)
+                    {
+                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Order has already been returned, the only status that you can update to is complete");
+                    }
                 }
-                order.setStatus(OrderStatus.valueOf(orderDTO.getStatus()));
+                order.setStatus(OrderStatus.fromString(orderDTO.getStatus()));
+                orderRepository.save(order);
             }
         }
-        else
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - order status have null value");
-        }
-
-        orderRepository.save(order);
     }
 
     // Delete an order
@@ -242,7 +260,8 @@ public class OrderService
         }
 
         //returning the products within order
-        for (OrderProduct orderProduct : order.getOrderProducts()){
+        for (OrderProduct orderProduct : order.getOrderProducts())
+        {
             //checking to make sure product exists before updating it
             // and that quantity of the order is not 0 or status is not returned
             Product product = orderProduct.getProduct();
@@ -250,16 +269,19 @@ public class OrderService
             if (product == null)
             {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
-            }else if (quantity == 0)
+            }
+            else if (quantity == 0)
             {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Insufficient product quantity in order, "
-                       +  "check to see if it hasn't been processed already.");
-            }else if (order.getStatus() == OrderStatus.RETURNED){
+                        + "check to see if it hasn't been processed already.");
+            }
+            else if (order.getStatus() == OrderStatus.RETURNED)
+            {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - check to see if it hasn't been processed already.");
             }
 
             //update product quantity and save
-            product.setQuantity(product.getQuantity() + quantity );
+            product.setQuantity(product.getQuantity() + quantity);
             productRepository.save(product);
         }
 
@@ -373,7 +395,8 @@ public class OrderService
     //Function that checks orders for when they should be returned
     //Takes in all orders that are set at status RECEIVED and compares there
     //order pick up date against the order rental time requested
-    private void OrderDueCheck (/*Order dbtable goes here*/){
+    private void OrderDueCheck(/*Order dbtable goes here*/)
+    {
         /*TODO: for loop that goes through the dbtable checking for all orders
          * that are set as RECEIVED, if they are RECEIVED then they should
          * compare pick up date against the order rental time by checking the

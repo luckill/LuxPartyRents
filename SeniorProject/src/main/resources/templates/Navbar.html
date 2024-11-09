@@ -51,17 +51,19 @@
                     </li>
                 </ul>
                 <form class="d-flex" id="search-form">
-                    <input class="form-control me-0" type="search" name="kw" placeholder="Search Products" aria-label="Search" list="product-list" autocomplete="off" id="product-search">
+                    <input class="form-control me-0" type="search" name="kw" placeholder="Search Products"
+                           aria-label="Search" list="product-list" autocomplete="off" id="product-search">
                     <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
-                            
+
                     <div class="dropdown ms-2"> <!-- Added margin-start to create a gap -->
-                       <select class="form-select wide-dropdown" id="type-dropdown" name="type" onchange="loadProductsByType()">
+                        <select class="form-select wide-dropdown" id="type-dropdown" name="type"
+                                onchange="loadProductsByType()">
                             <option value="">Select Type</option>
                             <option value="Dinnerware">Dinnerware</option>
                             <option value="Extra Stuff">Extra Stuff</option>
                             <option value="Tool">Tool</option>
                             <!-- Add more options as needed -->
-                       </select>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -78,8 +80,9 @@
             </div>
             <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
                 <!-- Added user-greeting element to display first name -->
-                <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span id="firstNameDisplay"></span>!</span>
-                
+                <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span
+                    id="firstNameDisplay"></span>!</span>
+
                 <a id="loginButton" class="btn btn-outline-light mx-2" href="/login">Login</a>
                 <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
                 <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()" style="display:none;">Logout</button>
@@ -143,25 +146,198 @@
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
                 }
             })
-            .then(response => {
-                if (response.ok) {
-                    localStorage.removeItem("jwtToken");
-                    localStorage.removeItem("isLoggedIn");
-                    localStorage.removeItem("Role");
-                    localStorage.removeItem("firstName"); // Remove first name
-                    window.location.href = '/';
-                } else {
-                    console.error('Error:', response.statusText);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                .then(response => {
+                    if (response.ok) {
+                        localStorage.clear();
+                        window.location.href = '/';
+                    } else {
+                        console.error('Error:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
     </script>
 </div>
+
+<div th:fragment="sessionManagement">
+    <div class="container">
+        <div id="countdownDisplay" style="display: none; background-color: #f8d7da; padding: 20px; border-radius: 5px; color: #721c24; font-weight: bold; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); text-align: center; justify-content: center">
+            <p>Session will expire in <span id="countdownTimer">30</span> seconds due to inactivity.</p>
+            <button id="resetTimerButton" style="margin-top: 10px; padding: 10px 15px; font-size: 16px;">Stay Active</button>
+        </div>
+    </div>
+    <script>
+        let inactivityTimer, countdownTimer;
+        let countdownActive = false;
+
+        function parseJwt(token)
+        {
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        function initializeSessionTimers(token)
+        {
+            const jwtPayload = parseJwt(token);
+            const expirationTime = jwtPayload.exp * 1000;
+            const currentTime = Date.now();
+            const timeUntilExpiration = expirationTime - currentTime;
+            const warningTime = 10 * 1000;
+
+            // Store expiration time in localStorage as string
+            localStorage.setItem("expirationTime", expirationTime.toString());
+
+            if (timeUntilExpiration <= 0)
+            {
+                alert("Session expired. Please log in again.");
+                logout();
+                return;
+            }
+
+            setupExpirationTimers(timeUntilExpiration, warningTime);
+            resetInactivityTimer();
+        }
+
+        function setupExpirationTimers(timeUntilExpiration, warningTime)
+        {
+            if (timeUntilExpiration < warningTime)
+            {
+                alert("Your session is about to expire in less than 10 seconds.");
+                setTimeout(() => {
+                    alert("Session expired. Please log in again.");
+                    logout();
+                }, timeUntilExpiration);
+            }
+        }
+
+        function resetInactivityTimer()
+        {
+            clearTimeout(inactivityTimer);
+            document.getElementById("countdownDisplay").style.display = "none";
+            countdownActive = false;
+            inactivityTimer = setTimeout(() => {
+                startCountdown();
+            }, (1 * 60 * 1000) - (30 * 1000));
+        }
+
+        function startCountdown()
+        {
+            countdownActive = true;
+            let countdown = 30;
+            document.getElementById("countdownTimer").textContent = countdown;
+            document.getElementById("countdownDisplay").style.display = "block";
+
+            // Set countdown start time in localStorage as string
+            localStorage.setItem("countdownStart", Date.now().toString());
+
+            countdownTimer = setInterval(() =>
+            {
+                countdown -= 1;
+                document.getElementById("countdownTimer").textContent = countdown;
+
+                if (countdown <= 0)
+                {
+                    clearInterval(countdownTimer);
+                    alert("Session expired due to inactivity.");
+                    logout();
+                }
+            }, 1000);
+        }
+
+        function resetCountdown()
+        {
+            countdownActive = false;
+            document.getElementById("countdownDisplay").style.display = "none";
+            clearInterval(countdownTimer);
+            resetInactivityTimer();
+            localStorage.removeItem("countdownStart");
+        }
+
+        function startSessionManagement()
+        {
+            const token = localStorage.getItem("jwtToken");
+            const expirationTime = localStorage.getItem("expirationTime");
+            const countdownStart = localStorage.getItem("countdownStart");
+
+            if (token)
+            {
+                if (expirationTime && Date.now() < Number(expirationTime))
+                {
+                    setupExpirationTimers(Number(expirationTime) - Date.now(), 30 * 1000);
+
+                    // If countdown was active, resume it
+                    if (countdownStart)
+                    {
+                        const timeSinceCountdownStart = Math.floor((Date.now() - Number(countdownStart)) / 1000);
+                        const countdownRemaining = 30 - timeSinceCountdownStart;
+                        if (countdownRemaining > 0)
+                        {
+                            resumeCountdown(countdownRemaining);
+                        }
+                        else
+                        {
+                            alert("Session expired due to inactivity.");
+                            logout();
+                        }
+                    }
+                    else
+                    {
+                        resetInactivityTimer();
+                    }
+                }
+                else
+                {
+                    initializeSessionTimers(token);
+                }
+            }
+            else
+            {
+                console.error("No JWT token found. Unable to initialize session management.");
+            }
+        }
+
+        function resumeCountdown(countdown)
+        {
+            countdownActive = true;
+            document.getElementById("countdownTimer").textContent = countdown;
+            document.getElementById("countdownDisplay").style.display = "block";
+
+            countdownTimer = setInterval(() =>
+            {
+                countdown -= 1;
+                document.getElementById("countdownTimer").textContent = countdown;
+
+                if (countdown <= 0)
+                {
+                    clearInterval(countdownTimer);
+                    alert("Session expired due to inactivity.");
+                    logout();
+                }
+            }, 1000);
+        }
+
+        // Activity events to reset inactivity timer
+        const activityEvents = ['click', 'keydown', 'input', 'change'];
+        activityEvents.forEach(event =>
+        {
+            document.addEventListener(event, resetInactivityTimer);
+        });
+
+        // Reset countdown when the "Stay Active" button is clicked
+        document.getElementById("resetTimerButton").addEventListener("click", resetCountdown);
+
+        // Initialize session management when the page loads
+        document.addEventListener('DOMContentLoaded', startSessionManagement);
+    </script>
+</div>
+
 </body>
 </html>
