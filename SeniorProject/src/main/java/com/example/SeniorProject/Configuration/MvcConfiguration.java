@@ -1,4 +1,4 @@
-package com.example.SeniorProject;
+package com.example.SeniorProject.Configuration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -28,5 +28,6 @@ public class MvcConfiguration implements WebMvcConfigurer
         registry.addViewController("/theProduct").setViewName("theProduct");
         registry.addViewController("/order_detail").setViewName("order_detail");
         registry.addViewController("/checkout").setViewName("checkout");
+        registry.addViewController("/uploadPicture").setViewName("uploadPictureForm");
     }
 }

@@ -4,6 +4,7 @@ import com.example.SeniorProject.DTOs.CustomerDTO;
 import com.example.SeniorProject.Model.*;
 import com.example.SeniorProject.Service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -59,58 +60,45 @@ public class CustomerController
         }
     }
 
-    @PutMapping("/updateCustomer")
+    @PostMapping("/updateCustomer")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateCustomer(@RequestBody CustomerDTO customer)
     {
-
-        try {
+        try
+        {
             customerService.updateCustomer(customer);
             return ResponseEntity.ok("Customer has been successfully updated");
-        }catch (ResponseStatusException exception)
+        }
+        catch (ResponseStatusException exception)
         {
+            System.out.println(exception.getReason());
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
-        // Fetch existing customer from the database
-
     }
-
-
 
     @DeleteMapping("/deleteCustomer")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> deleteCustomer(@RequestBody CustomerDTO customer) {
+        Customer costAccount=customerRepository.findCustomersByEmail(customer.getEmail());
         Account account=accountRepository.findAccountByEmail(customer.getEmail());
-        Account costAccount=customerRepository.findAccountByCustomerName(customer.getFirstName(), customer.getLastName());
         if (account!=null && costAccount != null) {
-            accountRepository.deleteById(account.getId());
             customerRepository.deleteById(costAccount.getId());
+            accountRepository.deleteById(account.getId());
+
         }
-
-
         return ResponseEntity.ok("Customer has been successfully deleted");
     }
-
++
     @GetMapping("/getCustomerInfo")
     public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token)
     {
-        String jwtToken = token.replace("Bearer ", "");
-
-        // Validate the token and extract username
-        if (jwtService.isTokenExpired(jwtToken))
+        try
         {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your session has expired, please log in again");
+            return ResponseEntity.ok(customerService.getCustomerInfo(token));
         }
-
-        String username = jwtService.extractUsername(jwtToken);
-        Account account = accountRepository.findAccountByEmail(username);
-        Customer customer = customerRepository.findCustomersByEmail(account.getEmail());
-
-        if (customer == null)
+        catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with email " + username);
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
-
-        return ResponseEntity.ok(customer);
     }
 }

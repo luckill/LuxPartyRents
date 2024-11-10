@@ -69,6 +69,14 @@ window.onload = function() {
 function updateProduct() {
     const form = document.getElementById('updateForm');
     let formData = new FormData(form);
+    const name = formData.get('name');
+    const inputFile = document.getElementById("input-file");
+    let file = inputFile.files[0];
+    if (file) {
+        let newName = name.concat(".jpg")
+        file = renameFile(file, newName);
+        console.log(file); // Log the renamed file
+    }
     console.log(formData)
     // Prevent form submission
     event.preventDefault();
@@ -82,17 +90,18 @@ function updateProduct() {
         },
         body: JSON.stringify(Object.fromEntries(formData))
     })
-    .then(function (response) {
-        if (response.ok) {
-            window.location.href = '/products';
-        } else {
-            // Handle errors, you can display a message to the user
-            console.error('Error:', response.statusText);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+        .then(function (response) {
+            if (response.ok) {
+                uploadPic(file);
+                window.location.href = '/products';
+            } else {
+                // Handle errors
+                console.error('Error:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 function deleteProduct() {
@@ -116,4 +125,44 @@ function deleteProduct() {
         console.error('Error:', error);
         alert('An error occurred. Please try again later.');
     });
+}
+
+function renameFile(originalFile, newName) {
+    // Create a new File object with the new name
+    return new File([originalFile], newName, {
+        type: originalFile.type,
+        lastModified: originalFile.lastModified
+    });
+}
+
+function uploadPic(file)
+{
+    console.log(file)
+    const imgData = new FormData();
+    imgData.append('file', file);
+    imgData.forEach((value, key) => {
+        console.log(`${key}:`, value);
+    });
+    fetch('/uploadFile',
+        {
+            method: 'POST',
+            headers:
+                {
+                    "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+                },
+            body: imgData
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result.startsWith('Error')) {
+                responseMessage.innerHTML = `<div class="alert alert-danger">${result}</div>`;
+            }
+            else {
+                responseMessage.innerHTML = `<div class="alert alert-success">Success: ${result}</div>`;
+            }
+        })
+        .catch(error => {
+            responseMessage.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+        });
+
 }

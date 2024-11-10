@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -29,6 +29,7 @@
 <body class="bg-transparent">
     <div th:replace="~{Navbar :: header}"></div>
     <div th:replace="~{Navbar :: navbar}"></div>
+    <div th:replace="~{Navbar :: sessionManagement}"></div>
 
     <div class="container mt-5" id="alert-container">
         <div class="alert alert-danger" role="alert">
@@ -65,147 +66,8 @@
             </tbody>
         </table>
     </div>
-<script>
-    window.onload=function()
-    {
-        const jwtToken = localStorage.getItem("jwtToken");
-        const role = localStorage.getItem("Role");
-        const alertContainer = document.getElementById("alert-container");
-        const pageContent = document.getElementById('page-content');
-        const alertHeading = document.getElementById('alert-heading');
-        const alertMessage = document.getElementById('alert-message');
-        const alertFooter = document.getElementById('alert-footer');
 
-        if (jwtToken)
-        {
-            if (role === "USER")
-            {
-                pageContent.style.display = 'block';
-                alertContainer.style.display = 'none';
-            }
-            else
-            {
-                alertContainer.style.display = 'block'; // Show the alert
-                pageContent.style.display="none"
-                alertHeading.textContent = 'Access Denied';
-                alertMessage.innerHTML = "<strong>Error!!!</strong> - This page is for user use only, and you don't have access to it. If you want to view all the orders that are currently active, please go to <a href=\"/Orders\" class=\"alert-link\">order page</a>.";
-                alertFooter.innerHTML = 'Return to the <a href="/" class="alert-link">home page</a>.';
-            }
-        }
-        else
-        {
-            alertContainer.style.display = 'block'; // Show alert for unauthenticated users
-            pageContent.style.display = 'none';
-            console.error("No JWT token found.");
-            alertHeading.textContent = 'Unauthorized';
-            alertMessage.textContent = 'You need to log in to access this page.';
-            alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
-        }
-    }
-
-    // Function to load current orders
-    async function loadCurrentOrders()
-    {
-        try
-        {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get("customerId");
-            const jwtToken = localStorage.getItem('jwtToken');
-            if (!jwtToken)
-            {
-                console.error("No JWT token found.");
-                return;
-            }
-            const response = await fetch(`/order/currentOrders?customerId=${id}`,
-            {
-                method: 'GET',
-                headers:
-                {
-                    "Content_type": "application/json",
-                    "Authorization": `Bearer ${jwtToken}`
-                },
-            });
-            const data = await response.json();
-            renderOrders(data);
-        }
-        catch (error)
-        {
-            console.error('Error fetching current orders:', error);
-        }
-    }
-
-    // Function to load past orders
-    async function loadPastOrders() {
-        try
-        {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get("customerId");
-            const jwtToken = localStorage.getItem('jwtToken');
-            if (!jwtToken)
-            {
-                console.error("No JWT token found.");
-                return;
-            }
-            const response = await fetch(`/order/pastOrders?customerId=${id}`,
-            {
-                method: 'GET',
-                headers:
-                {
-                    "Content-type": "application/json",
-                    "Authorization": `Bearer ${jwtToken}`
-                },
-            });
-            const data = await response.json();
-            renderOrders(data);
-        }
-        catch (error)
-        {
-            console.error('Error fetching past orders:', error);
-        }
-    }
-
-    // Function to render orders in the table
-    function renderOrders(orders)
-    {
-        const container = document.getElementById('orders-container');
-        container.innerHTML = ''; // Clear previous orders
-
-        // Append orders to container
-        orders.forEach(order =>
-        {
-            const orderRow = document.createElement('tr');
-            orderRow.classList.add('clickable-row');
-            orderRow.innerHTML = `
-                <td>${order.id}</td>
-                <td>${order.date}</td>
-                <td>${order.paid ? 'Paid' : 'Unpaid'}</td>
-                <td>${order.price}</td>
-                <td>${order.rentalTime}</td>
-                <td>${order.status}</td>
-            `;
-            orderRow.addEventListener('click', () => {
-                window.location.href = `/order_detail?id=${order.id}`; // Change to the desired URL
-            });
-            container.appendChild(orderRow);
-        });
-    }
-
-    // Add active state toggling for buttons
-    document.getElementById('toggleCurrentOrders').addEventListener('click', () => {
-        loadCurrentOrders();
-        document.getElementById('toggleCurrentOrders').classList.add('active');
-        document.getElementById('togglePastOrders').classList.remove('active');
-    });
-
-    document.getElementById('togglePastOrders').addEventListener('click', () => {
-        loadPastOrders();
-        document.getElementById('togglePastOrders').classList.add('active');
-        document.getElementById('toggleCurrentOrders').classList.remove('active');
-    });
-
-    // Initial load of current orders
-    loadCurrentOrders();
-</script>
+    <script src="UserOrder.js"></script>
 </body>
 
 </html>

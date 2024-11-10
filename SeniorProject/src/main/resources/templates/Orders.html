@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Potapov Weddings Rental</title>
     <link rel="stylesheet" type="text/css" href="UserOrder_styles.css"> <!-- Use the main CSS file -->
@@ -28,6 +28,7 @@
 <body class="bg-transparent">
 <div th:replace="~{Navbar :: header}"></div>
 <div th:replace="~{Navbar :: navbar}"></div>
+<div th:replace="~{Navbar :: sessionManagement}"></div>
 
 <div class="container mt-5" id="alert-container">
     <div class="alert alert-danger" role="alert">

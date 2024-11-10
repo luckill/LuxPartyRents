@@ -15,7 +15,7 @@ html {
 body {
     background: transparent;
     margin: 15px auto 0;
-    width: 410px;
+    max-width: 100%;
 }
 
 #contact {

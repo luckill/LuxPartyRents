@@ -6,9 +6,11 @@ import com.example.SeniorProject.Exception.BadRequestException;
 import com.example.SeniorProject.LoginResponse;
 import com.example.SeniorProject.Model.*;
 import com.example.SeniorProject.Service.*;
+import jakarta.servlet.http.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.context.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
@@ -20,15 +22,11 @@ public class AuthenticationController
 {
 	private final JwtService jwtService;
 	private final AuthenticationService authenticationService;
-    private final JwtTokenBlacklistService jwtTokenBlacklistService;
-    private final BlacklistedTokenRepository blacklistedTokenRepository;
 
-	public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService, JwtTokenBlacklistService jwtTokenBlacklistService, BlacklistedTokenRepository blacklistedTokenRepository)
+	public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService)
     {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
-        this.jwtTokenBlacklistService = jwtTokenBlacklistService;
-        this.blacklistedTokenRepository = blacklistedTokenRepository;
     }
 
     @PostMapping("/signup")
@@ -59,22 +57,10 @@ public ResponseEntity<?> authenticate(@RequestBody LoginUserDTO loginUserDTO) {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token)
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response)
     {
-        String jwt = token.substring(7);
-        jwtTokenBlacklistService.blacklistToken(jwt);
+        SecurityContextHolder.clearContext();
+        response.setStatus(HttpServletResponse.SC_OK);
         return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/deleteExpiredTokens")
-    public ResponseEntity<?> deleteExpiredTokens()
-    {
-        List<BlacklistedToken> tokens = blacklistedTokenRepository.findExpiredBlacklistTokens(LocalDateTime.now());
-        if (tokens.isEmpty())
-        {
-            return ResponseEntity.status(HttpStatus.OK).body("No expired tokens found");
-        }
-        blacklistedTokenRepository.deleteAll(tokens);
-        return ResponseEntity.status(HttpStatus.OK).body("Expired tokens were deleted");
     }
 }

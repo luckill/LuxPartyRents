@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="navbar.css">
 </head>
 
 <body class="bg-transparent">
@@ -44,12 +45,13 @@
                     </li>
                     <!-- Links visible to all logged-in users (admin or normal users) -->
                     <li class="nav-item logged-in-only" style="display:none;">
-                        <a class="nav-link" href="/account_details">Account Details</a> <!-- Visible to all users -->
+                        <a class="nav-link" href="/UserDetails_page">Account Details</a> <!-- Visible to all users -->
                     </li>
                     <li class="nav-item user-only" style="display:none;">
                         <a class="nav-link" href="/user_order">User Orders</a> <!-- Visible to Users -->
                     </li>
                 </ul>
+              
                 <form class="d-flex" id="search-form" action="/rental" method="get">
                     <input class="form-control me-0" type="search" name="kw" placeholder="Search Products" aria-label="Search" list="product-list" autocomplete="off" id="product-search">
                     <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
@@ -61,6 +63,7 @@
                        </select>
                     </div>
                 </form>
+              
             </div>
         </div>
     </nav>
@@ -68,25 +71,40 @@
 
 <div th:fragment="header">
     <header class="py-3 border-bottom">
-        <div class="row flex-nowrap justify-content-between align-items-center">
-            <div class="col-3 pt-1"></div>
-            <div class="col-6 text-center">
-                <a class="fs-1 text-white -bg-transparent text-end text-decoration-none" href="/">Lux Party Rents</a>
+        <div class="container">
+            <div class="row flex-column flex-md-row justify-content-between align-items-center">
+                <!-- Left column (empty for spacing, hidden on small screens) -->
+                <div class="col-12 col-md-3"></div>
+
+                <!-- Center section (Logo and Location) -->
+                <div class="col-12 col-md-6 text-center">
+                    <!-- Use flex-column to stack the logo and location text on top of each other -->
+                    <div class="d-flex flex-column align-items-center">
+                        <a class="fs-1 text-white text-decoration-none" href="/">Lux Party Rents</a>
+                        <span class="fs-6 text-white">Sacramento, California</span>
+                    </div>
+                </div>
+
+                <!-- Right column (User options, Cart, Login) -->
+                <div class="col-12 col-md-3 d-flex flex-column flex-md-row justify-content-end align-items-center mt-3 mt-md-0"
+                     style="padding-right: 1%;"> <!-- Adjust padding or margin here -->
+                    <!-- User greeting -->
+                    <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span
+                            id="firstNameDisplay"></span>!</span>
+
+                    <!-- Login / Signup buttons (will hide if logged in) -->
+                    <a id="loginButton" class="btn btn-outline-light mx-2" href="/login" style="margin-left: auto;">Login</a>
+                    <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
+
+                    <!-- Logout button (displayed when logged in) -->
+                    <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()"
+                            style="display:none;">Logout</button>
+
+                    <!-- Cart button (displayed when logged in) -->
+                    <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart"
+                       style="display:none;">Cart</a>
+                </div>
             </div>
-            <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
-                <!-- Added user-greeting element to display first name -->
-                <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span id="firstNameDisplay"></span>!</span>
-                
-                <a id="loginButton" class="btn btn-outline-light mx-2" href="/login">Login</a>
-                <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
-                <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()" style="display:none;">Logout</button>
-                <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart" style="display:none;">Cart</a>
-            </div>
-        </div>
-        <div class="container d-flex flex-wrap justify-content-center">
-            <a class="d-flex align-self-center link-body-emphasis text-decoration-none">
-                <span class="fs-6 text-white -bg-transparent text-center">Sacramento, California</span>
-            </a>
         </div>
     </header>
 
@@ -179,25 +197,194 @@
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
                 }
             })
-            .then(response => {
-                if (response.ok) {
-                    localStorage.removeItem("jwtToken");
-                    localStorage.removeItem("isLoggedIn");
-                    localStorage.removeItem("Role");
-                    localStorage.removeItem("firstName"); // Remove first name
-                    window.location.href = '/';
-                } else {
-                    console.error('Error:', response.statusText);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                .then(response => {
+                    if (response.ok) {
+                        localStorage.clear();
+                        window.location.href = '/';
+                    } else {
+                        console.error('Error:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
     </script>
 </div>
+
+<div th:fragment="sessionManagement">
+    <div class="container">
+        <div id="countdownDisplay" style="display: none; background-color: #f8d7da; padding: 20px; border-radius: 5px; color: #721c24; font-weight: bold; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); text-align: center; justify-content: center">
+            <p>Session will expire in <span id="countdownTimer">30</span> seconds due to inactivity.</p>
+            <button id="resetTimerButton" style="margin-top: 10px; padding: 10px 15px; font-size: 16px;">Stay Active</button>
+        </div>
+    </div>
+    <script>
+        let inactivityTimer, countdownTimer;
+        let countdownActive = false;
+
+        function parseJwt(token)
+        {
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        function initializeSessionTimers(token)
+        {
+            const jwtPayload = parseJwt(token);
+            const expirationTime = jwtPayload.exp * 1000;
+            const currentTime = Date.now();
+            const timeUntilExpiration = expirationTime - currentTime;
+            const warningTime = 10 * 1000;
+
+            // Store expiration time in localStorage as string
+            localStorage.setItem("expirationTime", expirationTime.toString());
+
+            if (timeUntilExpiration <= 0)
+            {
+                alert("Session expired. Please log in again.");
+                logout();
+                return;
+            }
+
+            setupExpirationTimers(timeUntilExpiration, warningTime);
+            resetInactivityTimer();
+        }
+
+        function setupExpirationTimers(timeUntilExpiration, warningTime)
+        {
+            if (timeUntilExpiration < warningTime)
+            {
+                alert("Your session is about to expire in less than 10 seconds.");
+                setTimeout(() => {
+                    alert("Session expired. Please log in again.");
+                    logout();
+                }, timeUntilExpiration);
+            }
+        }
+
+        function resetInactivityTimer()
+        {
+            clearTimeout(inactivityTimer);
+            document.getElementById("countdownDisplay").style.display = "none";
+            countdownActive = false;
+            inactivityTimer = setTimeout(() => {
+                startCountdown();
+            }, (10 * 60 * 1000) - (30 * 1000));
+        }
+
+        function startCountdown()
+        {
+            countdownActive = true;
+            let countdown = 30;
+            document.getElementById("countdownTimer").textContent = countdown;
+            document.getElementById("countdownDisplay").style.display = "block";
+
+            // Set countdown start time in localStorage as string
+            localStorage.setItem("countdownStart", Date.now().toString());
+
+            countdownTimer = setInterval(() =>
+            {
+                countdown -= 1;
+                document.getElementById("countdownTimer").textContent = countdown;
+
+                if (countdown <= 0)
+                {
+                    clearInterval(countdownTimer);
+                    alert("Session expired due to inactivity.");
+                    logout();
+                }
+            }, 1000);
+        }
+
+        function resetCountdown()
+        {
+            countdownActive = false;
+            document.getElementById("countdownDisplay").style.display = "none";
+            clearInterval(countdownTimer);
+            resetInactivityTimer();
+            localStorage.removeItem("countdownStart");
+        }
+
+        function startSessionManagement()
+        {
+            const token = localStorage.getItem("jwtToken");
+            const expirationTime = localStorage.getItem("expirationTime");
+            const countdownStart = localStorage.getItem("countdownStart");
+
+            if (token)
+            {
+                if (expirationTime && Date.now() < Number(expirationTime))
+                {
+                    setupExpirationTimers(Number(expirationTime) - Date.now(), 30 * 1000);
+
+                    // If countdown was active, resume it
+                    if (countdownStart)
+                    {
+                        const timeSinceCountdownStart = Math.floor((Date.now() - Number(countdownStart)) / 1000);
+                        const countdownRemaining = 30 - timeSinceCountdownStart;
+                        if (countdownRemaining > 0)
+                        {
+                            resumeCountdown(countdownRemaining);
+                        }
+                        else
+                        {
+                            alert("Session expired due to inactivity.");
+                            logout();
+                        }
+                    }
+                    else
+                    {
+                        resetInactivityTimer();
+                    }
+                }
+                else
+                {
+                    initializeSessionTimers(token);
+                }
+            }
+        }
+
+        function resumeCountdown(countdown)
+        {
+            countdownActive = true;
+            document.getElementById("countdownTimer").textContent = countdown;
+            document.getElementById("countdownDisplay").style.display = "block";
+
+            countdownTimer = setInterval(() =>
+            {
+                countdown -= 1;
+                document.getElementById("countdownTimer").textContent = countdown;
+
+                if (countdown <= 0)
+                {
+                    clearInterval(countdownTimer);
+                    alert("Session expired due to inactivity.");
+                    logout();
+                }
+            }, 1000);
+        }
+
+        // Activity events to reset inactivity timer
+        const activityEvents = ['click', 'keydown', 'input', 'change'];
+        activityEvents.forEach(event =>
+        {
+            document.addEventListener(event, resetInactivityTimer);
+        });
+
+        // Reset countdown when the "Stay Active" button is clicked
+        document.getElementById("resetTimerButton").addEventListener("click", resetCountdown);
+
+        // Initialize session management when the page loads
+        document.addEventListener('DOMContentLoaded', startSessionManagement);
+    </script>
+</div>
+
 </body>
 </html>

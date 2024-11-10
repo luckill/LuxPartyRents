@@ -42,14 +42,19 @@ public class AwsController
     }
 
     @PostMapping("/uploadFile")
-    public ResponseEntity<?> uploadFile(@RequestParam MultipartFile file)
+    public ResponseEntity<?> uploadFile(@RequestParam MultipartFile file, @RequestParam String name)
     {
-        if(file == null)
+        if(file == null || file.isEmpty())
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error!!! -File not found.");
         }
-
-        s3Service.uploadFile(file);
+        s3Service.uploadFile(file, name);
         return ResponseEntity.ok().body("Picture uploaded successfully.");
+    }
+
+    @GetMapping("/healthcheck")
+    public ResponseEntity<?> healthCheck()
+    {
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

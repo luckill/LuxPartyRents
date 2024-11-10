@@ -38,10 +38,19 @@ document
 
 // Fetches a payment intent and captures the client secret
 async function initialize() {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+
+    if (!orderId) {
+        console.error("Order ID is missing.");
+        return;
+    }
+
     const response = await fetch("/api/payment/secure/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: orderId,
     });
     const { clientSecret, dpmCheckerLink } = await response.json();
 
@@ -62,12 +71,40 @@ async function initialize() {
 }
 
 async function handleSubmit(e) {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+
+    if (!orderId) {
+        console.error("Order ID is missing.");
+        return;
+    }
+
     e.preventDefault();
     setLoading(true);
+
+    const response = await fetch(`/api/payment/secure/paymentSuccess`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: orderId, // Send the orderId in the request body
+    });
+
+    // Optionally handle the response from the backend
+    if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error('Payment confirmation failed:', errorMessage);
+        showMessage("Payment confirmation failed, please try again.");
+    } else {
+        console.log("Payment confirmed successfully.");
+        // You can handle further actions after this, like redirecting to the success page
+    }
 
     const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
+
             // Make sure to change this to your payment completion page
             return_url: "http://localhost:8080/paymentGood",
         },
@@ -86,6 +123,7 @@ async function handleSubmit(e) {
 
     setLoading(false);
 }
+
 
 // ------- UI helpers -------
 

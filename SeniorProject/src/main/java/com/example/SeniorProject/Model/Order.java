@@ -33,10 +33,13 @@ public class Order
     @NotNull
     @Column(nullable = false, name = "order_status")
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatus status = OrderStatus.RECEIVED;
 
     @NotNull
     private String paymentReference;
+
+    @NotNull
+    private String address;
 
     @NotNull
     @Column(name = "price")
@@ -58,6 +61,7 @@ public class Order
         this.rentalTime = rentalTime;
         this.paid = paid;
         this.status = OrderStatus.RECEIVED;
+        this.address = "";
     }
 
     public Order()
@@ -162,5 +166,13 @@ public class Order
     public void setPaymentReference(@NotNull String paymentReference)
     {
         this.paymentReference = paymentReference;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
