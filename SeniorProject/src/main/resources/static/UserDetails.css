@@ -76,17 +76,6 @@ label {
     /* Darker shade on hover */
 }
 
-#pass_res {
-    background-color: #ffffff;
-    /* Custom primary color */
-    border: none;
-    /* Remove border */
-}
-
-#pass_res:hover {
-    background-color: #0056b3;
-    /* Darker shade on hover */
-}
 
 #del_acc {
     background-color: #ffffff;

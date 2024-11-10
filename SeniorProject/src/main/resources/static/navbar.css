@@ -1,0 +1,48 @@
+@media (max-width: 767px) {
+    #user-greeting {
+        display: block;  /* Show user greeting on small screens */
+    }
+    #loginButton, #signUpButton {
+        font-size: 14px; /* Smaller text on mobile */
+    }
+    .fs-1 {
+        font-size: 1.5rem;  /* Reduce logo size on small screens */
+    }
+}
+/* Adjustments for small screens (below 768px) */
+@media (max-width: 767px) {
+    .fs-1 {
+        font-size: 1.5rem;  /* Reduce logo size on small screens */
+    }
+    .fs-6 {
+        font-size: 1rem;  /* Adjust location text size on small screens */
+    }
+
+    .btn {
+        font-size: 14px;  /* Smaller buttons on small screens */
+        padding: 8px 12px;  /* Adjust padding */
+    }
+}
+
+@media (min-width: 1200px) {
+    /* Large screen styles (desktops) */
+    #user-greeting {
+        font-size: 16px;
+    }
+}
+
+/* Adjust alignment of buttons and content for mobile */
+@media (max-width: 576px) {
+    .col-3 {
+        text-align: center; /* Center-align the right section on mobile */
+    }
+
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .text-center {
+        text-align: center; /* Center the location text on small screens */
+    }
+}

@@ -73,10 +73,9 @@ function uploadInfo() {
         phone: form.phone.value,
         email: form.email.value, // Assuming you want to send this too
     };
-
     // Sending data to the server
-    fetch('/customer/updateCustomer', {
-        method: 'PUT',
+    fetch(`/customer/updateCustomer`, {
+        method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
@@ -95,15 +94,13 @@ function uploadInfo() {
     .then(data => {
         console.log('Success:', data);
         alert('Customer updated successfully!');
+        window.location.href = '/UserDetails_page';
     })
     .catch((error) => {
         console.error('Error:', error);
         alert('Failed to update customer.');
     });
 }
-
-// Adding event listener to the button
-document.getElementById('button1').addEventListener('click', uploadInfo);
 
 function deleteAccount() {
 
@@ -134,12 +131,11 @@ function deleteAccount() {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.json();
     })
     .then(data => {
         console.log('Success:', data);
         alert('Account deleted successfully!');
-         window.location.href = '/';
+        window.location.href = '/';
         // Optionally, redirect or clear the form
         form.reset();
     })
@@ -149,35 +145,3 @@ function deleteAccount() {
     });
 }
 
-// Adding event listener for the delete button
-document.getElementById('del_acc').addEventListener('click', deleteAccount);
-
-function resetPassword()
-{
-    const jwtToken = localStorage.getItem('jwtToken');
-    if (!jwtToken) {
-        console.error("No JWT token found.");
-        return;
-    }
-    const email = document.getElementById('email').value;
-
-    fetch('/send-reset-token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            "Authorization": `Bearer ${jwtToken}`
-        },
-        body: JSON.stringify({ email: email }),
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('Network response was not ok');
-        alert('Password reset token sent to your email!');
-        document.getElementById('reset_password_div').style.display = 'block'; // Show the reset password form
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to send password reset token.');
-    });
-}
-
-document.getElementById('pass_res').addEventListener('click', resetPassword);
