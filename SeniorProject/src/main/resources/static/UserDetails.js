@@ -1,7 +1,35 @@
 window.onload = function() {
     const jwtToken = localStorage.getItem('jwtToken');
-    if (!jwtToken) {
+    const role = localStorage.getItem("Role");
+    const alertContainer = document.getElementById("alert-container");
+    const pageContent = document.getElementById('page-content');
+    const alertHeading = document.getElementById('alert-heading');
+    const alertMessage = document.getElementById('alert-message');
+    const alertFooter = document.getElementById('alert-footer');
+    if (jwtToken)
+    {
+        if (role === "USER")
+        {
+            pageContent.style.display = 'block';
+            alertContainer.style.display = 'none';
+        }
+        else
+        {
+            alertContainer.style.display = 'block'; // Show the alert
+            pageContent.style.display="none"
+            alertHeading.textContent = 'Access Denied';
+            alertMessage.innerHTML = "<strong>Error!!!</strong> - This page is for user use only, and you don't have access to it. If you want to view all the orders that are currently active, please go to <a href=\"/Orders\" class=\"alert-link\">order page</a>.";
+            alertFooter.innerHTML = 'Return to the <a href="/" class="alert-link">home page</a>.';
+        }
+    }
+    else
+    {
+        alertContainer.style.display = 'block'; // Show alert for unauthenticated users
+        pageContent.style.display = 'none';
         console.error("No JWT token found.");
+        alertHeading.textContent = 'Unauthorized';
+        alertMessage.textContent = 'You need to log in to access this page.';
+        alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
         return;
     }
 
@@ -63,7 +91,6 @@ function uploadInfo() {
             console.error('Response status text:', response.statusText);
             throw new Error('Network response was not ok');
         }
-        return response.json();
     })
     .then(data => {
         console.log('Success:', data);

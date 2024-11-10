@@ -42,10 +42,7 @@ public class AuthenticationService
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         Customer customer = new Customer(input.getFirstName(), input.getLastName(), input.getEmail(), input.getPhoneNumber());
         Account account = new Account(input.getEmail(), passwordEncoder.encode(input.getPassword()), false);
-        if (!optionalRole.isEmpty())
-        {
-            account.setRole(optionalRole.get());
-        }
+        optionalRole.ifPresent(account::setRole);
         accountRepository.save(account);
         customer.setAccount(account);
         customerRepository.save(customer);
@@ -75,7 +72,6 @@ public class AuthenticationService
             int attempts = account.getFailedLoginAttempt() + 1;
             account.setFailedLoginAttempt(attempts);
     
-            // Lock the account if attempts exceed 3
             if (attempts >= 3) {
                 account.setIsLocked(true);
                 accountRepository.save(account);

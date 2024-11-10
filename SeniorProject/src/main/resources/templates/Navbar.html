@@ -225,7 +225,7 @@
             countdownActive = false;
             inactivityTimer = setTimeout(() => {
                 startCountdown();
-            }, (1 * 60 * 1000) - (30 * 1000));
+            }, (10 * 60 * 1000) - (30 * 1000));
         }
 
         function startCountdown()
@@ -297,10 +297,6 @@
                 {
                     initializeSessionTimers(token);
                 }
-            }
-            else
-            {
-                console.error("No JWT token found. Unable to initialize session management.");
             }
         }
 

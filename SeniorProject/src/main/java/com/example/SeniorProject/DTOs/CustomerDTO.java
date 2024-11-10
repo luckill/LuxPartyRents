@@ -1,5 +1,7 @@
 package com.example.SeniorProject.DTOs;
 
+import com.fasterxml.jackson.annotation.*;
+
 public class CustomerDTO
 {
     private int id;
@@ -8,13 +10,27 @@ public class CustomerDTO
     private String email;
     private String phone;
 
-    public CustomerDTO(String firstName, String lastName, String email, String phone)
+    public CustomerDTO()
+    {
+
+    }
+
+    @JsonCreator
+    public CustomerDTO(@JsonProperty("firstName")String firstName, @JsonProperty("lastName")String lastName, @JsonProperty("email")String email, @JsonProperty("phone")String phone)
     {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phone = phone;
     }
+
+    public CustomerDTO(int id, String firstName, String lastName, String email, String phone)
+    {
+        this(firstName, lastName, email, phone);
+        this.id = id;
+    }
+
+
 
     public String getFirstName()
     {
