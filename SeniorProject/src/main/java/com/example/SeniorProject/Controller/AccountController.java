@@ -14,7 +14,6 @@ import org.springframework.web.server.*;
 import java.util.Optional;
 
 
-
 @RestController
 @RequestMapping("/account")
 public class AccountController
@@ -34,7 +33,7 @@ public class AccountController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -59,7 +58,7 @@ public class AccountController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -73,43 +72,57 @@ public class AccountController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
     @DeleteMapping("/deleteUnverifiedAccounts")
-        public ResponseEntity<?> deleteUnverifiedAccounts() {
-    try {
-        accountService.deleteAllUnverifiedAccounts();
-        return ResponseEntity.status(HttpStatus.OK).body("All unverified accounts have been successfully deleted.");
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting unverified accounts.");
-    }
+    public ResponseEntity<?> deleteUnverifiedAccounts()
+    {
+        try
+        {
+            accountService.deleteAllUnverifiedAccounts();
+            return ResponseEntity.status(HttpStatus.OK).body("All unverified accounts have been successfully deleted.");
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting unverified accounts.");
+        }
     }
 
     @GetMapping("/customerId")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> getCustomerId(@RequestHeader("Authorization") String token) {
-    try {
-        Account account = accountService.getUserInfo(token);
+    public ResponseEntity<?> getCustomerId(@RequestHeader("Authorization") String token)
+    {
+        try
+        {
+            Account account = accountService.getUserInfo(token);
 
-        // Check if the account is found
-        if (account == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+            // Check if the account is found
+            if (account == null)
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+            }
+
+            // Get the associated Customer
+            Customer customer = account.getCustomer();
+
+            // Check if the Customer is associated with the Account
+            if (customer == null)
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer ID not found");
+            }
+
+            // Return the Customer ID
+            return ResponseEntity.ok(customer.getId());
         }
-
-        // Get the associated Customer
-        Customer customer = account.getCustomer();
-
-        // Check if the Customer is associated with the Account
-        if (customer == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer ID not found");
+        catch (Exception e)
+        {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }
-
-        // Return the Customer ID
-        return ResponseEntity.ok(customer.getId());
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
     }
-}
 }

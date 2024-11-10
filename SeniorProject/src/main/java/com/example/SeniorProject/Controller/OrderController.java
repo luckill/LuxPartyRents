@@ -4,7 +4,6 @@ import com.example.SeniorProject.Model.*;
 import com.example.SeniorProject.DTOs.*;
 import com.example.SeniorProject.Service.*;
 
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -46,10 +45,14 @@ public class OrderController
                     ),
                     HttpStatus.OK
             );
-        } catch (ResponseStatusException exception) {
+        }
+        catch (ResponseStatusException exception)
+        {
             System.err.println("Error creating order: " + exception.getMessage());
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
-        } catch (Exception e) {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
+        catch (Exception e)
+        {
             // Log unexpected errors
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred");
@@ -67,7 +70,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -82,7 +85,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -97,7 +100,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -114,7 +117,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -130,7 +133,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -145,7 +148,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -161,7 +164,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -176,7 +179,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -191,7 +194,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
@@ -206,7 +209,7 @@ public class OrderController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
