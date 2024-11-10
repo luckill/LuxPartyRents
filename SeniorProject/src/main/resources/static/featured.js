@@ -5,6 +5,7 @@ const maxItems = 6;
 let isEditing = false;
 let selectedSlotIndex = 0;
 let featuredItems = [];
+const userRole = localStorage.getItem('Role');
 // I have an idea to make the populate based on the table instead of populating based on looping through the featured
 // This will allow for more dynamic placement of items and the possiblility to swap items
 // Get the card template and container
@@ -12,9 +13,14 @@ const cardTemplate = document.getElementById('featured-item-list-card');
 const container = document.getElementById('featured-item-list-container');
 
 document.addEventListener('DOMContentLoaded', function() {
+    const editButton = document.getElementById("edit-button");
     createFeaturedItems();
     // Initialize the container and populate it with all items
     //populateModal();
+    if (localStorage.getItem('Role') === 'ADMIN' && editButton) {
+        document.getElementById('edit-button').style.display = 'block';
+        editButton.addEventListener('click', handleEditButton);
+    }
 });
 
 // Function to handle card click
@@ -46,8 +52,6 @@ function handleCardClick() {
         handleModalSearch();
     }
 }
-
-document.getElementById("edit-button").addEventListener('click', handleEditButton);
 
 async function createFeaturedItems() {
     // Await the result from getFeaturedItems

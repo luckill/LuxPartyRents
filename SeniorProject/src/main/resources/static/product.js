@@ -143,6 +143,16 @@ function searchProducts() {
                    </tr>`;
       });
       document.getElementById('tableRows').innerHTML = rows;
+
+      // Add click event listeners to each row
+      const tableRows = document.querySelectorAll('#tableRows tr');
+      tableRows.forEach(row => {
+          row.addEventListener('click', function() {
+              console.log("Ran");
+              const productId = this.dataset.id; // Get the product ID
+              window.location.href = `/theProduct?id=${productId}`; // Redirect to the product page
+          });
+      });
   })
   .catch(error => console.log('Error fetching search results:', error));
 }
