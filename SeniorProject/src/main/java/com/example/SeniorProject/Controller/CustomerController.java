@@ -60,7 +60,7 @@ public class CustomerController
         }
     }
 
-    @PutMapping("/updateCustomer")
+    @PostMapping("/updateCustomer")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateCustomer(@RequestBody CustomerDTO customer)
     {
@@ -71,6 +71,7 @@ public class CustomerController
         }
         catch (ResponseStatusException exception)
         {
+            System.out.println(exception.getReason());
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
@@ -78,17 +79,16 @@ public class CustomerController
     @DeleteMapping("/deleteCustomer")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> deleteCustomer(@RequestBody CustomerDTO customer) {
+        Customer costAccount=customerRepository.findCustomersByEmail(customer.getEmail());
         Account account=accountRepository.findAccountByEmail(customer.getEmail());
-        Account costAccount=customerRepository.findAccountByCustomerName(customer.getFirstName(), customer.getLastName());
         if (account!=null && costAccount != null) {
-            accountRepository.deleteById(account.getId());
             customerRepository.deleteById(costAccount.getId());
+            accountRepository.deleteById(account.getId());
+
         }
-
-
         return ResponseEntity.ok("Customer has been successfully deleted");
     }
-
++
     @GetMapping("/getCustomerInfo")
     public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token)
     {

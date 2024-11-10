@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="navbar.css">
 </head>
 
 <body class="bg-transparent">
@@ -54,15 +55,13 @@
                     <input class="form-control me-0" type="search" name="kw" placeholder="Search Products"
                            aria-label="Search" list="product-list" autocomplete="off" id="product-search">
                     <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
-
-                    <div class="dropdown ms-2"> <!-- Added margin-start to create a gap -->
+                    <div class="dropdown ms-2">
                         <select class="form-select wide-dropdown" id="type-dropdown" name="type"
                                 onchange="loadProductsByType()">
                             <option value="">Select Type</option>
                             <option value="Dinnerware">Dinnerware</option>
                             <option value="Extra Stuff">Extra Stuff</option>
                             <option value="Tool">Tool</option>
-                            <!-- Add more options as needed -->
                         </select>
                     </div>
                 </form>
@@ -73,26 +72,40 @@
 
 <div th:fragment="header">
     <header class="py-3 border-bottom">
-        <div class="row flex-nowrap justify-content-between align-items-center">
-            <div class="col-3 pt-1"></div>
-            <div class="col-6 text-center">
-                <a class="fs-1 text-white -bg-transparent text-end text-decoration-none" href="/">Lux Party Rents</a>
-            </div>
-            <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
-                <!-- Added user-greeting element to display first name -->
-                <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span
-                    id="firstNameDisplay"></span>!</span>
+        <div class="container">
+            <div class="row flex-column flex-md-row justify-content-between align-items-center">
+                <!-- Left column (empty for spacing, hidden on small screens) -->
+                <div class="col-12 col-md-3"></div>
 
-                <a id="loginButton" class="btn btn-outline-light mx-2" href="/login">Login</a>
-                <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
-                <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()" style="display:none;">Logout</button>
-                <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart" style="display:none;">Cart</a>
+                <!-- Center section (Logo and Location) -->
+                <div class="col-12 col-md-6 text-center">
+                    <!-- Use flex-column to stack the logo and location text on top of each other -->
+                    <div class="d-flex flex-column align-items-center">
+                        <a class="fs-1 text-white text-decoration-none" href="/">Lux Party Rents</a>
+                        <span class="fs-6 text-white">Sacramento, California</span>
+                    </div>
+                </div>
+
+                <!-- Right column (User options, Cart, Login) -->
+                <div class="col-12 col-md-3 d-flex flex-column flex-md-row justify-content-end align-items-center mt-3 mt-md-0"
+                     style="padding-right: 1%;"> <!-- Adjust padding or margin here -->
+                    <!-- User greeting -->
+                    <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span
+                            id="firstNameDisplay"></span>!</span>
+
+                    <!-- Login / Signup buttons (will hide if logged in) -->
+                    <a id="loginButton" class="btn btn-outline-light mx-2" href="/login" style="margin-left: auto;">Login</a>
+                    <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
+
+                    <!-- Logout button (displayed when logged in) -->
+                    <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()"
+                            style="display:none;">Logout</button>
+
+                    <!-- Cart button (displayed when logged in) -->
+                    <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart"
+                       style="display:none;">Cart</a>
+                </div>
             </div>
-        </div>
-        <div class="container d-flex flex-wrap justify-content-center">
-            <a class="d-flex align-self-center link-body-emphasis text-decoration-none">
-                <span class="fs-6 text-white -bg-transparent text-center">Sacramento, California</span>
-            </a>
         </div>
     </header>
 
