@@ -64,19 +64,16 @@ public class CustomerController
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateCustomer(@RequestBody CustomerDTO customer)
     {
-
-        try {
+        try
+        {
             customerService.updateCustomer(customer);
             return ResponseEntity.ok("Customer has been successfully updated");
-        }catch (ResponseStatusException exception)
+        }
+        catch (ResponseStatusException exception)
         {
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
-        // Fetch existing customer from the database
-
     }
-
-
 
     @DeleteMapping("/deleteCustomer")
     @PreAuthorize("isAuthenticated()")
@@ -93,27 +90,15 @@ public class CustomerController
     }
 
     @GetMapping("/getCustomerInfo")
-    public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token) {
-        String jwtToken = token.replace("Bearer ", "");
-
-        // Validate the token and extract username
-        if (jwtService.isTokenExpired(jwtToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your session has expired, please log in again");
+    public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token)
+    {
+        try
+        {
+            return ResponseEntity.ok(customerService.getCustomerInfo(token));
         }
-
-        String username = jwtService.extractUsername(jwtToken);
-        Account account = accountRepository.findAccountByEmail(username);
-        Customer customer = customerRepository.findCustomersByEmail(account.getEmail());
-
-        if (customer == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with email " + username);
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
-
-        // Map the Customer entity to CustomerDTO
-        CustomerDTO customerDTO = new CustomerDTO(customer.getFirstName(), customer.getLastName(), customer.getEmail(), customer.getPhone());
-
-        // Add any other fields from Customer to the DTO as needed
-
-        return ResponseEntity.ok(customerDTO);
     }
 }

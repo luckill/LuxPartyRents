@@ -11,7 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
-    <script src="UserDetails.js"></script>
     <link rel="stylesheet" type="text/css" href="UserDetails.css">
 </head>
 
@@ -20,33 +19,44 @@
 <div th:replace="~{Navbar :: navbar}"></div>
 <div th:replace="~{Navbar :: sessionManagement}"></div>
 
-<div id="container">
-    <form id="user_details" class="form-group">
-        <input id="userId" name="userId" type="hidden" value="12345" />
-
-        <label for="fname">First Name:</label>
-        <input id="fname" name="fname" type="text" class="form-control" />
-        <br />
-
-        <label for="lname">Last Name:</label>
-        <input id="lname" name="lname" type="text" class="form-control" />
-        <br />
-
-        <label for="phone">Phone Number:</label>
-        <input id="phone" name="phone" type="text" class="form-control" />
-        <br />
-
-        <label for="email">Email:</label>
-        <input id="email" name="email" type="text" class="form-control" />
-        <br />
-
-        <button id="button1" name="button1" type="button" onclick="uploadInfo()" class="btn btn-primary">Edit</button>
-        <button id="pass_res" name="pass_res" type="button">Password Reset</button>
-        <button id="del_acc" name="del_acc" onclick="deleteAccount()" type="button">Delete Account</button>
-    </form>
-
+<div class="container mt-5" id="alert-container">
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading" id="alert-heading"></h4>
+        <p id="alert-message"></p>
+        <hr>
+        <p class="mb-0" id="alert-footer"></p>
+    </div>
 </div>
 
+<div id="page-content" style="display: none">
+    <div id="container">
+        <form id="user_details" class="form-group">
+            <input id="userId" name="userId" type="hidden" value="12345" />
+
+            <label for="fname">First Name:</label>
+            <input id="fname" name="fname" type="text" class="form-control" />
+            <br />
+
+            <label for="lname">Last Name:</label>
+            <input id="lname" name="lname" type="text" class="form-control" />
+            <br />
+
+            <label for="phone">Phone Number:</label>
+            <input id="phone" name="phone" type="text" class="form-control" />
+            <br />
+
+            <label for="email">Email:</label>
+            <input id="email" name="email" type="text" class="form-control" />
+            <br />
+
+            <button id="button1" name="button1" type="button" onclick="uploadInfo()" class="btn btn-primary">Edit</button>
+            <button id="pass_res" name="pass_res" type="button">Password Reset</button>
+            <button id="del_acc" name="del_acc" onclick="deleteAccount()" type="button">Delete Account</button>
+        </form>
+    </div>
+</div>
+
+<script src="UserDetails.js"></script>
 </body>
 
 </html>

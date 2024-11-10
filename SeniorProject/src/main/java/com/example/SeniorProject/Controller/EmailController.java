@@ -49,7 +49,7 @@ public class EmailController
         }
         catch (ResponseStatusException exception)
         {
-            return ResponseEntity.status(exception.getStatusCode()).body(exception.getMessage());
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 
