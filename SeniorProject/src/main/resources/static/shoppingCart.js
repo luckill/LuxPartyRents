@@ -18,7 +18,7 @@ let totalAmountOfItems = 0;
 let subtotal = 0.00;
 let tax = 0.00;
 let totalDeposit = 0.00;
-const taxRate = 0.075; // 7.5% tax rate
+const taxRate = 0.0725; // 7.25% tax rate
 
 // Function to parse cookies
 function getCookieValue(cookieName) {
@@ -69,7 +69,7 @@ async function loadCartFromCookies() {
                     name: productDetails.name,
                     price: productDetails.price,
                     description: productDetails.description,
-                    deposit: productDetails.deposit, 
+                    deposit: productDetails.price/2, 
                     amount: item.quantity
                 });
             }
@@ -144,6 +144,12 @@ function duplicateCartItem(item) {
          deleteItem(item.id); // Call deleteItem with the item's ID
      });
 
+     // Handle update button
+    let updateButton = clonedCartItem.querySelector(".updateButton");
+    updateButton.addEventListener("click", function() {
+    updateCartQuantity(item.id); // Call updateCartQuantity with the item's ID
+});
+
     // Append
     clonedCartItem.classList.remove("d-none");
     document.getElementById("shoppingCol").appendChild(clonedCartItem);
@@ -170,6 +176,42 @@ function deleteItem(productId) {
     calculateTotalItems(); // Optionally update item count display
 
     
+}
+
+// Function to update the cart quantity
+function updateCartQuantity(productId) {
+    const productContainer = document.querySelector(`[data-product-id="${productId}"]`); // Find product container
+    const quantityInput = productContainer.querySelector('.quantity-input'); // Get the quantity input field
+    const newQuantity = parseInt(quantityInput.value); // Get the new quantity from the input field
+
+    if (isNaN(newQuantity) || newQuantity < 1) {
+        
+        return;
+    }
+
+    // Retrieve the cart from cookies
+    const cart = JSON.parse(getCookie('cart')) || [];
+
+    // Find the index of the product in the cart
+    const existingProductIndex = cart.findIndex(item => item.productId === productId);
+
+    if (existingProductIndex !== -1) {
+        // Update the quantity of the existing product
+        cart[existingProductIndex].quantity = newQuantity;
+
+        // Save the updated cart back to cookies
+        setCookie('cart', JSON.stringify(cart), 7);
+
+        // Re-render the cart
+        document.getElementById("shoppingCol").innerHTML = ""; // Clear the existing cart display
+        loadCartFromCookies(); // Re-load the updated cart items
+
+        // Optionally, update the total cost and total items
+        calculateTotalCost();
+        calculateTotalItems();
+    } else {
+        return;
+    }
 }
 
 function setCookie(name, value, days) {
@@ -206,7 +248,7 @@ function duplicateTotalItem(item) {
 
     let clonedItemCost = clonedTotalItem.querySelector("#itemCost");
     clonedItemCost.id = "cloned" + item.id + "TotalCost"
-    clonedItemCost.innerHTML = "$"+item.price;
+    clonedItemCost.innerHTML = "$"+item.price * item.amount;
 
     // Append
     clonedTotalItem.classList.remove("d-none");
@@ -218,7 +260,7 @@ function calculateTotalItems() {
     document.getElementById("totalItemCount").innerHTML = "Your Cart (" + totalAmountOfItems + ")";
 }
 
-function calculateTotalCost() {
+ async function calculateTotalCost() {
     subtotal = myCart.reduce((total, item) => total + (item.price * item.amount), 0);
     totalDeposit = myCart.reduce((total, item) => total + (item.deposit * item.amount), 0);
     tax = subtotal * taxRate;
@@ -235,9 +277,6 @@ function calculateTotalCost() {
 // Load cart when the page loads
 window.onload = loadCartFromCookies();
 
-function redirectToCheckout() {
-    window.location.href = '/checkout'; // Replace with your checkout URL
-}
 
 function checkout() {
      const token = localStorage.getItem('jwtToken');
@@ -300,7 +339,7 @@ function checkout() {
         const orderId = order.id; // This depends on how the order is returned
         // Redirect to the payment page with orderId as a query parameter
         console.log(order.id);
-        window.location.href = `/checkout?orderId=${order.id || order.orderId}`;
+        //window.location.href = `/checkout?orderId=${order.id || order.orderId}`; CHANGE THIS BACK
     })
     .catch(error => {
         console.error("Checkout error:", error);

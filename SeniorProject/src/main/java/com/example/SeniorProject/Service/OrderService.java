@@ -52,9 +52,10 @@ public class OrderService
         order.setCustomer(customer);
         // Save the order to the database
         order = orderRepository.save(order);
-
+        //initalize totalPrice
         double totalPrice = 0;
-
+        // Initialize a flag to check if the delivery fee has been added
+        boolean deliveryFeeAdded = false;
         // Process the products in the order
         for (OrderProductDTO orderProductDTO : orderDTO.getOrderProducts())
         {
@@ -72,7 +73,14 @@ public class OrderService
             }
 
             // Update product quantity and calculate total price
-            totalPrice += product.getPrice() * quantity;
+            //totalPrice += product.getPrice() * quantity; (OUTDATED)
+            totalPrice +=  (product.getPrice() * quantity) + ((product.getPrice() * quantity) * .0725) + ((product.getPrice() * quantity)/2);
+            // Check if the product is delivery-only and if the delivery fee has not been added yet
+            if (product.isDeliverOnly() && !deliveryFeeAdded) {
+                totalPrice += 250;
+                deliveryFeeAdded = true; // Set the flag to true after adding the delivery fee
+            }
+
             product.setQuantity(product.getQuantity() - quantity);
             productRepository.save(product);
 

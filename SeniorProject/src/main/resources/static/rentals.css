@@ -337,9 +337,18 @@ cursor: not-allowed;
   gap: 10px;
 }
 
-.notification {
+.notification-green {
   background-color: #4caf50;
-  color: w  ite;
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s, fadeOut 1s 2.5s;
+}
+
+.notification-red {
+  background-color: #c94545;
+  color: white;
   padding: 15px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -370,4 +379,66 @@ cursor: not-allowed;
       transform: translateY(-20px);
   }
 
+}
+
+
+.delivery-icon {
+  position: absolute;
+  top: 5px; /* Adjust as necessary */
+  left: 0px; /* Adjust as necessary */
+  width: 75px; /* Adjust size as necessary */
+  height: 75px; /* Adjust size as necessary */
+  
+  margin-top: 5px;
+ 
+
+}
+
+/* Initially hide the tooltip */
+.tooltip {
+  visibility: visible;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  text-align: center;
+  border-radius: 10px;
+  padding: 5px;
+  position: absolute;
+  left: 10%; /* Position tooltip to the right of the icon */
+ 
+  
+  transition: opacity 0.3s;
+}
+
+
+/* Display the tooltip when the user hovers over the icon */
+.delivery-icon:hover + .tooltip {
+  display: block;
+}
+
+.delivery-container {
+  position: absolute;
+  display: inline-block;
+}
+
+.delivery-only-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Space between icon and text */
+  position: absolute;
+  top: 15px; /* Adjust as necessary */
+  left: 0px; /* Adjust as necessary */
+  width: 85px; /* Adjust size as necessary */
+  height: 75px; /* Adjust size as necessary */
+  z-index: 10; /* Ensure it stays on top */
+}
+
+.delivery-only-message {
+  background-color: #00c0ff; /* Yellow background for visibility */
+  color: #ffffff;
+  padding: 10px 10px 10px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold; 
+  display: inline-block;
 }
