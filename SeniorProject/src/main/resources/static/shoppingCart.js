@@ -102,9 +102,10 @@ function duplicateCartItem(item) {
     let clonedCartItem = originalCartItem.cloneNode(true);
     // set the image
     let clonedItemImage = clonedCartItem.querySelector("#itemImage");
-    clonedItemImage.src = "/picture/items/" + item.name.toLowerCase() + ".jpg"; 
-    // Change the name
-    clonedCartItem.id = "cloned"+ item.id +"CartItem"
+    clonedItemImage.src = "/picture/items/" + item.name.toLowerCase() + ".jpg";
+    
+    // Change the ID and populate item details
+    clonedCartItem.id = "cloned" + item.id + "CartItem";
     let clonedItemName = clonedCartItem.querySelector("#itemName");
     clonedItemName.innerHTML = item.name;
 
@@ -112,43 +113,70 @@ function duplicateCartItem(item) {
     clonedItemDescription.innerHTML = item.description;
 
     let clonedItemAmount = clonedCartItem.querySelector("#itemAmountInput");
-    clonedItemAmount.id = "cloned" + item.id + "CartAmount"
+    clonedItemAmount.id = "cloned" + item.id + "CartAmount";
     clonedItemAmount.value = item.amount;
+     // Add these attributes to the input element
+     clonedItemAmount.setAttribute("type", "number");
+     clonedItemAmount.setAttribute("min", "1");
+     clonedItemAmount.setAttribute("step", "1");
 
     let clonedItemCost = clonedCartItem.querySelector("#itemCost");
-    clonedItemCost.id = "cloned" + item.id + "CartCost"
-    clonedItemCost.innerHTML = "$"+item.price;
-    
+    clonedItemCost.id = "cloned" + item.id + "CartCost";
+    clonedItemCost.innerHTML = "$"+ item.price.toFixed(2);
+
+    // Enhanced input event listener with auto-update
+
     clonedItemAmount.addEventListener("input", function() {
-        if (parseInt(this.value)) {
-            // Reflect changes onto the otherside
+        const newValue = parseInt(this.value);
+        if (newValue && newValue > 0) {
+            // Update corresponding elements
             let cartItemAmountElement = document.querySelector("#cloned" + item.id + "CartAmount");
-            let totalItemAmountElement = document.querySelector("#cloned" + item.id + "TotalAmount"); 
-            cartItemAmountElement.value = this.value;
-            totalItemAmountElement.innerHTML = "x"+this.value;
-            // Recalculate Total
+            let totalItemAmountElement = document.querySelector("#cloned" + item.id + "TotalAmount");
+            
+            if (cartItemAmountElement) {
+                cartItemAmountElement.value = newValue;
+            }
+            if (totalItemAmountElement) {
+                totalItemAmountElement.innerHTML = "x" + newValue;
+            }
+
+            // Update cart data and cookie
             let itemWanted = myCart.find(cartItem => cartItem.id === item.id);
             if (itemWanted) {
-                itemWanted.amount = parseInt(this.value);
+                itemWanted.amount = newValue;
+                
+                // Update cookie
+                const cartCookie = myCart.map(item => ({
+                    productId: item.id,
+                    quantity: item.amount
+                }));
+                setCookie('cart', JSON.stringify(cartCookie), 7);
+
+                // Recalculate totals
+
                 totalAmountOfItems = 0;
                 totalCost = 0;
                 calculateTotalItems();
-                calculateTotalCost(); 
+                calculateTotalCost();
+                
+                // Update cost display in total section
+                let totalItemCostElement = document.querySelector("#cloned" + item.id + "TotalCost");
+                if (totalItemCostElement) {
+                    totalItemCostElement.innerHTML = "$" + (item.price * newValue).toFixed(2);
+                }
             }
         }
-    })
-
-     // Handle delete button
-     let deleteButton = clonedCartItem.querySelector(".deleteButton");
-     deleteButton.addEventListener("click", function() {
-         deleteItem(item.id); // Call deleteItem with the item's ID
-     });
-
-      // Handle update button
-    let updateButton = clonedCartItem.querySelector(".updateButton");
-    updateButton.addEventListener("click", function() {
-    updateCartQuantity(item.id); // Call updateCartQuantity with the item's ID
     });
+
+     // Set up delete button
+    let deleteButton = clonedCartItem.querySelector(".deleteButton");
+    if (deleteButton) {
+        deleteButton.addEventListener("click", function() {
+            deleteItem(item.id);
+        });
+    }
+
+
 
 
     // Append
@@ -157,60 +185,80 @@ function duplicateCartItem(item) {
 }
 
 function deleteItem(productId) {
-    // Retrieve the cart from cookies
-    const cart = JSON.parse(getCookie('cart')) || [];
+    // Remove item from myCart array
+    myCart = myCart.filter(item => item.id !== productId);
+    
+    // Update cookie
+    const cartCookie = myCart.map(item => ({
+        productId: item.id,
+        quantity: item.amount
+    }));
+    setCookie('cart', JSON.stringify(cartCookie), 7);
 
-    // Filter out the product with the specified productId
-    const updatedCart = cart.filter(item => item.productId !== productId);
+    // Remove items from DOM
+    const cartItemToRemove = document.getElementById(`cloned${productId}CartItem`);
+    const totalItemToRemove = document.getElementById(`cloned${productId}TotalItem`);
+    
+    if (cartItemToRemove) cartItemToRemove.remove();
+    if (totalItemToRemove) totalItemToRemove.remove();
 
-    // Update the cart in cookies
-    setCookie('cart', JSON.stringify(updatedCart), 7);
 
-     // Clear the existing display
-     myCart = []; // Clear the myCart array
-     document.getElementById("shoppingCol").innerHTML = ""; // Clear the cart items from the display
-     document.getElementById("itemCardContainer").innerHTML = ""; // Clear total items display
-
-     loadCartFromCookies();
-    // Optionally, update the total cost
+     
+    // Update displays
     calculateTotalCost();
-    calculateTotalItems(); // Optionally update item count display
+    calculateTotalItems(); 
 
+    // Check if cart is empty and show appropriate display
+    if (myCart.length === 0) {
+        emptyCartDiv.classList.remove("d-none");
+        emptyTotalDiv.classList.remove("d-none");
+    }
     
 }
 
 function updateCartQuantity(productId) {
-    const productContainer = document.querySelector(`[data-product-id="${productId}"]`); // Find product container
-    const quantityInput = productContainer.querySelector('.quantity-input'); // Get the quantity input field
-    const newQuantity = parseInt(quantityInput.value); // Get the new quantity from the input field
-
-    if (isNaN(newQuantity) || newQuantity < 1) {
-        
+    // Get the quantity input using the correct ID format
+    const quantityInput = document.getElementById(`cloned${productId}CartAmount`);
+    if (!quantityInput) {
+        console.error('Quantity input not found');
         return;
     }
 
-    // Retrieve the cart from cookies
-    const cart = JSON.parse(getCookie('cart')) || [];
+    const newQuantity = parseInt(quantityInput.value);
 
-    // Find the index of the product in the cart
-    const existingProductIndex = cart.findIndex(item => item.productId === productId);
+    if (isNaN(newQuantity) || newQuantity < 1) {
+        alert('Please enter a valid quantity');
+        return;
+    }
 
-    if (existingProductIndex !== -1) {
-        // Update the quantity of the existing product
-        cart[existingProductIndex].quantity = newQuantity;
+     // Update myCart array
+     const itemToUpdate = myCart.find(item => item.id === productId);
+     if (itemToUpdate) {
+         itemToUpdate.amount = newQuantity;
+         
+         // Update cookie
+         const cartCookie = myCart.map(item => ({
+             productId: item.id,
+             quantity: item.amount
+         }));
+         setCookie('cart', JSON.stringify(cartCookie), 7);
+ 
+         // Update total item display
+         const totalAmountElement = document.getElementById(`cloned${productId}TotalAmount`);
+         const totalCostElement = document.getElementById(`cloned${productId}TotalCost`);
+         
+         if (totalAmountElement) {
+             totalAmountElement.innerHTML = `x${newQuantity}`;
+         }
+         if (totalCostElement) {
+             totalCostElement.innerHTML = `$${(itemToUpdate.price * newQuantity).toFixed(2)}`;
+         }
+ 
 
-        // Save the updated cart back to cookies
-        setCookie('cart', JSON.stringify(cart), 7);
-
-        // Re-render the cart
-        document.getElementById("shoppingCol").innerHTML = ""; // Clear the existing cart display
-        loadCartFromCookies(); // Re-load the updated cart items
-
-        // Optionally, update the total cost and total items
+        // Update totals
         calculateTotalCost();
         calculateTotalItems();
-    } else {
-        return;
+    
     }
 }
 
