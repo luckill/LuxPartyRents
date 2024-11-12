@@ -17,6 +17,10 @@
         #termsModal .btn-close {
             filter: invert(1);
         }
+        .delivery-options label {
+                            display: block;
+                            margin-bottom: 10px; /* Optional: Adds some space between the options */
+        }
     </style>
 </head>
 <body class="bg-transparent container-fluid">
@@ -55,12 +59,13 @@
                             <div class="container-fluid row">
                                 <input id="itemAmountInput" class="col-2 rounded-3" type="number" placeholder="Amt" aria-label="Amt" value="1">
                                 <div class="col-10">
+                                    <button type="button" class="btn btn-outline-primary updateButton">Update</button>
                                     <button type="button" class="btn btn-outline-danger deleteButton">Delete</button>
                                 </div>
                             </div>
                         </div>
                         <div class="col-3 text-end">
-                            <h5 id="itemCost">$24.99</h5>
+                            <h5 id="itemCost">Item Cost</h5>
                         </div>
                     </div>
                 </div>
@@ -91,9 +96,10 @@
                         <!-- template -->
                         <div id="totalItemCard" class="container-fluid p-2 m-1 bg-dark bg-opacity-50 rounded-3 d-none">
                             <div class="row">
-                                <div id="itemAmount" class="col-3 text-start">x1</div>
-                                <div id="itemName" class="col-6">Flowervase</div>
-                                <div id="itemCost" class="col-3 text-end">$24.99</div>
+                                <div id="itemAmount" class="col-3 text-start">Item Amount</div>
+                                <div id="itemName" class="col-6">Item Name</div>
+                                <div id="itemCost" class="col-3 text-end">Item Price</div>
+
                             </div>
                         </div>
                     </div>
@@ -104,7 +110,7 @@
                     </div>
                     <div class="row">
                         <div class="col-6 text-start fw-bold">Security Deposit:</div>
-                        <div id="depositAmount" class="col-6 text-end fw-bold">$50.00</div>
+                        <div id="depositAmount" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
                     <div class="row">
                         <div class="col-6 text-start fw-bold">Tax:</div>
@@ -113,9 +119,22 @@
                     <hr class="rounded" style="border: 3px solid black;">
                     <div class="row">
                         <div class="col-6 text-start fw-bold">Total:</div>
-                        <div id="completeTotal" class="col-6 text-end fw-bold">$50.00</div>
+                        <div id="completeTotal" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
                     <hr class="rounded" style="border: 3px solid black;">
+                    
+                    <!--
+                    <div class="delivery-options">
+                        <p>You have selected products that are delivery only, select an option below:</p>
+                        <label>
+                          <input type="radio" name="deliveryOption" value="option1" onclick="handleDeliveryOption('option1')"> Pay a flat $250 delivery fee for products (Must be in Sacramento)
+                        </label>
+                        <label>
+                          <input type="radio" name="deliveryOption" value="option2" onclick="handleDeliveryOption('option2')"> Email the owner to arrange delivery (Can be anywhere)
+                        </label>
+                      </div>
+                      -->
+
                     <!--Eric Work here!!!-->
                     <div class="form-check text-start">
                         <input class="form-check-input" type="checkbox" id="termsCheckbox">
