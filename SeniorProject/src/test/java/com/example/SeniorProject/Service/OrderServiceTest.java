@@ -51,7 +51,7 @@ public class OrderServiceTest
     {
         ProductDTO productDTO = new ProductDTO(1, "Laptop", 1500.0, 100,  "Electronics", "A high-end laptop", false);
         OrderProductDTO orderProductDTO = new OrderProductDTO(2, productDTO);
-        OrderDTO orderDTO = new OrderDTO(LocalDate.now(), 5, true, OrderStatus.RECEIVED);
+        OrderDTO orderDTO = new OrderDTO(LocalDate.now(), 5, true, OrderStatus.RECEIVED, LocalDate.of(2024, 11, 8));
         orderDTO.setOrderProducts(Set.of(orderProductDTO));
         Product product = new Product(productDTO.getQuantity(), productDTO.getPrice(), productDTO.getType(), productDTO.getName(), productDTO.getDescription());
 
@@ -106,7 +106,7 @@ public class OrderServiceTest
     {
         ProductDTO productDTO = new ProductDTO(1, "Laptop", 1500.0, 4,  "Electronics", "A high-end laptop", false);
         OrderProductDTO orderProductDTO = new OrderProductDTO(10, productDTO);
-        OrderDTO orderDTO = new OrderDTO(LocalDate.now(), 5, true, OrderStatus.RECEIVED);
+        OrderDTO orderDTO = new OrderDTO(LocalDate.now(), 5, true, OrderStatus.RECEIVED, LocalDate.of(2024,11,8));
         orderDTO.setOrderProducts(Set.of(orderProductDTO));
         Product product = new Product(productDTO.getQuantity(), productDTO.getPrice(), productDTO.getType(), productDTO.getName(), productDTO.getDescription());
 

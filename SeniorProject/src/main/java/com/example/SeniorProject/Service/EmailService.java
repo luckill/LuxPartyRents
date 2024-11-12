@@ -15,6 +15,8 @@ import org.springframework.stereotype.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.*;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 
 @Service
@@ -143,16 +145,16 @@ public class EmailService
         EmailDetails CxEmailDetails = new EmailDetails();
         CxEmailDetails.setRecipient(order.getCustomer().getEmail());
         CxEmailDetails.setSubject("Wedding Rental Pickup Reminder");
+        LocalDate OrderDate = order.getPick_up_date();
 
         //filling the email body
         String emailBody = "Thank you for coming to us for your rental needs!\n"
                 + "Here is an important reminder for your rental pickup.\n"
                 + order.getCustomer().getFirstName() + " "
                 + order.getCustomer().getLastName() + " your Order, "
-                + order.getId() + " pickup is on, " + order.getCreationDate();
-                /*TODO: order.getCreationDate() needs to be updated for when
-                 * getPickUpDate() is made.
-                 */
+                + order.getId() + " pickup is on, " + OrderDate.getMonth()
+                + " " + OrderDate.getDayOfMonth() + ", "
+                + OrderDate.getYear();
 
 
 

@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 
 import javax.validation.constraints.NotNull;
 import java.time.*;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,6 +28,11 @@ public class Order
     @NotNull
     @Column(name = "rental_time")
     private int rentalTime;
+
+    @NotNull
+    @Column(name = "pick_up_date")
+    private LocalDate pick_up_date;
+
 
     @NotNull
     @Column(name = "payment_status")
@@ -51,11 +59,12 @@ public class Order
     @JsonManagedReference
     private Set<OrderProduct> orderProducts = new HashSet<>();
 
-    public Order(int id, int rentalTime, boolean paid)
+    public Order(int id, int rentalTime, boolean paid, LocalDate PickUpDate )
     {
         this.id = id;
         this.creationDate = LocalDate.now();
         this.rentalTime = rentalTime;
+        this.pick_up_date = PickUpDate; ;
         this.paid = paid;
         this.status = OrderStatus.RECEIVED;
     }
@@ -163,4 +172,12 @@ public class Order
     {
         this.paymentReference = paymentReference;
     }
+
+    public void setPick_up_date (LocalDate UpdateDate){
+        this.pick_up_date = UpdateDate;
+    }
+    public LocalDate getPick_up_date(){
+        return this.pick_up_date;
+    }
+
 }

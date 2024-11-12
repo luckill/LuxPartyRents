@@ -10,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.*;
 
@@ -48,7 +49,7 @@ public class OrderService
         }
 
         // Create the new order
-        Order order = new Order(orderId, orderDTO.getRentalTime(), orderDTO.isPaid());
+        Order order = new Order(orderId, orderDTO.getRentalTime(), orderDTO.isPaid(), orderDTO.getPickUpDate());
         order.setCustomer(customer);
         // Save the order to the database
         order = orderRepository.save(order);
@@ -316,7 +317,7 @@ public class OrderService
         Set<OrderProductDTO> orderProductDTOs = order.getOrderProducts().stream()
                 .map(orderProduct -> new OrderProductDTO(orderProduct.getQuantity(), new ProductDTO(orderProduct.getProduct().getId(), orderProduct.getProduct().getName(), orderProduct.getProduct().getPrice(), orderProduct.getProduct().getType())))
                 .collect(Collectors.toSet());
-        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getRentalTime(), order.isPaid(), order.getStatus());
+        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getRentalTime(), order.isPaid(), order.getStatus(), order.getPick_up_date());
         orderDTO.setPrice(order.getPrice());
         orderDTO.setId(order.getId());
         orderDTO.setOrderProducts(orderProductDTOs);
@@ -373,7 +374,7 @@ public class OrderService
     //Function that checks orders for when they should be returned
     //Takes in all orders that are set at status RECEIVED and compares there
     //order pick up date against the order rental time requested
-    private void OrderDueCheck (/*Order dbtable goes here*/){
+    public void OrderDueCheck (OrderDTO Order){
         /*TODO: for loop that goes through the dbtable checking for all orders
          * that are set as RECEIVED, if they are RECEIVED then they should
          * compare pick up date against the order rental time by checking the
@@ -382,6 +383,16 @@ public class OrderService
          * pick up should 10/27/24
          * this should at end of day every day.
          */
+
+
+
+    }
+
+    //Small helper function that processes the date with the aproximent rental
+    //period in mind for both the front end and back end calculations.
+    private LocalDate FourDaysFromThen (LocalDate DateFrom){
+        LocalDate DateTo = DateFrom.plusDays(4);
+        return DateTo;
     }
 
 }

@@ -10,6 +10,7 @@ public class OrderDTO
 {
     private int id;
     private LocalDate creationDate;
+    private LocalDate PickUpDate;
     private int rentalTime;
     private boolean paid;
     private String status;
@@ -19,10 +20,11 @@ public class OrderDTO
     {
 
     }
-    public OrderDTO(LocalDate date, int rentalTime, boolean paid, OrderStatus status)
+    public OrderDTO(LocalDate date, int rentalTime, boolean paid, OrderStatus status, LocalDate pickDate)
     {
         this.creationDate = date;
         this.rentalTime = rentalTime;
+        this.PickUpDate = pickDate;
         this.paid = paid;
         this.status = status.toString();
         this.products = new HashSet<>();
@@ -94,5 +96,13 @@ public class OrderDTO
     public void setPrice(double price)
     {
         this.price = price;
+    }
+
+    public LocalDate getPickUpDate() {
+        return PickUpDate;
+    }
+
+    public void setPickUpDate(LocalDate pickDate) {
+        PickUpDate = pickDate;
     }
 }
