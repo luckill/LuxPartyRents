@@ -112,24 +112,11 @@ public class ProductController {
         return ResponseEntity.ok(featuredProducts);
     }
 
-    @PostMapping(path = "/markAsFeatured")
+    @PostMapping("/updateFeaturedStatus")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<?> markProductAsFeatured(@RequestParam int id) {
-        Product updatedProduct = productService.markProductAsFeatured(id);
-        if (updatedProduct == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
-        }
-        return ResponseEntity.ok("Product marked as featured successfully");
-    }
-
-    @PostMapping(path = "/markAsUnfeatured")
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<?> markProductAsUnfeatured(@RequestParam int id) {
-        Product updatedProduct = productService.markProductAsUnfeatured(id);
-        if (updatedProduct == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
-        }
-        return ResponseEntity.ok("Product marked as featured successfully");
+    public ResponseEntity<?> updateFeaturedStatus(@RequestBody List<Integer> featuredItemIds) {
+        productService.updateFeaturedStatus(featuredItemIds);
+        return ResponseEntity.ok("Featured status updated successfully.");
     }
 
     private ProductDTO mapToProductDTO(Product product)
