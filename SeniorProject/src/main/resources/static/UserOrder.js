@@ -106,7 +106,7 @@ function renderOrders(orders)
         orderRow.classList.add('clickable-row');
         orderRow.innerHTML = `
                 <td>${order.id}</td>
-                <td>${order.date}</td>
+                <td>${order.creationDate}</td>
                 <td>${order.paid ? 'Paid' : 'Unpaid'}</td>
                 <td>${order.price}</td>
                 <td>${order.rentalTime}</td>

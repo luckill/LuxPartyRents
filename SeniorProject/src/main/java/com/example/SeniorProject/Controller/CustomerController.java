@@ -88,7 +88,7 @@ public class CustomerController
         }
         return ResponseEntity.ok("Customer has been successfully deleted");
     }
-+
+
     @GetMapping("/getCustomerInfo")
     public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token)
     {

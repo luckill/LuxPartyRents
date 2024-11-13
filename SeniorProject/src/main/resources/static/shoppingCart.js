@@ -18,7 +18,7 @@ let totalAmountOfItems = 0;
 let subtotal = 0.00;
 let tax = 0.00;
 let totalDeposit = 0.00;
-const taxRate = 0.075; // 7.5% tax rate
+const taxRate = 0.0725; // 7.25% tax rate
 
 // Function to parse cookies
 function getCookieValue(cookieName) {
@@ -69,7 +69,7 @@ async function loadCartFromCookies() {
                     name: productDetails.name,
                     price: productDetails.price,
                     description: productDetails.description,
-                    deposit: productDetails.deposit, 
+                    deposit: productDetails.price/2, 
                     amount: item.quantity
                 });
             }
@@ -102,9 +102,10 @@ function duplicateCartItem(item) {
     let clonedCartItem = originalCartItem.cloneNode(true);
     // set the image
     let clonedItemImage = clonedCartItem.querySelector("#itemImage");
-    clonedItemImage.src = "/picture/items/" + item.name.toLowerCase() + ".jpg"; 
-    // Change the name
-    clonedCartItem.id = "cloned"+ item.id +"CartItem"
+    clonedItemImage.src = "/picture/items/" + item.name.toLowerCase() + ".jpg";
+    
+    // Change the ID and populate item details
+    clonedCartItem.id = "cloned" + item.id + "CartItem";
     let clonedItemName = clonedCartItem.querySelector("#itemName");
     clonedItemName.innerHTML = item.name;
 
@@ -112,37 +113,71 @@ function duplicateCartItem(item) {
     clonedItemDescription.innerHTML = item.description;
 
     let clonedItemAmount = clonedCartItem.querySelector("#itemAmountInput");
-    clonedItemAmount.id = "cloned" + item.id + "CartAmount"
+    clonedItemAmount.id = "cloned" + item.id + "CartAmount";
     clonedItemAmount.value = item.amount;
+     // Add these attributes to the input element
+     clonedItemAmount.setAttribute("type", "number");
+     clonedItemAmount.setAttribute("min", "1");
+     clonedItemAmount.setAttribute("step", "1");
 
     let clonedItemCost = clonedCartItem.querySelector("#itemCost");
-    clonedItemCost.id = "cloned" + item.id + "CartCost"
-    clonedItemCost.innerHTML = "$"+item.price;
-    
+    clonedItemCost.id = "cloned" + item.id + "CartCost";
+    clonedItemCost.innerHTML = "$"+ item.price.toFixed(2);
+
+    // Enhanced input event listener with auto-update
+
     clonedItemAmount.addEventListener("input", function() {
-        if (parseInt(this.value)) {
-            // Reflect changes onto the otherside
+        const newValue = parseInt(this.value);
+        if (newValue && newValue > 0) {
+            // Update corresponding elements
             let cartItemAmountElement = document.querySelector("#cloned" + item.id + "CartAmount");
-            let totalItemAmountElement = document.querySelector("#cloned" + item.id + "TotalAmount"); 
-            cartItemAmountElement.value = this.value;
-            totalItemAmountElement.innerHTML = "x"+this.value;
-            // Recalculate Total
+            let totalItemAmountElement = document.querySelector("#cloned" + item.id + "TotalAmount");
+            
+            if (cartItemAmountElement) {
+                cartItemAmountElement.value = newValue;
+            }
+            if (totalItemAmountElement) {
+                totalItemAmountElement.innerHTML = "x" + newValue;
+            }
+
+            // Update cart data and cookie
             let itemWanted = myCart.find(cartItem => cartItem.id === item.id);
             if (itemWanted) {
-                itemWanted.amount = parseInt(this.value);
+                itemWanted.amount = newValue;
+                
+                // Update cookie
+                const cartCookie = myCart.map(item => ({
+                    productId: item.id,
+                    quantity: item.amount
+                }));
+                setCookie('cart', JSON.stringify(cartCookie), 7);
+
+                // Recalculate totals
+
                 totalAmountOfItems = 0;
                 totalCost = 0;
                 calculateTotalItems();
-                calculateTotalCost(); 
+                calculateTotalCost();
+                
+                // Update cost display in total section
+                let totalItemCostElement = document.querySelector("#cloned" + item.id + "TotalCost");
+                if (totalItemCostElement) {
+                    totalItemCostElement.innerHTML = "$" + (item.price * newValue).toFixed(2);
+                }
             }
         }
-    })
+    });
 
-     // Handle delete button
-     let deleteButton = clonedCartItem.querySelector(".deleteButton");
-     deleteButton.addEventListener("click", function() {
-         deleteItem(item.id); // Call deleteItem with the item's ID
-     });
+     // Set up delete button
+    let deleteButton = clonedCartItem.querySelector(".deleteButton");
+    if (deleteButton) {
+        deleteButton.addEventListener("click", function() {
+            deleteItem(item.id);
+        });
+    }
+
+
+
 
     // Append
     clonedCartItem.classList.remove("d-none");
@@ -150,27 +185,83 @@ function duplicateCartItem(item) {
 }
 
 function deleteItem(productId) {
-    // Retrieve the cart from cookies
-    const cart = JSON.parse(getCookie('cart')) || [];
+    // Remove item from myCart array
+    myCart = myCart.filter(item => item.id !== productId);
+    
+    // Update cookie
+    const cartCookie = myCart.map(item => ({
+        productId: item.id,
+        quantity: item.amount
+    }));
+    setCookie('cart', JSON.stringify(cartCookie), 7);
 
-    // Filter out the product with the specified productId
-    const updatedCart = cart.filter(item => item.productId !== productId);
+    // Remove items from DOM
+    const cartItemToRemove = document.getElementById(`cloned${productId}CartItem`);
+    const totalItemToRemove = document.getElementById(`cloned${productId}TotalItem`);
+    
+    if (cartItemToRemove) cartItemToRemove.remove();
+    if (totalItemToRemove) totalItemToRemove.remove();
 
-    // Update the cart in cookies
-    setCookie('cart', JSON.stringify(updatedCart), 7);
 
-     // Clear the existing display
-     myCart = []; // Clear the myCart array
-     document.getElementById("shoppingCol").innerHTML = ""; // Clear the cart items from the display
-     document.getElementById("itemCardContainer").innerHTML = ""; // Clear total items display
-
-     loadCartFromCookies();
-    // Optionally, update the total cost
+     
+    // Update displays
     calculateTotalCost();
-    calculateTotalItems(); // Optionally update item count display
+    calculateTotalItems(); 
 
+    // Check if cart is empty and show appropriate display
+    if (myCart.length === 0) {
+        emptyCartDiv.classList.remove("d-none");
+        emptyTotalDiv.classList.remove("d-none");
+    }
     
 }
+
+function updateCartQuantity(productId) {
+    // Get the quantity input using the correct ID format
+    const quantityInput = document.getElementById(`cloned${productId}CartAmount`);
+    if (!quantityInput) {
+        console.error('Quantity input not found');
+        return;
+    }
+
+    const newQuantity = parseInt(quantityInput.value);
+
+    if (isNaN(newQuantity) || newQuantity < 1) {
+        alert('Please enter a valid quantity');
+        return;
+    }
+
+     // Update myCart array
+     const itemToUpdate = myCart.find(item => item.id === productId);
+     if (itemToUpdate) {
+         itemToUpdate.amount = newQuantity;
+         
+         // Update cookie
+         const cartCookie = myCart.map(item => ({
+             productId: item.id,
+             quantity: item.amount
+         }));
+         setCookie('cart', JSON.stringify(cartCookie), 7);
+ 
+         // Update total item display
+         const totalAmountElement = document.getElementById(`cloned${productId}TotalAmount`);
+         const totalCostElement = document.getElementById(`cloned${productId}TotalCost`);
+         
+         if (totalAmountElement) {
+             totalAmountElement.innerHTML = `x${newQuantity}`;
+         }
+         if (totalCostElement) {
+             totalCostElement.innerHTML = `$${(itemToUpdate.price * newQuantity).toFixed(2)}`;
+         }
+ 
+
+        // Update totals
+        calculateTotalCost();
+        calculateTotalItems();
+    
+    }
+}
+
 
 function setCookie(name, value, days) {
     const d = new Date();
@@ -206,7 +297,7 @@ function duplicateTotalItem(item) {
 
     let clonedItemCost = clonedTotalItem.querySelector("#itemCost");
     clonedItemCost.id = "cloned" + item.id + "TotalCost"
-    clonedItemCost.innerHTML = "$"+item.price;
+    clonedItemCost.innerHTML = "$"+item.price * item.amount;
 
     // Append
     clonedTotalItem.classList.remove("d-none");
@@ -218,7 +309,7 @@ function calculateTotalItems() {
     document.getElementById("totalItemCount").innerHTML = "Your Cart (" + totalAmountOfItems + ")";
 }
 
-function calculateTotalCost() {
+async function calculateTotalCost() {
     subtotal = myCart.reduce((total, item) => total + (item.price * item.amount), 0);
     totalDeposit = myCart.reduce((total, item) => total + (item.deposit * item.amount), 0);
     tax = subtotal * taxRate;
@@ -235,9 +326,6 @@ function calculateTotalCost() {
 // Load cart when the page loads
 window.onload = loadCartFromCookies();
 
-function redirectToCheckout() {
-    window.location.href = '/checkout'; // Replace with your checkout URL
-}
 
 function checkout() {
      const token = localStorage.getItem('jwtToken');
