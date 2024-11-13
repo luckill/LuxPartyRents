@@ -29,7 +29,9 @@ public class SecurityConfiguration
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((authorization) -> authorization
-                .requestMatchers("/auth/**","/getApiKey","/generateAndStoreApiKey","/picture/**","/uploadPicture","/email/**", "/password/**", "/", "/login", "/forgetPassword", "/about", "/signup", "/gallery", "/rental", "/shoppingCart", "/products", "/UserDetails_page", "/displayInfo", "/resetPassword", "/Orders", "/user_order", "/card", "/paymentGood", "/paymentBad", "/newProduct", "/theProduct", "/order_detail", "*.css", "*.js", "/picture/**.jpg", "/healthcheck", "/rental/getAll", "/customer/findAccount", "/cart", "/api/payment/secure/**", "/checkout", "/product/getFeatured","/create-payment-intent").permitAll()
+
+                .requestMatchers("/auth/**","/getApiKey","/generateAndStoreApiKey","/picture/**","/uploadPicture","/email/**", "/password/**", "/", "/login", "/forgetPassword", "/about", "/signup", "/gallery", "/rental/**", "/shoppingCart", "/products", "/UserDetails_page", "/displayInfo", "/resetPassword", "/Orders", "/user_order", "/card", "/paymentGood", "/paymentBad", "/newProduct", "/theProduct", "/order_detail", "*.css", "*.js", "/picture/**.jpg", "/healthcheck", "/rental/getAll", "/customer/findAccount", "/cart", "/api/payment/secure/**", "/checkout", "/product/getFeatured","/create-payment-intent").permitAll()
+
                 .anyRequest().authenticated())
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

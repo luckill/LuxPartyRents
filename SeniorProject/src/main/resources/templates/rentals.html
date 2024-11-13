@@ -207,18 +207,11 @@
     });
 
     async function loadDistinctTypes() {
-        const jwtToken = localStorage.getItem('jwtToken');
-
-        if (!jwtToken) {
-            console.error("No JWT token found.");
-            return;
-        }
         try {
             const response = await fetch("/rental/types", {
                 method: "GET",
                 headers: {
-                    'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${jwtToken}`
+                    'Content-Type': 'application/json'
                 }
             });
 

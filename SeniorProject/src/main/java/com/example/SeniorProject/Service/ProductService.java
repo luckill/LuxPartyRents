@@ -136,24 +136,16 @@ public class ProductService {
                 return productRepository.findById(id).orElse(null);
         }
 
-        public Product markProductAsFeatured(int id) {
-                Product product = productRepository.findById(id).orElse(null);
-                if (product == null) {
-                    return null;
+        // New function to change the featured in this list
+        public void updateFeaturedStatus(List<Integer> featuredItemIds) {
+                List<Product> allProducts = productRepository.findAll();
+                
+                for (Product product : allProducts) {
+                    boolean isFeatured = featuredItemIds.contains(product.getId());
+                    product.setFeatureProduct(isFeatured);  // Assuming 'featureProduct' is a boolean property
+                    productRepository.save(product);  // Update the product in the database
                 }
-                product.setFeatureProduct(true); // Set the featuredProduct flag
-                return productRepository.save(product); // Save the updated product back to the database
         }
-
-        public Product markProductAsUnfeatured(int id) {
-                Product product = productRepository.findById(id).orElse(null);
-                if (product == null) {
-                    return null;
-                }
-                product.setFeatureProduct(false); // Set the featuredProduct flag
-                return productRepository.save(product); // Save the updated product back to the database
-        }
-
 
         public ProductDTO mapToProductDTO(Product product)
         {
