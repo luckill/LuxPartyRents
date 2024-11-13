@@ -29,6 +29,12 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
         @Query("DELETE FROM Order o WHERE o.id = ?1")
         void deleteById(int id);
 
+        //Custom query to receive all orders that should be on return day
+        //for their status to be updated
+        @Query(value = "SELECT * FROM orders WHERE order_status = 'PICK_UP' AND order_date = CURDATE()",
+                nativeQuery = true)
+        List<Order> findConfirmedOrdersOnReturnDay();
+
 		List<Order> findOrderByCustomerId(int customerId);
 }
 

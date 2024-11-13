@@ -374,15 +374,22 @@ public class OrderService
     //Function that checks orders for when they should be returned
     //Takes in all orders that are set at status RECEIVED and compares there
     //order pick up date against the order rental time requested
-    public void OrderDueCheck (OrderDTO Order){
+    public void OrderDueCheck (List <Order> Orders ){
         /*TODO: for loop that goes through the dbtable checking for all orders
          * that are set as RECEIVED, if they are RECEIVED then they should
          * compare pick up date against the order rental time by checking the
          * date that it would be after the rental time as passed.
          * ie if order pick up is 10/25/24 and rental time is 2 days then
          * pick up should 10/27/24
-         * this should at end of day every day.
+         * this should run at end of day every day.
          */
+        for (Order order : Orders){
+            if( order.getStatus() == OrderStatus.RECEIVED){
+                order.setStatus(OrderStatus.RETURNING);
+                orderRepository.save(order);
+            }
+
+        }
 
 
 

@@ -6,5 +6,6 @@ public enum OrderStatus
     CONFIRMED,
     READY_FOR_PICK_UP,
     CANCELLED,
+    RETURNING,
     RETURNED
 }
