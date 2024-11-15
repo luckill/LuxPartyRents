@@ -98,7 +98,7 @@ public class PaymentService {
                 Order order = orderRepository.getOrderById(orderId);
                 long amountInCents = (long) (price * 100);
                 RefundCreateParams params = RefundCreateParams.builder()
-                        .setCharge("ch_1NirD82eZvKYlo2CIvbtLWuY")
+                        .setPaymentIntent(order.getPaymentReference())
                         .setAmount(amountInCents) // Set the amount to refund
                         .build();
                 try {
@@ -112,10 +112,63 @@ public class PaymentService {
                         return refundMap;
                 } catch (StripeException e) {
                         // Log the error
+                        System.out.println("Caught exception: " + e.getMessage());
+                        throw new Exception("Payment processing failed: " + e.getMessage());
+                }
+        }
+
+        public Map<String, Object> refundAll(int orderId) throws Exception {
+                Stripe.apiKey = stripeApiKey;
+                Order order = orderRepository.getOrderById(orderId);
+                long amountInCents = (long) (order.getPrice() * 100);
+                RefundCreateParams params = RefundCreateParams.builder()
+                        .setPaymentIntent(order.getPaymentReference())
+                        .setAmount(amountInCents) // Set the amount to refund
+                        .build();
+                try {
+                        Refund refund = Refund.create(params);
+                        Map<String, Object> refundMap = new HashMap<>();
+                        refundMap.put("id", refund.getId());
+                        refundMap.put("amount", refund.getAmount());
+                        refundMap.put("currency", refund.getCurrency());
+                        refundMap.put("status", refund.getStatus());
+                        refundMap.put("created", refund.getCreated());
+                        order.setStatus(OrderStatus.REFUNDED);
+                        orderRepository.save(order);
+                        return refundMap;
+                } catch (StripeException e) {
+                        // Log the error
                         // logger.error("Error creating payment intent: ", e);
                         throw new Exception("Payment processing failed: " + e.getMessage());
                 }
         }
+
+        public Map<String, Object> refundDeposit(int orderId) throws Exception {
+                Stripe.apiKey = stripeApiKey;
+                Order order = orderRepository.getOrderById(orderId);
+                long amountInCents = (long) (order.getPrice() * 100);// replace this with deposit
+                RefundCreateParams params = RefundCreateParams.builder()
+                        .setPaymentIntent(order.getPaymentReference())
+                        .setAmount(amountInCents) // Set the amount to refund
+                        .build();
+                try {
+                        Refund refund = Refund.create(params);
+                        Map<String, Object> refundMap = new HashMap<>();
+                        refundMap.put("id", refund.getId());
+                        refundMap.put("amount", refund.getAmount());
+                        refundMap.put("currency", refund.getCurrency());
+                        refundMap.put("status", refund.getStatus());
+                        refundMap.put("created", refund.getCreated());
+                        order.setStatus(OrderStatus.REFUNDED);
+                        orderRepository.save(order);
+                        return refundMap;
+                } catch (StripeException e) {
+                        // Log the error
+                        // logger.error("Error creating payment intent: ", e);
+                        throw new Exception("Payment processing failed: " + e.getMessage());
+                }
+        }
+
 
         public Map<String, Object> getCharge(int orderId) throws Exception {
                 Stripe.apiKey = stripeApiKey;

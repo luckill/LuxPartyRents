@@ -102,6 +102,7 @@
 
         } catch (error) {
             console.error('Error fetching products:', error);
+            alert('Error fetching products:', error);
         }
     }
 
@@ -220,9 +221,11 @@
                 populateTypeDropdown(types); // Call function to populate the dropdown
             } else {
                 console.error("Failed to fetch distinct product types");
+                alert("Failed to fetch distinct product types");
             }
         } catch (error) {
             console.error("Error fetching distinct product types:", error);
+            alert("Error fetching distinct product types:", error);
         }
     }
 

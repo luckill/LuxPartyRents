@@ -136,10 +136,12 @@ async function getFeaturedItems() {
             return featuredItems;
         } else {
             console.error("Failed to fetch featured products");
+            alert("Failed to fetch featured products");
             return [];
         }
     } catch (error) {
         console.error("Error fetching featured products:", error);
+        alert("Error fetching featured products:", error);
     }
 }
 
@@ -223,9 +225,11 @@ async function populateModal() {
             populateModalWithFeaturedProducts(products); 
         } else {
             console.error("Failed to fetch featured products");
+            alert("Failed to fetch featured products");
         }
     } catch (error) {
         console.error("Error fetching featured products:", error);
+        alert("Error fetching featured products:", error);
     }
 }
 
@@ -327,7 +331,9 @@ async function updateFeaturedItems(featuredItemIds) {
             console.error("Failed to update featured status.");
         }
     } catch (error) {
-        console.error("Error updating featured status:", error);
+        console.error("Error marking product as featured:", error);
+        alert("Error marking product as featured:", error);
+        return false;
     }
 }
 
@@ -362,9 +368,11 @@ async function handleModalSearch() {
             populateModalWithFeaturedProducts(filteredProducts); // Use the function to populate the modal
         } else {
             console.error("Failed to fetch filtered products");
+            alert("Failed to fetch filtered products");
         }
     } catch (error) {
         console.error("Error fetching filtered products:", error);
+        alert("Error fetching filtered products:", error);
     }
 }
 

@@ -43,6 +43,7 @@ window.onload = function() {
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
+            alert('Network response was not ok');
         }
         return response.json();
     })
@@ -54,8 +55,12 @@ window.onload = function() {
         document.getElementById('phone').value = account.phone || '';
         document.getElementById('email').value = account.email || '';
     })
-    .catch(error => console.error('Error fetching user info:', error));
-};
+    .catch(error => {
+        console.error('Error fetching user info:', error);
+        alert('Error fetching user info:', error);
+    });
+
+}
 
 function uploadInfo() {
     const jwtToken = localStorage.getItem('jwtToken');
@@ -88,6 +93,7 @@ function uploadInfo() {
             // Log the status code and status text
             console.error('Response status:', response.status);
             console.error('Response status text:', response.statusText);
+            alert('Response status text:', response.statusText);
             throw new Error('Network response was not ok');
         }
     })
@@ -130,6 +136,7 @@ function deleteAccount() {
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
+            alert('Network response was not ok');
         }
     })
     .then(data => {

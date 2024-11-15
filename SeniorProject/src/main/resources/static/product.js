@@ -101,7 +101,11 @@ function fetchProducts(sortBy = '', searchType = '', searchTerm = '') {
         });
     });
   })
-  .catch(error => console.log('Error fetching data:', error));
+  .catch(error => {
+    console.log('Error fetching data:', error)
+    alert('Error fetching data:', error);
+  });
+
 }
 
 // Function to search products
@@ -154,7 +158,11 @@ function searchProducts() {
           });
       });
   })
-  .catch(error => console.log('Error fetching search results:', error));
+  .catch(error => {
+    console.log('Error fetching search results:', error)
+    alert('Error fetching search results:', error);
+  });
+
 }
 
 // Function to sort table based on column

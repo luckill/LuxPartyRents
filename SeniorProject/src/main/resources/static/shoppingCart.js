@@ -51,6 +51,7 @@ async function fetchProductById(productId) {
 
     if (!response.ok) {
         throw new Error('Failed to fetch product');
+        alert('Failed to fetch product');
     }
 
     return await response.json();
@@ -345,6 +346,7 @@ function checkout() {
     .then(response => {
         if (!response.ok) {
             throw new Error("Failed to retrieve customer ID: " + response.statusText);
+            alert("Failed to retrieve customer ID: " + response.statusText);
         }
         return response.text(); // Customer ID will be returned as plain text
     })
@@ -380,6 +382,7 @@ function checkout() {
     .then(response => {
         if (!response.ok) {
             throw new Error("Failed to create the order: " + response.statusText);
+            alert("Failed to create the order: " + response.statusText);
         }
         return response.json();  // Assuming the backend returns the order object with the orderId
     })
@@ -395,6 +398,7 @@ function checkout() {
         if (error.response) {
             error.response.text().then(text => {
                 console.error("Response body: ", text); // Log the response body for more details
+                alert("Response body: ", text);
             });
         }
     });

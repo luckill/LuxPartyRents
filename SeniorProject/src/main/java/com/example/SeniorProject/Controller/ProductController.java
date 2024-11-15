@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.util.List;
@@ -27,12 +28,19 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> addProduct (@RequestBody ProductDTO productDTO)
     {
-        Product saved = productService.addProduct(productDTO);
-        if(saved == null)
+        try
         {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            Product saved = productService.addProduct(productDTO);
+            if(saved == null)
+            {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+            return ResponseEntity.status(HttpStatus.OK).build();
         }
-        return ResponseEntity.status(HttpStatus.OK).build();
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     @GetMapping(path="/getAll")
@@ -50,13 +58,19 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> updateProduct (@RequestBody ProductDTO productDTO)
     {
-        Product updated = productService.updateProduct(productDTO);
-        if(updated == null)
+        try
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+            Product updated = productService.updateProduct(productDTO);
+            if(updated == null)
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+            }
+            return ResponseEntity.ok("Product updated successfully");
         }
-        return ResponseEntity.ok("Product updated successfully");
-
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
 
@@ -64,52 +78,93 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> deleteProduct (@RequestParam int id)
     {
-        boolean delete = productService.deleteProduct(id);
-        if(!delete)
+        try
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error!!! - Order associated with this id is not found in the database");
+            boolean delete = productService.deleteProduct(id);
+            if(!delete)
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error!!! - Order associated with this id is not found in the database");
+            }
+            return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully");
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully");
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     @GetMapping(path="/getByName")
     public ResponseEntity<?> getProductByName(@RequestParam String name)
     {
-        Product result = productService.getProductByName(name);
-        return ResponseEntity.status(HttpStatus.OK).body(this.mapToProductDTO(result));
+        try
+        {
+            Product result = productService.getProductByName(name);
+            return ResponseEntity.status(HttpStatus.OK).body(this.mapToProductDTO(result));
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
+
     @GetMapping(path="/getById")
     public ResponseEntity<?> getProductById(@RequestParam int id)
     {
-        Product result = productService.getProductById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(this.mapToProductDTO(result));
+        try
+        {
+            Product result = productService.getProductById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(this.mapToProductDTO(result));
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
-
-    
 
     // Meant for searching with the given column types
     @GetMapping(path="/search")
     public ResponseEntity<?> searchProducts(@RequestParam String type, @RequestParam String term)
     {
-        List<Product> result = productService.searchProducts(type, term);
-
-        if(result == null)
+        try
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+            List<Product> result = productService.searchProducts(type, term);
+
+            if(result == null)
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ERROR!!! - product not found");
+            }
+            return ResponseEntity.ok(result.stream().map(this::mapToProductDTO).toList());
         }
-        return ResponseEntity.ok(result.stream().map(this::mapToProductDTO).toList());
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
     // Searches in Modal
     @GetMapping("/searchModal")
     public ResponseEntity<List<Product>> searchProducts(@RequestParam String name) {
-        List<Product> products = productService.findAllByNameContaining(name);
-        return ResponseEntity.ok(products);
+        try
+        {
+            List<Product> products = productService.findAllByNameContaining(name);
+            return ResponseEntity.ok(products);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).build();
+        }
     }
     // Gets all featured items
     @GetMapping("/getFeatured")
     public ResponseEntity<List<Product>> getFeaturedProducts() {
-        List<Product> featuredProducts = productService.getFeaturedProducts();
-        return ResponseEntity.ok(featuredProducts);
+        try
+        {
+            List<Product> featuredProducts = productService.getFeaturedProducts();
+            return ResponseEntity.ok(featuredProducts);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).build();
+        }
     }
 
     @PostMapping("/updateFeaturedStatus")
@@ -134,7 +189,15 @@ public class ProductController {
     // New endpoint to fetch all products
     @GetMapping("/allProducts")
     public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+        try
+        {
+            List<Product> products = productService.getAllProducts();
+            return ResponseEntity.ok(products);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).build();
+        }
+
     }
 }

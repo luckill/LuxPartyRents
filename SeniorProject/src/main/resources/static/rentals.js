@@ -29,6 +29,7 @@ async function loadProductNames(page = currentPage, size = pageSize) {
 
     } catch (error) {
         console.error('Error fetching products:', error);
+        alert('Error fetching products:', error);
     }
 }
 

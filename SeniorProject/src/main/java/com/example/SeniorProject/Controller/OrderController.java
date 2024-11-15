@@ -155,11 +155,13 @@ public class OrderController
     // Delete an order
     @DeleteMapping(path = "/delete")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> deleteOrder(@RequestParam int id)
+    public ResponseEntity<?> deleteOrder(@RequestParam(value = "orderId", required = false, defaultValue = "0")  int id)
     {
+        System.out.println("calling delete");
+        System.out.println(id);
         try
         {
-            orderService.deleteOrder(id);
+            orderService.returnDeleteOrder(id);
             return ResponseEntity.ok("Order deleted successfully");
         }
         catch (ResponseStatusException exception)
