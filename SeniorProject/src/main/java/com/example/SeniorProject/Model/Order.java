@@ -35,15 +35,17 @@ public class Order
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.RECEIVED;
 
-    @NotNull
+    @Column(name = "payment_reference")
     private String paymentReference;
 
-    @NotNull
+    @Column(name = "address")
     private String address;
 
-    @NotNull
-    @Column(name = "price")
+    @Column(nullable = false, name = "price")
     private double price;
+
+    @Column(nullable = false, name = "deposit")
+    private double deposit;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
@@ -54,14 +56,14 @@ public class Order
     @JsonManagedReference
     private Set<OrderProduct> orderProducts = new HashSet<>();
 
-    public Order(int id, int rentalTime, boolean paid)
+    public Order(int id, int rentalTime, boolean paid, String address)
     {
         this.id = id;
         this.creationDate = LocalDate.now();
         this.rentalTime = rentalTime;
         this.paid = paid;
         this.status = OrderStatus.RECEIVED;
-        this.address = "";
+        this.address = address;
     }
 
     public Order()
@@ -168,11 +170,23 @@ public class Order
         this.paymentReference = paymentReference;
     }
 
-    public String getAddress() {
+    public String getAddress()
+    {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(String address)
+    {
         this.address = address;
+    }
+
+    public double getDeposit()
+    {
+        return deposit;
+    }
+
+    public void setDeposit(double deposit)
+    {
+        this.deposit = deposit;
     }
 }

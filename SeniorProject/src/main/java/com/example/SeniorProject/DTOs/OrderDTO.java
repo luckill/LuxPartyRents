@@ -15,16 +15,18 @@ public class OrderDTO
     private String status;
     private double price;
     private Set<OrderProductDTO> products;
+    private String address;
     public OrderDTO()
     {
 
     }
-    public OrderDTO(LocalDate date, int rentalTime, boolean paid, OrderStatus status)
+    public OrderDTO(LocalDate date, int rentalTime, boolean paid, OrderStatus status, String address)
     {
         this.creationDate = date;
         this.rentalTime = rentalTime;
         this.paid = paid;
         this.status = status.toString();
+        this.address = address;
         this.products = new HashSet<>();
     }
 
@@ -94,5 +96,15 @@ public class OrderDTO
     public void setPrice(double price)
     {
         this.price = price;
+    }
+
+    public String getAddress()
+    {
+        return address;
+    }
+
+    public void setAddress(String address)
+    {
+        this.address = address;
     }
 }
