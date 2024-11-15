@@ -18,6 +18,8 @@ let totalAmountOfItems = 0;
 let subtotal = 0.00;
 let tax = 0.00;
 let totalDeposit = 0.00;
+let deliveryFee = 0.00;
+let address = "";
 const taxRate = 0.0725; // 7.25% tax rate
 
 // Function to parse cookies
@@ -103,7 +105,7 @@ function duplicateCartItem(item) {
     let clonedCartItem = originalCartItem.cloneNode(true);
     // set the image
     let clonedItemImage = clonedCartItem.querySelector("#itemImage");
-    clonedItemImage.src = "/picture/items/" + item.name.toLowerCase() + ".jpg";
+    clonedItemImage.src = "https://d3snlw7xiuobl9.cloudfront.net/" + item.name.toLowerCase() + ".jpg";
     
     // Change the ID and populate item details
     clonedCartItem.id = "cloned" + item.id + "CartItem";
@@ -310,7 +312,8 @@ function calculateTotalItems() {
     document.getElementById("totalItemCount").innerHTML = "Your Cart (" + totalAmountOfItems + ")";
 }
 
-async function calculateTotalCost() {
+async function calculateTotalCost()
+{
     subtotal = myCart.reduce((total, item) => total + (item.price * item.amount), 0);
     totalDeposit = myCart.reduce((total, item) => total + (item.deposit * item.amount), 0);
     tax = subtotal * taxRate;
@@ -320,8 +323,6 @@ async function calculateTotalCost() {
     document.getElementById("taxAmount").innerHTML = "$" + tax.toFixed(2);
     document.getElementById("depositAmount").innerHTML = "$" + totalDeposit.toFixed(2);
     document.getElementById("completeTotal").innerHTML = "$" + totalCost.toFixed(2);
-
-
 }
 
 // Load cart when the page loads
@@ -359,7 +360,9 @@ function checkout() {
             creationDate: localDateString,
             rentalTime: 1, // Set rental time as needed
             paid: 0, // Set to true if the payment is made
-            price: totalCost, // Use the calculated total cost
+            //price: subtotal + tax + deliveryFee, // Use the calculated total cost
+            //deposit: totalDeposit,
+            address: address,
             orderProducts: myCart.map(item => ({
                 product: {
                     id: item.id // Wrap the id in an object
@@ -402,6 +405,98 @@ function checkout() {
             });
         }
     });
+}
+
+async function CalculateDeliveryFee()
+{
+    const street= document.getElementById("street").value;
+    const addressLine2 = document.getElementById("address-line-2").value;
+    const city = document.getElementById("city").value;
+    const state= document.getElementById("state").value;
+    const zipCode= document.getElementById("zip").value;
+    const cities = ["Sacramento",  "Elk Grove", "Citrus Heights", "Folsom", "Rancho Cordova", "Rocklin", "Roseville"]
+    if(containsWordIgnoreCase(cities, city))
+    {
+        deliveryFee = 250.00;
+        document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee.toFixed(2);
+    }
+    else
+    {
+        let address = street + " " + addressLine2 + ", " + city +" " + state + " " + zipCode;
+        const placeId = await getPlaceId(address);
+        if (placeId)
+        {
+            const deliveryFee = await getDeliveryFee(placeId);
+            console.log("Delivery Fee for the address:", deliveryFee);
+            document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee;
+        }
+    }
+    totalCost += deliveryFee;
+    document.getElementById("completeTotal").innerHTML = "$" + totalCost.toFixed(2);
+}
+
+function containsWordIgnoreCase(list, word)
+{
+    return list.some(item => item.toLowerCase() === word.toLowerCase());
+}
+
+async function getPlaceId(address)
+{
+    try
+    {
+        const response = await fetch('/map/getPlaceId', {
+            method: 'POST',
+            headers:
+            {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + localStorage.getItem('jwtToken')
+            },
+            body: JSON.stringify(address)
+        });
+
+        if (response.ok) {
+            const placeId = await response.text(); // assuming `result` is a plain string
+            console.log("Place ID:", placeId);
+            return placeId;
+        }
+        else
+        {
+            console.error("Failed to fetch Place ID");
+        }
+    }
+    catch (error)
+    {
+        console.error("Error:", error);
+    }
+}
+
+async function getDeliveryFee(destinationPlaceId)
+{
+    try
+    {
+        const response = await fetch(`/map/calculateDeliveryFee?destinationPlaceId=${encodeURIComponent(destinationPlaceId)}`, {
+            method: 'GET',
+            headers:
+            {
+                'Authorization': "Bearer " + localStorage.getItem('jwtToken')
+            }
+        });
+
+        if (response.ok)
+        {
+            const deliveryFee = parseFloat(await response.text());
+            console.log("Delivery Fee:", deliveryFee);
+            return deliveryFee;
+        }
+        else
+        {
+            console.error("Failed to calculate delivery fee");
+        }
+    }
+    catch (error)
+    {
+        console.error("Error:", error);
+    }
 }
 
 document.getElementById("termsCheckbox").addEventListener("change", function() {
