@@ -29,11 +29,16 @@ public class EmailService
     @Value("${spring.mail.username}")
     private String sender;
 
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
     private HashMap<String,String> emailMap = new HashMap<>();
 
     public HashMap<String, String> getEmailMap() {
         return emailMap;
     }
+
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 

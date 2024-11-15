@@ -56,9 +56,11 @@ function addProduct() {
             {
                 // Handle errors
                 console.error('Error:', response.statusText);
+                alert('Error:', response.statusText);
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            alert('Error:', error);
         });
 }

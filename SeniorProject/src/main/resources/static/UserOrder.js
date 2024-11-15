@@ -55,6 +55,7 @@ window.onload = async function ()
     else
     {
         console.error("Fail to load customer detail.")
+        alert("Fail to load customer detail.");
     }
 }
 
@@ -83,6 +84,7 @@ async function loadOrders(customerData, type)
         if (!response.ok)
         {
             throw new Error(`Error fetching ${type} orders`);
+            alert(`Error fetching ${type} orders`);
         }
 
         const data = await response.json();
@@ -91,6 +93,7 @@ async function loadOrders(customerData, type)
     catch (error)
     {
         console.error(`Error fetching ${type} orders:`, error);
+        alert(`Error fetching ${type} orders:`, error);
     }
 }
 

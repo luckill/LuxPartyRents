@@ -22,15 +22,31 @@ public class EmailController
     private EmailService emailService;
 
     @PostMapping("/sendEmail")
-    public String sendEmail(@RequestBody EmailDetails details)
+    public ResponseEntity<?> sendEmail(@RequestBody EmailDetails details)
     {
-        return emailService.sendSimpleEmail(details);
+        try
+        {
+            String response = emailService.sendSimpleEmail(details);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     @PostMapping("/sendEmailWithAttachment")
-    public String sendMailWithAttachment(@RequestBody EmailDetails details)
+    public ResponseEntity<?> sendMailWithAttachment(@RequestBody EmailDetails details)
     {
-        return emailService.sendEmailWithAttachment(details);
+        try
+        {
+            String response = emailService.sendEmailWithAttachment(details);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     @GetMapping("/verify-email")
@@ -54,8 +70,16 @@ public class EmailController
     }
 
     @PostMapping("/sendVerificationEmail")
-    public void sendVerificationEmail(@RequestParam("email") String email, HttpServletRequest request)
+    public ResponseEntity<?> sendVerificationEmail(@RequestParam("email") String email, HttpServletRequest request)
     {
-        emailService.sendVerificationEmail(email, request);
+        try
+        {
+            emailService.sendVerificationEmail(email, request);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 }

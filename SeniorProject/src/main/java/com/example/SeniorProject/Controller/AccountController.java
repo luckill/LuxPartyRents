@@ -42,8 +42,15 @@ public class AccountController
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> deleteAccount(@PathVariable int id)
     {
-        accountService.deleteAccount(id);
-        return ResponseEntity.status(HttpStatus.OK).body("your account has been successfully deleted.");
+        try
+        {
+            accountService.deleteAccount(id);
+            return ResponseEntity.status(HttpStatus.OK).body("your account has been successfully deleted.");
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     // Existing method to turn a user into an admin

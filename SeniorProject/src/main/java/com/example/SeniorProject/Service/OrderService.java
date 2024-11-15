@@ -5,6 +5,7 @@ import com.example.SeniorProject.Email.*;
 import com.example.SeniorProject.Model.*;
 import jakarta.transaction.*;
 import org.springframework.beans.factory.annotation.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.query.ReturnedType;
 import org.springframework.http.*;
 import org.springframework.stereotype.*;
@@ -415,6 +416,79 @@ public class OrderService
          * pick up should 10/27/24
          * this should at end of day every day.
          */
+
+    }
+
+    private void orderDueCheck()
+    {
+        List<Order> list = orderRepository.findReturnOrders();
+        for (Order order : list) {
+            EmailDetails customerEmailDetails = new EmailDetails();
+            customerEmailDetails.setRecipient(order.getCustomer().getEmail());
+            customerEmailDetails.setSubject("Order Return");
+
+            String emailBody = "Dear " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName() + "," +
+                    "\n\nYour order with ID: " + order.getId() + " needs to be returned by tomorrow." +
+                    "\n\nThank you for shopping with us!";
+
+            customerEmailDetails.setMessageBody(emailBody);
+            emailService.sendSimpleEmail(customerEmailDetails);
+        }
+    }
+
+    public void returnDeleteOrder(int orderId)
+    {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error!!! - Order not found");
+        }
+
+        // Returning the products within the order
+        for (OrderProduct orderProduct : order.getOrderProducts()) {
+            // Checking to make sure product exists before updating it
+            Product product = orderProduct.getProduct();
+            int quantity = orderProduct.getQuantity();
+
+            if (product == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
+            }
+            if (quantity == 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Insufficient product quantity in order, check to see if it hasn't been processed already.");
+            }
+            if (order.getStatus() == OrderStatus.RETURNED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Check to see if it hasn't been processed already.");
+            }
+
+            // Update product quantity and save
+            product.setQuantity(product.getQuantity() + quantity);
+            productRepository.save(product);
+        }
+
+        try {
+
+            if (order.getCustomer() != null) {
+                order.setCustomer(null); // Remove the reference to account
+                orderRepository.save(order);  // Save changes to persist them
+            }
+
+            // Delete the order products first
+            for (OrderProduct orderProduct : order.getOrderProducts()) {
+                orderProductRepository.delete(orderProduct); // Deletes each related OrderProduct
+            }
+
+            // Now delete the Order (this should not fail due to foreign key constraints)
+            orderRepository.delete(order);
+
+        } catch (DataIntegrityViolationException e) {
+            // Handle the foreign key constraint violation
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete order due to foreign key constraints. Ensure all related entities are properly handled.");
+        }
+    }
+
+
+    private void deleteOrderNotPayed()
+    {
+        orderRepository.deleteReceivedOrdersBeforeToday();;
     }
 
 }

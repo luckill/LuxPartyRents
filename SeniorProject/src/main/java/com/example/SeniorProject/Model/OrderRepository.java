@@ -29,7 +29,19 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
         @Query("DELETE FROM Order o WHERE o.id = ?1")
         void deleteById(int id);
 
-		List<Order> findOrderByCustomerId(int customerId);
+        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1")
+        List<Order> findOrderByCustomerId(int customerId);
+
+        @Query(value = "SELECT * FROM orders WHERE order_status = 'PICK_UP' AND order_date = CURDATE() + INTERVAL 1 DAY", nativeQuery = true)
+        List<Order> findReturnOrders();
+
+        @Query(value = "SELECT * FROM orders WHERE order_status = 'RECEIVED' AND order_date < CURDATE()", nativeQuery = true)
+        List<Order> findReceivedOrdersBeforeToday();
+
+        @Modifying
+        @Transactional
+        @Query("DELETE FROM Order o WHERE o.status = 'RECEIVED' AND o.creationDate < CURRENT_DATE")
+        void deleteReceivedOrdersBeforeToday();
 }
 
 

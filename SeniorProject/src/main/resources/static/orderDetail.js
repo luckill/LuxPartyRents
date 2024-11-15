@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async() =>
         }
         else
         {
+            alert(response.text());
             displayError(response.text())
         }
 
@@ -86,11 +87,13 @@ document.addEventListener('DOMContentLoaded', async() =>
         else
         {
             displayError("Fail to load customer detail.")
+            alert("Fail to load customer detail.");
         }
     }
     catch (error)
     {
         console.error('Error fetching order:', error);
+        alert('Error fetching order:', error);
         displayError("An unexpected error occurred, please try again.")
     }
     finally
@@ -132,11 +135,13 @@ function cancelOrder()
             else
             {
                 throw new Error('Failed to cancel the order');
+                alert('Failed to cancel the order');
             }
         })
         .catch(error =>
         {
             console.error('Error cancelling the order:', error);
+            alert('Error cancelling the order:', error);
             displayError("There was an error cancelling the order. Please try again.");
         });
 }
@@ -174,11 +179,13 @@ function changeOrderStatus(status)
             else
             {
                 throw new Error('Failed to change order status');
+                alert('Failed to change order status');
             }
         })
         .catch(error =>
         {
             console.error('Error changing order status:', error);
+            alert('Error changing order status:', error);
             displayError("There was an issue changing the order status. Please try again.");
         });
 }

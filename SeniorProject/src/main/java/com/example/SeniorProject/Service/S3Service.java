@@ -25,6 +25,10 @@ public class S3Service
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
     public S3Service(@Value("${aws.accessKeyId}") String accessKeyId, @Value("${aws.secretKey}") String secretKey, @Value("${aws.s3.region}") String region)
     {
         AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);

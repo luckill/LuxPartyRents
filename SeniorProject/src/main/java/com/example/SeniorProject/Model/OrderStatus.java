@@ -8,7 +8,9 @@ public enum OrderStatus
     PICK_UP,
     CANCELLED,
     RETURNED,
-    COMPLETED;
+    COMPLETED,
+    REFUNDED;
+
 
     public static OrderStatus fromString(String status)
     {

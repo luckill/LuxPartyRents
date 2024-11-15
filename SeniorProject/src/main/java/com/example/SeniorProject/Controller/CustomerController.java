@@ -79,14 +79,21 @@ public class CustomerController
     @DeleteMapping("/deleteCustomer")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> deleteCustomer(@RequestBody CustomerDTO customer) {
-        Customer costAccount=customerRepository.findCustomersByEmail(customer.getEmail());
-        Account account=accountRepository.findAccountByEmail(customer.getEmail());
-        if (account!=null && costAccount != null) {
-            customerRepository.deleteById(costAccount.getId());
-            accountRepository.deleteById(account.getId());
+        try
+        {
+            Customer costAccount=customerRepository.findCustomersByEmail(customer.getEmail());
+            Account account=accountRepository.findAccountByEmail(customer.getEmail());
+            if (account!=null && costAccount != null) {
+                customerRepository.deleteById(costAccount.getId());
+                accountRepository.deleteById(account.getId());
 
+            }
+            return ResponseEntity.ok("Customer has been successfully deleted");
         }
-        return ResponseEntity.ok("Customer has been successfully deleted");
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     @GetMapping("/getCustomerInfo")

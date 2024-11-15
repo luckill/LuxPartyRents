@@ -24,8 +24,15 @@ public class passwordController
     @PostMapping("/send-reset-token")
     public ResponseEntity<?> sendResetToken(@RequestParam String email, HttpServletRequest request)
     {
-        passwordService.sendResetToken(email, request);
-        return ResponseEntity.status(HttpStatus.OK).body("Password reset instruction has been sent to your email address on file, please check your email.");
+        try
+        {
+            passwordService.sendResetToken(email, request);
+            return ResponseEntity.status(HttpStatus.OK).body("Password reset instruction has been sent to your email address on file, please check your email.");
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     @GetMapping("/verify-reset-token")
