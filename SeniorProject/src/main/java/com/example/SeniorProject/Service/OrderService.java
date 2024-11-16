@@ -35,11 +35,15 @@ public class OrderService
     @Autowired
     private PdfService pdfService;
 
+    @Autowired
+    private googleMapService googleMapService;
+
     @Transactional
     public OrderDTO createOrder(int id, OrderDTO orderDTO)
     {
         // Check if the order already exists
         int orderId = generateUniqueOrderId();
+        boolean hasDeliveryOnlyProduct = false;
 
         // Find the customer by ID
         Customer customer = customerRepository.findById(id).orElse(null);
@@ -49,13 +53,15 @@ public class OrderService
         }
 
         // Create the new order
-        Order order = new Order(orderId, orderDTO.getRentalTime(), orderDTO.isPaid());
+        Order order = new Order(orderId, orderDTO.getRentalTime(), orderDTO.isPaid(), orderDTO.getAddress());
         order.setCustomer(customer);
         // Save the order to the database
         order = orderRepository.save(order);
 
-        //initalize totalPrice
+        //initialize totalPrice
         double totalPrice = 0;
+        double totalDeposit = 0;
+        double deliveryFee = 0;
 
         // Initialize a flag to check if the delivery fee has been added
         boolean deliveryFeeAdded = false;
@@ -70,6 +76,10 @@ public class OrderService
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
             }
 
+            if(product.isDeliverOnly())
+            {
+                hasDeliveryOnlyProduct = true;
+            }
             int quantity = orderProductDTO.getQuantity();
             if (quantity > product.getQuantity())
             {
@@ -77,12 +87,8 @@ public class OrderService
             }
 
             // Update product quantity and calculate total price and add 250 if there is a delivery only item
-            totalPrice +=  (product.getPrice() * quantity) + ((product.getPrice() * quantity) * .0725) + ((product.getPrice() * quantity)/2);
-            // Check if the product is delivery-only and if the delivery fee has not been added yet
-            if (product.isDeliverOnly() && !deliveryFeeAdded) {
-                totalPrice += 250;
-                deliveryFeeAdded = true; // Set the flag to true after adding the delivery fee
-            }
+            totalPrice +=  (product.getPrice() * quantity) + ((product.getPrice() * quantity) * .0725);
+            totalDeposit += product.getDeposit();
 
             product.setQuantity(product.getQuantity() - quantity);
             productRepository.save(product);
@@ -91,9 +97,21 @@ public class OrderService
             OrderProduct orderProduct = new OrderProduct(order, product, quantity);
             orderProductRepository.save(orderProduct);
         }
+        if (hasDeliveryOnlyProduct)
+        {
+            if(!order.getAddress().isEmpty())
+            {
+                String placeId = googleMapService.getPlaceId(order.getAddress());
+                deliveryFee = googleMapService.calculateDeliveryFee(placeId);
+            }
+            else
+            {
+                deliveryFee = 250.00;
+            }
+        }
 
-        // Set the total price for the order and save it again
-        order.setPrice(totalPrice);
+        order.setPrice(totalPrice + deliveryFee);
+        order.setDeposit(totalDeposit);
         orderRepository.save(order);
 
         // Send notification to admin for new order
@@ -349,7 +367,7 @@ public class OrderService
         Set<OrderProductDTO> orderProductDTOs = order.getOrderProducts().stream()
                 .map(orderProduct -> new OrderProductDTO(orderProduct.getQuantity(), new ProductDTO(orderProduct.getProduct().getId(), orderProduct.getProduct().getName(), orderProduct.getProduct().getPrice(), orderProduct.getProduct().getType())))
                 .collect(Collectors.toSet());
-        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getRentalTime(), order.isPaid(), order.getStatus());
+        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getRentalTime(), order.isPaid(), order.getStatus(), order.getAddress());
         orderDTO.setPrice(order.getPrice());
         orderDTO.setId(order.getId());
         orderDTO.setOrderProducts(orderProductDTOs);
@@ -490,5 +508,4 @@ public class OrderService
     {
         orderRepository.deleteReceivedOrdersBeforeToday();;
     }
-
 }

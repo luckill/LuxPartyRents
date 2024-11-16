@@ -21,6 +21,50 @@
                             display: block;
                             margin-bottom: 10px; /* Optional: Adds some space between the options */
         }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-container h2 {
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            background-color: white;
+            color: black;
+        }
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+        .form-group .error-message {
+            color: #721c24;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .form-inline {
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-inline .form-group {
+            width: 48%;
+        }
     </style>
 </head>
 <body class="bg-transparent container-fluid">
@@ -85,6 +129,38 @@
                             <input type="text" id="endDate" class="form-control" placeholder="Return date" readonly>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="form-container">
+                            <h3 style="text-align: center">delivery Address(to the place that you hold the event)</h3>
+
+                            <div class="form-group">
+                                <label for="street">Street Address</label>
+                                <input type="text" id="street" name="street" placeholder="Street Address" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="address-line-2">Address Line 2</label>
+                                <input type="text" id="address-line-2" name="address-line-2" placeholder="Address Line 2">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city" placeholder="City" required>
+                            </div>
+
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label for="state">State</label>
+                                    <input type="text" id="state" name="state" placeholder="State" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="zip">Zip Code</label>
+                                    <input type="text" id="zip" name="zip" placeholder="Zip Code" required>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-lg mx-2" onclick="CalculateDeliveryFee()">Calculate Delivery Fee</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="container-fluid bg-secondary text-center">
@@ -112,27 +188,20 @@
                         <div id="depositAmount" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
                     <div class="row">
+                        <div class="col-6 text-start fw-bold">Delivery Fee:</div>
+                        <div id="deliveryFeeSAmount" class="col-6 text-end fw-bold">$0.00</div>
+                    </div>
+                    <div class="row">
                         <div class="col-6 text-start fw-bold">Tax:</div>
                         <div id="taxAmount" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
+
                     <hr class="rounded" style="border: 3px solid black;">
                     <div class="row">
                         <div class="col-6 text-start fw-bold">Total:</div>
                         <div id="completeTotal" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
                     <hr class="rounded" style="border: 3px solid black;">
-                    
-                    <!--
-                    <div class="delivery-options">
-                        <p>You have selected products that are delivery only, select an option below:</p>
-                        <label>
-                          <input type="radio" name="deliveryOption" value="option1" onclick="handleDeliveryOption('option1')"> Pay a flat $250 delivery fee for products (Must be in Sacramento)
-                        </label>
-                        <label>
-                          <input type="radio" name="deliveryOption" value="option2" onclick="handleDeliveryOption('option2')"> Email the owner to arrange delivery (Can be anywhere)
-                        </label>
-                      </div>
-                      -->
 
                     <!--Eric Work here!!!-->
                     <div class="form-check text-start">

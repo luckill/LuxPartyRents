@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-
-    // Simulate fetching gallery images
     const gallerySection = document.querySelector('.gallery');
     const images = [
         'https://d3snlw7xiuobl9.cloudfront.net/Image1.jpg',
@@ -8,16 +6,17 @@ document.addEventListener('DOMContentLoaded', function() {
         'https://d3snlw7xiuobl9.cloudfront.net/Image3.jpg',
         'https://d3snlw7xiuobl9.cloudfront.net/Image4.jpg',
         'https://d3snlw7xiuobl9.cloudfront.net/Image5.jpg',
-    
-        // Add as many paths as needed
     ];
 
+    // Function to display images in the gallery
     const displayImages = (imageArray) => {
-        gallerySection.innerHTML = ''; // Clear current images
+        gallerySection.innerHTML = '';
         imageArray.forEach(image => {
             const imgElement = document.createElement('img');
             imgElement.src = image;
             imgElement.alt = "Gallery image";
+            imgElement.classList.add('gallery-image');
+            imgElement.addEventListener('click', openModal);
             gallerySection.appendChild(imgElement);
         });
     };
@@ -25,10 +24,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initially display all images
     displayImages(images);
 
-    // Search functionality
-    const searchInput = document.querySelector('.nav-bar input[type="text"]');
-    searchInput.addEventListener('keyup', (e) => {
-        const filteredImages = images.filter(image => image.includes(e.target.value));
-        displayImages(filteredImages);
+    // Modal functionality
+    function openModal(event) {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("expandedImage");
+
+        modal.style.display = "block";
+        modalImg.src = event.target.src; // Set modal image source to the clicked image's source
+    }
+
+    function closeModal() {
+        const modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+    }
+
+    // Prevent the modal from closing when clicking on the expanded image
+    document.getElementById("expandedImage").addEventListener("click", function(event) {
+        event.stopPropagation();
     });
+
+    // Expose closeModal function globally for the modal's onclick event
+    window.closeModal = closeModal;
 });
