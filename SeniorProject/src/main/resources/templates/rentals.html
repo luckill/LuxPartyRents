@@ -162,35 +162,46 @@
     }
 
     function addToCart(productId, productName, availableQuantity, button) {
+    // Get elements and validate quantity
     const productContainer = button.closest('.product-item');
     const quantityInput = productContainer.querySelector('.quantity-input');
     const quantity = parseInt(quantityInput.value);
 
+    // Initial validation checks
     if (isNaN(quantity) || quantity < 1) {
-        showNotification('Please enter a valid quantity.','red');
+        showNotification('Please enter a valid quantity.', 'red');
         return;
     }
 
+    // Check if there's available stock
+    if (availableQuantity <= 0) {
+        showNotification('Product is out of stock!', 'red');
+        return;
+    }
+
+    // Check if requested quantity exceeds available stock
+    if (quantity > availableQuantity) {
+        showNotification('Not enough stock available!', 'red');
+        return;
+    }
+
+    // Get current cart
     let cart = JSON.parse(getCookie('cart') || '[]');
     const existingProductIndex = cart.findIndex(item => item.productId === productId);
 
-    // Check if the cart is not empty and if the product exists in the cart
-    if (cart.length > 0 && existingProductIndex !== -1) {
-    // Check if the requested quantity is greater than available quantity
-    if (quantity > availableQuantity) {
-            showNotification('Not enough stock available!',"red");
-            return;  // Exit the function if the stock is insufficient
-        }
-    }
-
+    // Update or add product to cart
     if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity = quantity; // Update quantity if the product is already in the cart
+        cart[existingProductIndex].quantity = quantity;
     } else {
         cart.push({ productId: productId, quantity: quantity });
     }
 
+    // Save cart and show confirmation
     setCookie('cart', JSON.stringify(cart), 7, "Lax");
-    showNotification(`Added ${quantity} ${productName}${quantity === 1 ? '' : 's'} to the cart!`, 'green');
+    showNotification(
+        `Added ${quantity} ${productName}${quantity === 1 ? '' : 's'} to the cart!`,
+        'green'
+    );
 }
     async function searchProducts(event) {
         if (event) event.preventDefault();

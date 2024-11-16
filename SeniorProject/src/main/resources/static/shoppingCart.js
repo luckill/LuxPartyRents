@@ -59,6 +59,83 @@ async function fetchProductById(productId) {
     return await response.json();
 }
 
+// Function to validate cart quantities against available stock
+async function validateCartQuantities() {
+    const cartCookie = getCookieValue('cart');
+    if (!cartCookie) return;
+    
+    const cartItems = JSON.parse(cartCookie);
+    let quantityUpdated = false;
+    let itemsToRemove = [];
+    
+    for (const item of cartItems) {
+        try {
+            const productDetails = await fetchProductById(item.productId);
+            if (productDetails) {
+                if (item.quantity <= 0) {
+                    // Mark item for removal
+                    itemsToRemove.push(item.productId);
+                    quantityUpdated = true;
+                } else if (item.quantity > productDetails.quantity) {
+                    // Update quantity to maximum available
+                    item.quantity = productDetails.quantity;
+                    quantityUpdated = true;
+                    
+                    // Update UI if the item is already displayed
+                    const cartAmountInput = document.querySelector(`#cloned${item.productId}CartAmount`);
+                    if (cartAmountInput) {
+                        cartAmountInput.value = productDetails.quantity;
+                        cartAmountInput.max = productDetails.quantity;
+                        
+                        // Trigger input event to update other UI elements
+                        const inputEvent = new Event('input', {
+                            bubbles: true,
+                            cancelable: true,
+                        });
+                        cartAmountInput.dispatchEvent(inputEvent);
+                    }
+                    
+                    alert(`Quantity for ${productDetails.name} adjusted to available stock (${productDetails.quantity})`, 'warning');
+                }
+            }
+        } catch (error) {
+            console.error(`Error validating quantity for product ${item.productId}:`, error);
+        }
+    }
+    
+    // Remove items with zero quantity
+    if (itemsToRemove.length > 0) {
+        itemsToRemove.forEach(productId => {
+            // Remove from myCart array
+            myCart = myCart.filter(item => item.id !== productId);
+            
+            // Remove from DOM
+            const cartItemToRemove = document.getElementById(`cloned${productId}CartItem`);
+            const totalItemToRemove = document.getElementById(`cloned${productId}TotalItem`);
+            
+            if (cartItemToRemove) cartItemToRemove.remove();
+            if (totalItemToRemove) totalItemToRemove.remove();
+            
+        });
+    }
+    
+    if (quantityUpdated || itemsToRemove.length > 0) {
+        // Update cookie with remaining items and adjusted quantities
+        const updatedCartItems = cartItems.filter(item => !itemsToRemove.includes(item.productId));
+        setCookie('cart', JSON.stringify(updatedCartItems), 7);
+        
+        // Recalculate totals
+        calculateTotalItems();
+        calculateTotalCost();
+        
+        // Show empty cart if all items were removed
+        if (myCart.length === 0) {
+            emptyCartDiv.classList.remove("d-none");
+            emptyTotalDiv.classList.remove("d-none");
+        }
+    }
+}
+
 // Function to load cart from cookies and fetch product details
 async function loadCartFromCookies() {
     const cartCookie = getCookieValue('cart');
@@ -78,6 +155,7 @@ async function loadCartFromCookies() {
             }
         }
     }
+    await validateCartQuantities();
     updateCartDisplay();
 }
 
@@ -118,69 +196,94 @@ function duplicateCartItem(item) {
     let clonedItemAmount = clonedCartItem.querySelector("#itemAmountInput");
     clonedItemAmount.id = "cloned" + item.id + "CartAmount";
     clonedItemAmount.value = item.amount;
-     // Add these attributes to the input element
-     clonedItemAmount.setAttribute("type", "number");
-     clonedItemAmount.setAttribute("min", "1");
-     clonedItemAmount.setAttribute("step", "1");
+    // Add these attributes to the input element
+    clonedItemAmount.setAttribute("type", "number");
+    clonedItemAmount.setAttribute("min", "1");
+    clonedItemAmount.setAttribute("step", "1");
+    
+    // Fetch and set the maximum quantity
+    fetchProductById(item.id).then(productDetails => {
+        clonedItemAmount.setAttribute("max", productDetails.quantity);
+        if (item.amount > productDetails.quantity) {
+            clonedItemAmount.value = productDetails.quantity;
+            // Trigger input event to update other UI elements
+            const inputEvent = new Event('input', {
+                bubbles: true,
+                cancelable: true,
+            });
+            clonedItemAmount.dispatchEvent(inputEvent);
+        }
+    }).catch(error => {
+        console.error(`Error fetching product details for ${item.id}:`, error);
+    });
 
     let clonedItemCost = clonedCartItem.querySelector("#itemCost");
     clonedItemCost.id = "cloned" + item.id + "CartCost";
     clonedItemCost.innerHTML = "$"+ item.price.toFixed(2);
 
-    // Enhanced input event listener with auto-update
+    // Enhanced input event listener with quantity validation
+    clonedItemAmount.addEventListener("input", async function() {
+        let newValue = parseInt(this.value);
 
-    clonedItemAmount.addEventListener("input", function() {
-        const newValue = parseInt(this.value);
+         
+
         if (newValue && newValue > 0) {
-            // Update corresponding elements
-            let cartItemAmountElement = document.querySelector("#cloned" + item.id + "CartAmount");
-            let totalItemAmountElement = document.querySelector("#cloned" + item.id + "TotalAmount");
-            
-            if (cartItemAmountElement) {
-                cartItemAmountElement.value = newValue;
-            }
-            if (totalItemAmountElement) {
-                totalItemAmountElement.innerHTML = "x" + newValue;
-            }
-
-            // Update cart data and cookie
-            let itemWanted = myCart.find(cartItem => cartItem.id === item.id);
-            if (itemWanted) {
-                itemWanted.amount = newValue;
-                
-                // Update cookie
-                const cartCookie = myCart.map(item => ({
-                    productId: item.id,
-                    quantity: item.amount
-                }));
-                setCookie('cart', JSON.stringify(cartCookie), 7);
-
-                // Recalculate totals
-
-                totalAmountOfItems = 0;
-                totalCost = 0;
-                calculateTotalItems();
-                calculateTotalCost();
-                
-                // Update cost display in total section
-                let totalItemCostElement = document.querySelector("#cloned" + item.id + "TotalCost");
-                if (totalItemCostElement) {
-                    totalItemCostElement.innerHTML = "$" + (item.price * newValue).toFixed(2);
+            try {
+                const productDetails = await fetchProductById(item.id);
+                if (newValue > productDetails.quantity) {
+                    newValue = productDetails.quantity;
+                    this.value = newValue;
+                    alert(`Quantity adjusted to maximum available stock (${productDetails.quantity})`, 'warning');
                 }
+
+                // Update corresponding elements
+                let cartItemAmountElement = document.querySelector("#cloned" + item.id + "CartAmount");
+                let totalItemAmountElement = document.querySelector("#cloned" + item.id + "TotalAmount");
+                
+                if (cartItemAmountElement) {
+                    cartItemAmountElement.value = newValue;
+                }
+                if (totalItemAmountElement) {
+                    totalItemAmountElement.innerHTML = "x" + newValue;
+                }
+
+                // Update cart data and cookie
+                let itemWanted = myCart.find(cartItem => cartItem.id === item.id);
+                if (itemWanted) {
+                    itemWanted.amount = newValue;
+                    
+                    // Update cookie
+                    const cartCookie = myCart.map(item => ({
+                        productId: item.id,
+                        quantity: item.amount
+                    }));
+                    setCookie('cart', JSON.stringify(cartCookie), 7);
+
+                    // Recalculate totals
+                    totalAmountOfItems = 0;
+                    totalCost = 0;
+                    calculateTotalItems();
+                    calculateTotalCost();
+                    
+                    // Update cost display in total section
+                    let totalItemCostElement = document.querySelector("#cloned" + item.id + "TotalCost");
+                    if (totalItemCostElement) {
+                        totalItemCostElement.innerHTML = "$" + (item.price * newValue).toFixed(2);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error validating quantity for product ${item.id}:`, error);
             }
         }
     });
 
-     // Set up delete button
+    // Set up delete button
     let deleteButton = clonedCartItem.querySelector(".deleteButton");
     if (deleteButton) {
         deleteButton.addEventListener("click", function() {
             deleteItem(item.id);
         });
     }
-
-
-
 
     // Append
     clonedCartItem.classList.remove("d-none");
@@ -337,6 +440,13 @@ function checkout() {
         return;
     }
 
+    // If cart is empty after filtering, show empty cart display
+    if (myCart.length === 0) {
+        emptyCartDiv.classList.remove("d-none");
+        emptyTotalDiv.classList.remove("d-none");
+        return; // Exit checkout if cart is empty
+    }
+
     // Fetch the customer ID from the AccountController
     fetch('/account/customerId', {
         method: 'GET',
@@ -394,7 +504,15 @@ function checkout() {
         const orderId = order.id; // This depends on how the order is returned
         // Redirect to the payment page with orderId as a query parameter
         console.log(order.id);
-        window.location.href = `/checkout?orderId=${order.id || order.orderId}`;
+
+          // Clear the cart cookie after successful order creation
+          setCookie('cart', JSON.stringify([]), 7);
+
+          // Optionally, update the UI to reflect the empty cart
+          myCart = [];
+          updateCartDisplay();
+          //redirect to checkout
+          window.location.href = `/checkout?orderId=${order.id || order.orderId}`;
     })
     .catch(error => {
         console.error("Checkout error:", error);
