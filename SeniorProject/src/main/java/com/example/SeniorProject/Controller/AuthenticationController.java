@@ -33,7 +33,7 @@ public class AuthenticationController
     public ResponseEntity<?> register(@RequestBody RegisterUserDTO registerUserDTO)
     {
         authenticationService.signUp(registerUserDTO);
-        return ResponseEntity.ok("Your account has been successfully created. A verification email has been sent to the address provided. Please follow the instructions in the email to verify your account. Unverified accounts and associated profiles will be automatically deleted at 12:00 AM Pacific Time.");
+        return ResponseEntity.ok("Your account has been successfully created. A verification email has been sent to the address provided. Please follow the instructions in the email to verify your account. Unverified accounts and associated profiles will be automatically deleted the next day.");
     }
 
     @PostMapping("/login")
