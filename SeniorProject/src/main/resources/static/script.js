@@ -1,23 +1,37 @@
 document.addEventListener('DOMContentLoaded', function() {
-
-    // Simulate fetching gallery images
     const gallerySection = document.querySelector('.gallery');
     const images = [
-        'https://d3snlw7xiuobl9.cloudfront.net/Image1.jpg',
-        'https://d3snlw7xiuobl9.cloudfront.net/Image2.jpg',
-        'https://d3snlw7xiuobl9.cloudfront.net/Image3.jpg',
-        'https://d3snlw7xiuobl9.cloudfront.net/Image4.jpg',
-        'https://d3snlw7xiuobl9.cloudfront.net/Image5.jpg',
-    
-        // Add as many paths as needed
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery25(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery22(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery21(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery20(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery18(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery17(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery14(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery11(1).jpg',
+         'https://d3snlw7xiuobl9.cloudfront.net/gallery10(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery7(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery2(1).jpg',
+         'https://d3snlw7xiuobl9.cloudfront.net/gallery6(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery5(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery24(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery26(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/Gallery1.jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery13.jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery15.jpeg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery16.jpeg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery23(1).jpg',
     ];
 
+    // Function to display images in the gallery
     const displayImages = (imageArray) => {
-        gallerySection.innerHTML = ''; // Clear current images
+        gallerySection.innerHTML = '';
         imageArray.forEach(image => {
             const imgElement = document.createElement('img');
             imgElement.src = image;
             imgElement.alt = "Gallery image";
+            imgElement.classList.add('gallery-image');
+            imgElement.addEventListener('click', openModal);
             gallerySection.appendChild(imgElement);
         });
     };
@@ -25,10 +39,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initially display all images
     displayImages(images);
 
-    // Search functionality
-    const searchInput = document.querySelector('.nav-bar input[type="text"]');
-    searchInput.addEventListener('keyup', (e) => {
-        const filteredImages = images.filter(image => image.includes(e.target.value));
-        displayImages(filteredImages);
+    // Modal functionality
+    function openModal(event) {
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("expandedImage");
+
+        modal.style.display = "block";
+        modalImg.src = event.target.src; // Set modal image source to the clicked image's source
+    }
+
+    function closeModal() {
+        const modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+    }
+
+    // Prevent the modal from closing when clicking on the expanded image
+    document.getElementById("expandedImage").addEventListener("click", function(event) {
+        event.stopPropagation();
     });
+
+    // Expose closeModal function globally for the modal's onclick event
+    window.closeModal = closeModal;
 });
