@@ -414,30 +414,23 @@ async function CalculateDeliveryFee()
     const city = document.getElementById("city").value;
     const state= document.getElementById("state").value;
     const zipCode= document.getElementById("zip").value;
-    const cities = ["Sacramento",  "Elk Grove", "Citrus Heights", "Folsom", "Rancho Cordova", "Rocklin", "Roseville"]
-    if(containsWordIgnoreCase(cities, city))
+    if (addressLine2.length === 0)
     {
-        deliveryFee = 250.00;
-        document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee.toFixed(2);
+        address = street + ", " + city +" " + state + " " + zipCode;
     }
     else
     {
-        let address = street + " " + addressLine2 + ", " + city +" " + state + " " + zipCode;
-        const placeId = await getPlaceId(address);
-        if (placeId)
-        {
-            const deliveryFee = await getDeliveryFee(placeId);
-            console.log("Delivery Fee for the address:", deliveryFee);
-            document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee;
-        }
+        address = street + " " + addressLine2 + ", " + city +" " + state + " " + zipCode;
+    }
+    const placeId = await getPlaceId(address);
+    if (placeId)
+    {
+        const deliveryFee = await getDeliveryFee(placeId);
+        console.log("Delivery Fee for the address:", deliveryFee);
+        document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee;
     }
     totalCost += deliveryFee;
     document.getElementById("completeTotal").innerHTML = "$" + totalCost.toFixed(2);
-}
-
-function containsWordIgnoreCase(list, word)
-{
-    return list.some(item => item.toLowerCase() === word.toLowerCase());
 }
 
 async function getPlaceId(address)

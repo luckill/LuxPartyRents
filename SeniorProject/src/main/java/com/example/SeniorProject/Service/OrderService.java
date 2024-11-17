@@ -66,9 +66,6 @@ public class OrderService
         double deliveryFee = 0;
         double subtotal = 0;
 
-        // Initialize a flag to check if the delivery fee has been added
-        boolean deliveryFeeAdded = false;
-
         // Process the products in the order
         for (OrderProductDTO orderProductDTO : orderDTO.getOrderProducts())
         {
@@ -103,15 +100,8 @@ public class OrderService
 
         if (hasDeliveryOnlyProduct)
         {
-            if(!order.getAddress().isEmpty())
-            {
-                String placeId = googleMapService.getPlaceId(order.getAddress());
-                deliveryFee = googleMapService.calculateDeliveryFee(placeId);
-            }
-            else
-            {
-                deliveryFee = 250.00;
-            }
+            String placeId = googleMapService.getPlaceId(order.getAddress());
+            deliveryFee = googleMapService.calculateDeliveryFee(placeId);
         }
 
         subtotal = price + deposit + tax + deliveryFee;
@@ -122,7 +112,6 @@ public class OrderService
         order.setSubtotal(Math.round(subtotal * 100.0) / 100.0);
         orderRepository.save(order);
         orderProductRepository.saveAll(order.getOrderProducts());
-
 
         generateOrderInvoice(orderId);
 
