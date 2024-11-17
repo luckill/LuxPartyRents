@@ -301,7 +301,7 @@ function renderCustomerInfo(customer)
             <p><strong>Name:</strong> ${customer.firstName} ${customer.lastName}</p>
             <p><strong>Email:</strong> ${customer.email}</p>
             <p><strong>Phone Number:</strong> ${customer.phone}</p>
-            <P><Strong>Delivery Number:</Strong> ${address}</P>
+            <P><Strong>Delivery Address:</Strong> ${address}</P>
         `;
 }
 

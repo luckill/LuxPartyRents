@@ -36,8 +36,12 @@ public class OrderService
 
     @Autowired
     private googleMapService googleMapService;
+
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private S3Service s3Service;
 
     @Transactional
     public OrderDTO createOrder(int id, OrderDTO orderDTO)
@@ -64,7 +68,7 @@ public class OrderService
         double deposit = 0;
         double tax = 0;
         double deliveryFee = 0;
-        double subtotal = 0;
+        double subtotal;
 
         // Process the products in the order
         for (OrderProductDTO orderProductDTO : orderDTO.getOrderProducts())
@@ -114,16 +118,6 @@ public class OrderService
         orderProductRepository.saveAll(order.getOrderProducts());
 
         generateOrderInvoice(orderId);
-
-        // Send notification to admin for new order
-        sendAdminNotification(
-                "New Order Placed",
-                "A new order has been placed by " + customer.getFirstName() + " " + customer.getLastName(),
-                order
-        );
-
-        //Send notification to Customer about creation of new order, and pick up
-        emailService.sendCxPickupNotification(order);
 
         return mapToOrderDTO(order);
     }
@@ -181,7 +175,7 @@ public class OrderService
         putProductBackToInventory(order);
 
         // Send notification to admin for order cancellation
-        sendAdminNotification(
+        emailService.sendAdminNotification(
                 "Order Cancelled",
                 "Order ID " + order.getId() + " has been cancelled by " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
                 order
@@ -305,17 +299,6 @@ public class OrderService
         }
     }
 
-    // Delete an order
-    /*public void deleteOrder(int id)
-    {
-        Order order = orderRepository.findById(id).orElse(null);
-        if (order == null)
-        {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error!!! - Order associated with this id is not found in the database");
-        }
-        orderRepository.deleteById(id);
-    }*/
-
     // Return an order
     public void returnOrder(int orderId)
     {
@@ -336,12 +319,12 @@ public class OrderService
 
 
         // Send notification to both admin and customer for successful return
-        sendAdminNotification("Order Returned",
+        emailService.sendAdminNotification("Order Returned",
                 "Order ID " + order.getId() + " has been successfully returned by "
                         + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
                 order);
 
-        sendCustomerReturnNotification(order);
+        emailService.sendCustomerReturnNotification(order);
     }
 
     public List<OrderDTO> getOrderByCustomerId(int id)
@@ -388,36 +371,6 @@ public class OrderService
         return orderDTO;
     }
 
-    // Helper method to send email notifications to the admin
-    private void sendAdminNotification(String subject, String messageBody, Order order)
-    {
-        EmailDetails adminEmailDetails = new EmailDetails();
-        adminEmailDetails.setRecipient("zhijunli7799@gmail.com"); //email of admin
-        adminEmailDetails.setSubject(subject);
-
-        String emailBody = messageBody +
-                "\nOrder ID: " + order.getId() +
-                "\nCustomer: " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName() +
-                "\nTotal Amount: $" + order.getPrice();
-
-        adminEmailDetails.setMessageBody(emailBody);
-        emailService.sendSimpleEmail(adminEmailDetails);
-    }
-
-    // Helper method to send email notifications to the customer when the order is returned
-    private void sendCustomerReturnNotification(Order order)
-    {
-        EmailDetails customerEmailDetails = new EmailDetails();
-        customerEmailDetails.setRecipient(order.getCustomer().getEmail());
-        customerEmailDetails.setSubject("Order Returned Successfully");
-
-        String emailBody = "Dear " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName() + "," +
-                "\n\nYour order with ID: " + order.getId() + " has been successfully returned." +
-                "\n\nThank you for shopping with us!";
-
-        customerEmailDetails.setMessageBody(emailBody);
-        emailService.sendSimpleEmail(customerEmailDetails);
-    }
 
     // Method to generate a unique order ID
     private int generateUniqueOrderId()
@@ -509,6 +462,8 @@ public class OrderService
 
             // Now delete the Order (this should not fail due to foreign key constraints)
             orderRepository.delete(order);
+            String fileName = "invoice_" + orderId + ".pdf";
+            s3Service.deleteFileFromS3Bucket(fileName);
 
         } catch (DataIntegrityViolationException e) {
             // Handle the foreign key constraint violation
@@ -539,7 +494,7 @@ public class OrderService
 
     private void deleteOrderNotPayed()
     {
-        orderRepository.deleteReceivedOrdersBeforeToday();;
+        orderRepository.deleteReceivedOrdersBeforeToday();
     }
 
     private void putProductBackToInventory(Order order)

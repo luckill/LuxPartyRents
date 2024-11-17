@@ -27,9 +27,11 @@ public class PaymentService {
 
         @Autowired
         OrderRepository orderRepository;
+    @Autowired
+    private EmailService emailService;
 
 
-        static class CreatePaymentResponse {
+    static class CreatePaymentResponse {
                 private String clientSecret;
                 private String dpmCheckerLink;
 
@@ -223,6 +225,15 @@ public class PaymentService {
         order.setPaid(true);
         order.setStatus(OrderStatus.CONFIRMED);
         orderRepository.save(order);
+        emailService.sendAdminNotification(
+                "New Order Placed",
+                "A new order has been placed by " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
+                order
+        );
+
+        //Send notification to Customer about creation of new order, and pick up
+        emailService.sendCxPickupNotification(order);
+        emailService.sendOrderConfirmation(order);
         return "payment sucessfull";
     }
 
