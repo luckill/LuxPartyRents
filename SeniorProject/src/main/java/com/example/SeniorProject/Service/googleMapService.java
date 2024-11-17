@@ -57,12 +57,7 @@ public class googleMapService
         String key = secretsManagerService.getSecretValue("googleMapAPIKey");
         OkHttpClient client = new OkHttpClient();
         String url = DISTANCE_URL + "?origins=place_id:" + originPlaceId + "&destinations=place_id:"+ destinationPlaceId +"&key=" + key;
-
-
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        Request request = new Request.Builder().url(url).build();
 
         try (Response response = client.newCall(request).execute())
         {
@@ -80,7 +75,8 @@ public class googleMapService
 
             // Extract the "distance" object and get the "value"
             double distance = element.getAsJsonObject("distance").get("value").getAsDouble();
-            return Math.round((distance * 0.0006213712 * 6.00) * 100.0) / 100.0;
+            double deliveryFee = Math.round((distance * 0.0006213712 * 6.00) * 100.0) / 100.0;
+            return Math.max(deliveryFee, 250.00);
         }
         catch (IOException e)
         {

@@ -6,19 +6,21 @@ import com.example.SeniorProject.Model.OrderProduct;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
 @Service
-public class PdfService {
-
-    public ByteArrayResource generateInvoicePDF(Map<String, Object> model) {
+public class PdfService
+{
+    @Autowired
+    private S3Service s3Service;
+    public void generateInvoicePDF(Map<String, Object> model) {
         try (PDDocument document = new PDDocument()) {
-            PDPage page = new PDPage(PDRectangle.A4);
+            PDPage page = new PDPage(PDRectangle.LETTER);
             document.addPage(page);
 
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
@@ -83,7 +85,7 @@ public class PdfService {
             contentStream.beginText();
             contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
             contentStream.newLineAtOffset(50, yPosition);
-            contentStream.showText("DESCRIPTION");
+            contentStream.showText("NAME");
             contentStream.newLineAtOffset(350, 0);
             contentStream.showText("QUANTITY");
             contentStream.newLineAtOffset(100, 0);
@@ -96,7 +98,6 @@ public class PdfService {
             contentStream.lineTo(550, yPosition);
             contentStream.stroke();
 
-            double subtotal = 0;
             yPosition -= 20; // Start below the header
 
             // Table Rows - Product List
@@ -124,7 +125,6 @@ public class PdfService {
                 contentStream.showText(String.format("$%.2f", productPrice));
                 contentStream.endText();
 
-                subtotal += productPrice;
                 yPosition -= 20; // Move to the next row
 
                 // Draw a line after each product row
@@ -134,38 +134,73 @@ public class PdfService {
             }
 
             // Subtotal, Tax, and Total - at the bottom
-            double tax = subtotal * 0.07; // Assuming 7% tax
-            double total = subtotal + tax;
+            double price = ((Order) model.get("order")).getPrice();
+            double tax = ((Order) model.get("order")).getTax(); // Assuming 7% tax
+            double securityDeposit = ((Order) model.get("order")).getDeposit();
+            double deliveryFee = ((Order) model.get("order")).getDeliveryFee();
+            double subtotal = ((Order) model.get("order")).getSubtotal();
 
+
+            // Moving yPosition down for each new line to prevent overlapping
+            yPosition -= 20; // Initial offset for price section
+
+// Price
             contentStream.beginText();
-            contentStream.newLineAtOffset(50, yPosition - 20);
-            contentStream.showText("Subtotal");
+            contentStream.newLineAtOffset(50, yPosition);
+            contentStream.showText("Price:");
             contentStream.endText();
 
             contentStream.beginText();
-            contentStream.newLineAtOffset(500, yPosition - 20);
-            contentStream.showText(String.format("$%.2f", subtotal));
+            contentStream.newLineAtOffset(500, yPosition);
+            contentStream.showText(String.format("$%.2f", price));
+            contentStream.endText();
+
+// Tax
+            yPosition -= 20;
+            contentStream.beginText();
+            contentStream.newLineAtOffset(50, yPosition);
+            contentStream.showText("Tax (7.25%):");
             contentStream.endText();
 
             contentStream.beginText();
-            contentStream.newLineAtOffset(50, yPosition - 40);
-            contentStream.showText("Tax (7%)");
-            contentStream.endText();
-
-            contentStream.beginText();
-            contentStream.newLineAtOffset(500, yPosition - 40);
+            contentStream.newLineAtOffset(500, yPosition);
             contentStream.showText(String.format("$%.2f", tax));
             contentStream.endText();
 
+// Security Deposit
+            yPosition -= 20;
             contentStream.beginText();
-            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-            contentStream.newLineAtOffset(50, yPosition - 60);
-            contentStream.showText("TOTAL");
+            contentStream.newLineAtOffset(50, yPosition);
+            contentStream.showText("Security Deposit:");
             contentStream.endText();
 
             contentStream.beginText();
-            contentStream.newLineAtOffset(500, yPosition - 60);
-            contentStream.showText(String.format("$%.2f", total));
+            contentStream.newLineAtOffset(500, yPosition);
+            contentStream.showText(String.format("$%.2f", securityDeposit));
+            contentStream.endText();
+
+// Delivery Fee
+            yPosition -= 20;
+            contentStream.beginText();
+            contentStream.newLineAtOffset(50, yPosition);
+            contentStream.showText("Delivery Fee:");
+            contentStream.endText();
+
+            contentStream.beginText();
+            contentStream.newLineAtOffset(500, yPosition);
+            contentStream.showText(String.format("$%.2f", deliveryFee));
+            contentStream.endText();
+// Total
+            yPosition -= 20;
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+            contentStream.newLineAtOffset(50, yPosition);
+            contentStream.showText("SUBTOTAL:");
+            contentStream.endText();
+
+            contentStream.beginText();
+            contentStream.newLineAtOffset(500, yPosition);
+            contentStream.showText(String.format("$%.2f", subtotal));
             contentStream.endText();
 
             // Thank You Note
@@ -179,11 +214,12 @@ public class PdfService {
             contentStream.close();
 
             // Write the PDF content to a byte array
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            document.save(outputStream);
-
-            return new ByteArrayResource(outputStream.toByteArray());
-        } catch (IOException e) {
+            File outputFile = File.createTempFile("Invoice_" + ((Order) model.get("order")).getId(), ".pdf");
+            document.save(outputFile);
+            s3Service.uploadOrderInvoice(outputFile, ((Order) model.get("order")).getId());
+        }
+        catch (IOException e)
+        {
             throw new RuntimeException("Error generating PDF", e);
         }
     }

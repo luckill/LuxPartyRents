@@ -47,6 +47,13 @@ public class Order
     @Column(nullable = false, name = "deposit")
     private double deposit;
 
+    @Column(nullable = false, name = "tax")
+    private double tax;
+    @Column(nullable = false, name = "deliveryFee")
+    private double deliveryFee;
+    @Column(nullable = false, name = "subtotal")
+    private double subtotal;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
     @JsonBackReference
@@ -188,5 +195,29 @@ public class Order
     public void setDeposit(double deposit)
     {
         this.deposit = deposit;
+    }
+
+    public double getTax() {
+        return tax;
+    }
+
+    public void setTax(double tax) {
+        this.tax = tax;
+    }
+
+    public double getDeliveryFee() {
+        return deliveryFee;
+    }
+
+    public void setDeliveryFee(double deliveryFee) {
+        this.deliveryFee = deliveryFee;
+    }
+
+    public double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
     }
 }

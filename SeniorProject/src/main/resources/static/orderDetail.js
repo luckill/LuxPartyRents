@@ -1,4 +1,7 @@
-window.onload = function()
+
+let deposit = 0;
+let deliveryAddress  = "";
+window.onload = function ()
 {
     const jwtToken = localStorage.getItem("jwtToken");
     const role = localStorage.getItem("Role");
@@ -27,10 +30,16 @@ window.onload = function()
     {
         document.getElementById("changeOrderStatusBtn").style.display = "none";
         document.getElementById("returnPaymentBtn").style.display = "none";
+        document.getElementById("processReturnButton").style.display = "none";
+
+        const cancelOrderButton = document.getElementById("cancelOrderButton");
+        cancelOrderButton.setAttribute("data-bs-toggle", "modal");
+        cancelOrderButton.setAttribute("data-bs-target", "#cancelOrderModal");
     }
+
 }
 
-document.addEventListener('DOMContentLoaded', async() =>
+document.addEventListener('DOMContentLoaded', async () =>
 {
     const loadingIndicator = document.getElementById('loading');
     const container = document.querySelector('.main-content');
@@ -60,6 +69,8 @@ document.addEventListener('DOMContentLoaded', async() =>
         if (response.ok)
         {
             const data = await response.json();
+            deposit = data.deposit;
+            address = data.address;
             renderOrderInfo(data)
             renderProduct(data)
             console.log(data);
@@ -104,52 +115,115 @@ document.addEventListener('DOMContentLoaded', async() =>
 
 function cancelOrder()
 {
+    const role = localStorage.getItem("Role");
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
-    const jwtToken = localStorage.getItem('jwtToken');
-    const role = localStorage.getItem("Role")
-    if (!jwtToken)
-    {
-        displayError("No valid authentication information found. Please log in again.")
-        return;
-    }
-    if (role === "USER")
-    {
-        window.location.href="/";
-    }
-    fetch(`/order/cancel?orderId=${id}`,
+    fetch(`/order/cancel?orderId=${id}&role=${role}`,
         {
-            method: 'PUT',
+            method: 'POST',
             headers:
                 {
                     "Content-type": "application/json",
-                    "Authorization": `Bearer ${jwtToken}`
+                    "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
                 },
         })
         .then(response =>
         {
             if (response.ok)
             {
-                window.location.href =`/order_detail?id=${id}`;
+                alert("Order cancelled successful");
+                window.location.href = `/order_detail?id=${id}`;
             }
             else
             {
-                throw new Error('Failed to cancel the order');
                 alert('Failed to cancel the order');
+                throw new Error('Failed to cancel the order');
+            }
+        })
+        .catch(error =>
+        {
+            alert('Error cancelling the order');
+        });
+}
+
+function openModal(id)
+{
+    document.getElementById(id).style.display = "block";
+}
+
+function returnPayment(type)
+{
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    const jwtToken = localStorage.getItem('jwtToken');
+
+    let amount;
+    let url;
+
+    if (type === "specific")
+    {
+        amount = parseFloat(document.getElementById("amount").value);
+        if (isNaN(amount))
+        {
+            alert("please enter a valid amount!!!");
+            return;
+        }
+        if (amount > deposit)
+        {
+            alert("the amount you are trying to refund is greater than the security deposit for this order");
+            return;
+        }
+        console.log("User Input:", amount);
+        url = `/api/payment/secure/create-refund-intent?orderId=${id}`
+    }
+    else if (type === "whole")
+    {
+        if (typeof deposit !== 'undefined')
+        {
+            amount = deposit;
+            url = `/api/payment/secure/create-refund-intentDepositOnly?orderId=${id}`
+        }
+        else
+        {
+            displayError("Deposit amount is not available.");
+            return;
+        }
+    }
+
+    if (!jwtToken)
+    {
+        displayError("No valid authentication information found. Please log in again.")
+        return;
+    }
+    fetch(url,
+        {
+            method: 'POST',
+            headers:
+                {
+                    "Content-type": "application/json",
+                    "Authorization": `Bearer ${jwtToken}`
+                },
+            body: JSON.stringify(parseFloat(amount))
+        })
+        .then(response =>
+        {
+            if (response.ok)
+            {
+                window.location.href = `/order_detail?id=${id}`;
+                alert("payment refund successful!!!!");
+            }
+            else
+            {
+                throw new Error('Failed to return payment');
             }
         })
         .catch(error =>
         {
             console.error('Error cancelling the order:', error);
-            alert('Error cancelling the order:', error);
-            displayError("There was an error cancelling the order. Please try again.");
+            displayError("There was an error returning payment. Please try again.");
         });
 }
 
-function returnPayment()
-{
-    // to be develop
-}
 function changeOrderStatus(status)
 {
     const urlParams = new URLSearchParams(window.location.search);
@@ -168,13 +242,44 @@ function changeOrderStatus(status)
             "Content-type": "application/json",
             "Authorization": `Bearer ${jwtToken}`
         },
-        body: JSON.stringify({ status }) // Sending the new status in the body
+        body: JSON.stringify({status}) // Sending the new status in the body
     })
         .then(response =>
         {
             if (response.ok)
             {
-                window.location.href =`/order_detail?id=${orderId}`;
+                if (status ==="RETURNED")
+                {
+                    fetch(`/order/return?orderId=${orderId}`, {
+                        method: 'POST',
+                        headers: {
+                            "Content-type": "application/json",
+                            "Authorization": `Bearer ${jwtToken}`
+                        },
+
+                    })
+                        .then(response =>
+                        {
+                            if (response.ok)
+                            {
+                                alert("Returned order process successfully");
+                                window.location.href = `/order_detail?id=${orderId}`;
+                            }
+                            else
+                            {
+                                throw new Error('Failed to change order status');
+                                alert('Failed to process return order status');
+                            }
+                        })
+                        .catch(error =>
+                        {
+                            console.error('Error changing order status:', error);
+                            alert('Error changing order status:', error);
+                            displayError("There was an issue changing the order status. Please try again.");
+                        });
+                }
+
+                window.location.href = `/order_detail?id=${orderId}`;
             }
             else
             {
@@ -196,36 +301,32 @@ function renderCustomerInfo(customer)
             <p><strong>Name:</strong> ${customer.firstName} ${customer.lastName}</p>
             <p><strong>Email:</strong> ${customer.email}</p>
             <p><strong>Phone Number:</strong> ${customer.phone}</p>
+            <P><Strong>Delivery Address:</Strong> ${address}</P>
         `;
 }
 
 function renderOrderInfo(order)
 {
+    let status = order.status;
+    status = status.toLowerCase()
+        .replaceAll("_", " ")
+        .split(" ") // Split the text by spaces into an array of words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+        .join(" ");
     document.getElementById('order-number').textContent = order.id;
     document.getElementById('order-date').textContent = order.creationDate;
 
-    let totalDeposit = calculateTotalDeposit(order);
-    let total = order.price + totalDeposit; // Corrected total calculation
     document.querySelector('.order-summary').innerHTML = `
             <ul class="list-unstyled">
-                <li><span>Current status:</span> ${order.status}</li>
+                <li><span>Current status:</span> ${status}</li>
                 <li><span>Payment:</span> ${order.paid ? "Paid" : "Not Paid"}</li>
-                <li><span>Subtotal:</span> <span>$${order.price.toFixed(2)}</span></li>
-                <li><span>Deposit:</span><span> $${totalDeposit}</span></li>
-                <li class="total d-flex justify-content-between"><strong>Total</strong><strong>$${total.toFixed(2)}</strong></li>
+                <li><span>price:</span> <span>$${order.price.toFixed(2)}</span></li>
+                <li><span>Security Deposit:</span><span> $${order.deposit.toFixed(2)}</span></li>
+                <li><span>Delivery Fee:</span><span> $${order.deliveryFee.toFixed(2)}</span></li>
+                <li><span>Tax:</span><span> $${order.tax.toFixed(2)}</span></li>
+                <li class="total d-flex justify-content-between"><strong>Total cost: </strong><strong>$${order.subtotal.toFixed(2)}</strong></li>
             </ul>
         `;
-}
-
-function calculateTotalDeposit(order)
-{
-    let totalDeposit = 0;
-    order.orderProducts.forEach(item =>
-    {
-        const itemTotalDeposit = item.product.deposit * item.quantity; // Calculate total price for the item
-        totalDeposit += itemTotalDeposit;
-    });
-    return totalDeposit;
 }
 
 function renderProduct(order)
@@ -260,12 +361,17 @@ function renderProduct(order)
     }
 }
 
-function displayError(message)
+document.getElementById("CancelOrderTermsCheckbox").addEventListener("change", function()
 {
-    const errorContainer = document.createElement('div');
-    errorContainer.classList.add('alert', 'alert-danger');
-    errorContainer.textContent = message;
-    const mainContent = document.querySelector('.main-content');
-    mainContent.innerHTML = ''; // Clear existing content
-    mainContent.appendChild(errorContainer);
+    document.getElementById("confirmCancelOrderButton").disabled = !this.checked;
+});
+
+const cancelOrderButton = document.getElementById("cancelOrderButton");
+if (localStorage.getItem("Role") === "ADMIN")
+{
+    cancelOrderButton.addEventListener("click", cancelOrder);
 }
+
+
+
+
