@@ -205,7 +205,15 @@ public class OrderService
                 {
                     throw new ResponseStatusException(HttpStatus.CONFLICT, "Order is already returned or cancelled");
                 }
+
                 order.setStatus(OrderStatus.valueOf(orderDTO.getStatus()));
+
+                if (order.getStatus() == OrderStatus.READY_FOR_PICK_UP){
+                    emailService.sendCxReadyNotification(order);
+                }
+                order.setStatus(OrderStatus.fromString(orderDTO.getStatus()));
+                orderRepository.save(order);
+
             }
         }
         else

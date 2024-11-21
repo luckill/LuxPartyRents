@@ -163,6 +163,21 @@ public class EmailService
         sendSimpleEmail(CxEmailDetails);
 
     }//Pickup
+    // User/CX Email notifications
+    public void sendCxReadyNotification ( Order order){
+        //setting the up the email
+        EmailDetails CxEmailDetails = new EmailDetails();
+        CxEmailDetails.setRecipient(order.getCustomer().getEmail());
+        CxEmailDetails.setSubject("Your Wedding Rental Pickup Is Ready");
+
+        //filling the email body
+        String emailBody = "Thank you for coming to us for your rental needs!\n"
+                + "\n Your Order, " + order.getId() + " is ready for pick up!";
+        //sending email
+        CxEmailDetails.setMessageBody(emailBody);
+        sendSimpleEmail(CxEmailDetails);
+
+    }//Pickup
 
     //Note that sendCxCanceledNotification requires a CanceledReason to be
     //passed into the function for the email to be complete.
