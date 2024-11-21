@@ -287,6 +287,9 @@ public class OrderService
                 }
                 order.setStatus(OrderStatus.fromString(orderDTO.getStatus()));
                 orderRepository.save(order);
+                if (order.getStatus() == OrderStatus.READY_FOR_PICK_UP){
+                    emailService.sendCxReadyNotification(order);
+                }//Calling Ready Email
             }
             else
             {
