@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Paths;
 import com.example.SeniorProject.Service.SecretsManagerService;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class AwsController
@@ -21,34 +22,56 @@ public class AwsController
     // New method to store an API key in AWS Secrets Manager
     @PostMapping("/generateAndStoreApiKey")
     public ResponseEntity<String> generateAndStoreApiKey(@RequestParam String secretName) {
-        // Generate the API key
-        String generatedApiKey = secretsManagerService.generateApiKey();
+        try
+        {
+            String generatedApiKey = secretsManagerService.generateApiKey();
+            String secretArn = secretsManagerService.createSecret(secretName, generatedApiKey);
 
-        // Store the generated API key in AWS Secrets Manager
-        String secretArn = secretsManagerService.createSecret(secretName, generatedApiKey);
-
-        // Return the API key and the ARN of the stored secret
-        return ResponseEntity.ok("API key: " + generatedApiKey + " stored in Secrets Manager with ARN: " + secretArn);
+            return ResponseEntity.ok("API key: " + generatedApiKey + " stored in Secrets Manager with ARN: " + secretArn);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
     @GetMapping("/getApiKey")
     public ResponseEntity<String> getApiKey(@RequestParam String secretName)
     {
-        // Retrieve the API key (or secret value) from AWS Secrets Manager
-        String apiKey = secretsManagerService.getSecretValue(secretName);
+        try
+        {
+            String apiKey = secretsManagerService.getSecretValue(secretName);
 
-        // Use the API key for some purpose (e.g., making an external API call)
-        // For this example, we're simply returning the API key as the response.
-        return ResponseEntity.ok("Retrieved API key: " + apiKey);
+            // Use the API key for some purpose (e.g., making an external API call)
+            // For this example, we're simply returning the API key as the response.
+            return ResponseEntity.ok("Retrieved API key: " + apiKey);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     @PostMapping("/uploadFile")
     public ResponseEntity<?> uploadFile(@RequestParam MultipartFile file, @RequestParam String name)
     {
-        if(file == null || file.isEmpty())
+        try
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error!!! -File not found.");
+            if(file == null || file.isEmpty())
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error!!! -File not found.");
+            }
+            s3Service.uploadFile(file, name);
+            return ResponseEntity.status(HttpStatus.OK).build();
         }
-        s3Service.uploadFile(file, name);
-        return ResponseEntity.ok().body("Picture uploaded successfully.");
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
+    }
+
+    @GetMapping("/healthcheck")
+    public ResponseEntity<?> healthCheck()
+    {
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

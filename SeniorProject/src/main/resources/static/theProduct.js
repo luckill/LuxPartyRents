@@ -62,7 +62,11 @@ window.onload = function() {
             imageView.style.border = 0;
             placeholderImg.style.display = "none";
         })
-        .catch(error => console.log('Error fetching product details:', error));
+        .catch(error => {
+            console.log('Error fetching product details:', error)
+            alert('Error fetching product details:', error);
+        });
+        }
     }
 };
 
@@ -97,10 +101,12 @@ function updateProduct() {
             } else {
                 // Handle errors
                 console.error('Error:', response.statusText);
+                alert('Error:', response.statusText);
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            alert('Error:', error);
         });
 }
 

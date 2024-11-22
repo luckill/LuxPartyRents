@@ -16,8 +16,9 @@
 <body class="container-fluid">
 <div th:replace="~{Navbar :: header}"></div>
 <div th:replace="~{Navbar :: navbar}"></div>
+<div th:replace="~{Navbar :: sessionManagement}"></div>
 <div id="container" class="bg-transparent">
-    <div class="container mt-5" id="alert-container">
+    <div class="container mt-5" id="alert-container" style="display: none">
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading" id="alert-heading"></h4>
             <p id="alert-message"></p>
@@ -41,6 +42,47 @@
                     </div>
                 </div>
 
+                <!-- cancel order Modal -->
+                <div class="modal fade" id="cancelOrderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background-color: #6e6e6e;">
+                            <div class="modal-header" >
+                                <h1 class="modal-title fs-5" id="staticBackdropLabel" style="text-align: center">Order cancellation term and service</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>By continuing to cancel order you acknowledge that u understand <strong><u>your security deposit for this order will not be refunded.</u></strong></p>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="form-check text-start" style="text-align: left">
+                                    <input class="form-check-input" type="checkbox" id="CancelOrderTermsCheckbox">
+                                    <label class="form-check-label" for="CancelOrderTermsCheckbox">I have read, and agree to the statement above.</label>
+                                </div>
+                                <hr class="rounded" style="border: 3px solid black;">
+                                <button type="button" class="btn btn-primary" id="confirmCancelOrderButton" onclick="cancelOrder()" disabled>Cancel order</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="selectDepositAmountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" style="display: none">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background-color: #6e6e6e;">
+                            <div class="modal-header" >
+                                <h1 class="modal-title fs-5" id="staticBackdropLabel2" style="text-align: center">Order cancellation term and service</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <label for="amount">Enter the amount you want to returned</label>
+                                <input type="number" id="amount" placeholder="Type a number..." step="0.01">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="returnPayment('specific')">submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="customer-summary">
@@ -48,6 +90,7 @@
                             <p><strong>Name:</strong></p>
                             <p><strong>Email:</strong></p>
                             <p><strong>Phone Number:</strong></p>
+                            <p><Strong>Delivery Address:</Strong></p>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -56,7 +99,7 @@
                             <ul class="list-unstyled">
                                 <li><span>Current status:</span> confirmed</li>
                                 <li><span>Payment:</span><span> Card - 65482</span></li>
-                                <li><span>Subtotal:</span><span> $375.00</span></li>
+                                <li><span>price:</span><span> $375.00</span></li>
                                 <li><span>Security Deposit:</span><span> -$500.00</span></li>
                                 <li class="total d-flex justify-content-between"><strong>Total</strong><strong>$370.00</strong></li>
                             </ul>
@@ -88,18 +131,25 @@
 
                 <div class="button-group d-flex justify-content-center">
                     <div class="dropdown">
-                        <button id="changeOrderStatusBtn" type="button" class="btn btn-outline-primary btn-lg mx-2 dropdown-toggle" data-bs-toggle="dropdown">
+                        <button id="changeOrderStatusBtn" type="button" class="btn btn-outline-light btn-lg mx-2 dropdown-toggle" data-bs-toggle="dropdown">
                             Change order status
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" onclick="changeOrderStatus('CONFIRMED')">confirmed</a></li>
                             <li><a class="dropdown-item" onclick="changeOrderStatus('READY_FOR_PICK_UP')">ready for pickup</a></li>
+                            <li><a class="dropdown-item" onclick="changeOrderStatus('PICK_UP')">picked up</a></li>
                         </ul>
                     </div>
-                    <button type="button" class="btn btn-outline-primary btn-lg mx-2" onclick="cancelOrder()">Cancel order</button>
-                    <button id="returnPaymentBtn" type="button" class="btn btn-outline-primary btn-lg mx-2" onclick="returnPayment()">return deposit</button>
-                </div>
+                    <button type="button" id="cancelOrderButton" class="btn btn-outline-light btn-lg mx-2">Cancel order</button>
 
+                    <div class="dropdown">
+                        <button id="returnPaymentBtn" type="button" class="btn btn-outline-light btn-lg mx-2 dropdown-toggle" data-bs-toggle="dropdown">return deposit</button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#selectDepositAmountModal">specific amount</a></li>
+                            <li><a class="dropdown-item" onclick="returnPayment('whole')">whole amount</a></li>
+                        </ul>
+                    </div>
+                    <button type="button" id="processReturnButton" class="btn btn-outline-light btn-lg mx-2" onclick="changeOrderStatus('RETURNED')">Mark as returned</button>
+                </div>
             </div>
         </div>
     </div>

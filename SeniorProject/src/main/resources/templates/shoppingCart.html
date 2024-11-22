@@ -10,15 +10,60 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         /* Custom style to make the modal close button white */
         #termsModal .btn-close {
             filter: invert(1);
         }
-
         .delivery-options label {
                             display: block;
                             margin-bottom: 10px; /* Optional: Adds some space between the options */
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-container h2 {
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            background-color: white;
+            color: black;
+        }
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+        .form-group .error-message {
+            color: #721c24;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .form-inline {
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-inline .form-group {
+            width: 48%;
         }
     </style>
 </head>
@@ -55,10 +100,9 @@
                         <div class="col-6 text-start">
                             <h3 id="itemName">Flowervase</h3>
                             <p id="itemDescription">This is the description of the item that you have in your cart!</p>
-                            <div class="contain er-fluid row">
+                            <div class="container-fluid row">
                                 <input id="itemAmountInput" class="col-2 rounded-3" type="number" placeholder="Amt" aria-label="Amt" value="1">
                                 <div class="col-10">
-                                    <button type="button" class="btn btn-outline-primary updateButton">Update</button>
                                     <button type="button" class="btn btn-outline-danger deleteButton">Delete</button>
                                 </div>
                             </div>
@@ -71,6 +115,54 @@
                 <!-- end of template -->
             </div>
             <div id="totalCol" class="col-4 container-fluid text-white bg-secondary rounded-3 p-3">
+
+                <!-- Date Selection Section -->
+                <div class="container my-3">
+                    <h5>Select Rental Dates</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="startDate">Start Date:</label>
+                            <input type="text" id="startDate" class="form-control" placeholder="Select start date">
+                        </div>
+                        <div class="col-6">
+                            <label for="endDate">Return Date:</label>
+                            <input type="text" id="endDate" class="form-control" placeholder="Return date" readonly>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-container">
+                            <h3 style="text-align: center">delivery Address(to the place that you hold the event)</h3>
+
+                            <div class="form-group">
+                                <label for="street">Street Address</label>
+                                <input type="text" id="street" name="street" placeholder="Street Address" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="address-line-2">Address Line 2</label>
+                                <input type="text" id="address-line-2" name="address-line-2" placeholder="Address Line 2">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city" placeholder="City" required>
+                            </div>
+
+                            <div class="form-inline">
+                                <div class="form-group">
+                                    <label for="state">State</label>
+                                    <input type="text" id="state" name="state" placeholder="State" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="zip">Zip Code</label>
+                                    <input type="text" id="zip" name="zip" placeholder="Zip Code" required>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-lg mx-2" onclick="CalculateDeliveryFee()">Calculate Delivery Fee</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="container-fluid bg-secondary text-center">
                     <div id="totalItemCount" class="fw-bolder">Your Cart (0)</div>
                     <hr>
@@ -82,6 +174,7 @@
                                 <div id="itemAmount" class="col-3 text-start">Item Amount</div>
                                 <div id="itemName" class="col-6">Item Name</div>
                                 <div id="itemCost" class="col-3 text-end">Item Price</div>
+
                             </div>
                         </div>
                     </div>
@@ -95,26 +188,21 @@
                         <div id="depositAmount" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
                     <div class="row">
+                        <div class="col-6 text-start fw-bold">Delivery Fee:</div>
+                        <div id="deliveryFeeSAmount" class="col-6 text-end fw-bold">$0.00</div>
+                    </div>
+                    <div class="row">
                         <div class="col-6 text-start fw-bold">Tax:</div>
                         <div id="taxAmount" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
+
                     <hr class="rounded" style="border: 3px solid black;">
                     <div class="row">
                         <div class="col-6 text-start fw-bold">Total:</div>
                         <div id="completeTotal" class="col-6 text-end fw-bold">$0.00</div>
                     </div>
                     <hr class="rounded" style="border: 3px solid black;">
-                    <!--
-                    <div class="delivery-options">
-                        <p>You have selected products that are delivery only, select an option below:</p>
-                        <label>
-                          <input type="radio" name="deliveryOption" value="option1" onclick="handleDeliveryOption('option1')"> Pay a flat $250 delivery fee for products (Must be in Sacramento)
-                        </label>
-                        <label>
-                          <input type="radio" name="deliveryOption" value="option2" onclick="handleDeliveryOption('option2')"> Email the owner to arrange delivery (Can be anywhere)
-                        </label>
-                      </div>
-                      -->
+
                     <!--Eric Work here!!!-->
                     <div class="form-check text-start">
                         <input class="form-check-input" type="checkbox" id="termsCheckbox">
@@ -160,11 +248,9 @@
     </div>
 </div>
 
-
 <script src="shoppingCart.js"></script>
 <script>
-    window.onload=function()
-    {
+    window.onload = function() {
         const jwtToken = localStorage.getItem("jwtToken");
         const alertContainer = document.getElementById("alert-container");
         const pageContent = document.getElementById('page-content');
@@ -172,13 +258,10 @@
         const alertMessage = document.getElementById('alert-message');
         const alertFooter = document.getElementById('alert-footer');
 
-        if (jwtToken)
-        {
+        if (jwtToken) {
             pageContent.style.display = 'block';
             alertContainer.style.display = 'none';
-        }
-        else
-        {
+        } else {
             alertContainer.style.display = 'block'; // Show alert for unauthenticated users
             pageContent.style.display = 'none';
             console.error("No JWT token found.");
@@ -186,11 +269,32 @@
             alertMessage.textContent = 'You need to log in to access this page.';
             alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
         }
-    }
-        // Enable checkout button only when terms checkbox is checked
-    document.getElementById("termsCheckbox").addEventListener("change", function()
-    {
+    };
+
+    // Enable checkout button only when terms checkbox is checked
+    document.getElementById("termsCheckbox").addEventListener("change", function() {
         document.getElementById("checkoutButton").disabled = !this.checked;
+    });
+
+    // Initialize flatpickr for date selection with fixed return date 4 days after start date
+    flatpickr("#startDate", {
+        dateFormat: "Y-m-d",
+        onChange: function(selectedDates, dateStr) {
+            // Calculate the return date as 4 days after the start date
+            const returnDate = new Date(selectedDates[0]);
+            returnDate.setDate(returnDate.getDate() + 3); // 3 days after start date to include the start date
+
+            // Format the return date as YYYY-MM-DD and set it to the endDate field
+            const formattedReturnDate = returnDate.toISOString().split('T')[0];
+            document.getElementById("endDate").value = formattedReturnDate;
+        }
+    });
+
+    // Make the end date field read-only
+    flatpickr("#endDate", {
+        dateFormat: "Y-m-d",
+        clickOpens: false, // Prevent users from opening the calendar on the end date field
+        allowInput: false // Disallow manual input
     });
 </script>
 </body>

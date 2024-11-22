@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="navbar.css">
 </head>
 
 <body class="bg-transparent">
@@ -50,51 +51,94 @@
                         <a class="nav-link" href="/user_order">User Orders</a> <!-- Visible to Users -->
                     </li>
                 </ul>
-                <form class="d-flex" id="search-form">
-                    <input class="form-control me-0" type="search" name="kw" placeholder="Search Products"
-                           aria-label="Search" list="product-list" autocomplete="off" id="product-search">
+              
+                <form class="d-flex" id="search-form" action="/rental" method="get">
+                    <input class="form-control me-0" type="search" name="kw" placeholder="Search Products" aria-label="Search" list="product-list" autocomplete="off" id="product-search">
                     <button class="btn btn-outline-light item-search-btn" type="submit">Search</button>
-
+                            
                     <div class="dropdown ms-2"> <!-- Added margin-start to create a gap -->
-                        <select class="form-select wide-dropdown" id="type-dropdown" name="type"
-                                onchange="loadProductsByType()">
+                       <select class="form-select wide-dropdown" id="type-dropdown" name="type">
                             <option value="">Select Type</option>
-                            <option value="Dinnerware">Dinnerware</option>
-                            <option value="Extra Stuff">Extra Stuff</option>
-                            <option value="Tool">Tool</option>
                             <!-- Add more options as needed -->
-                        </select>
+                       </select>
                     </div>
                 </form>
+              
             </div>
         </div>
     </nav>
+    <script>
+        async function loadDistinctTypes() {
+            try {
+                const response = await fetch("/rental/types", {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const types = await response.json();
+                    populateTypeDropdown(types); // Call function to populate the dropdown
+                } else {
+                    console.error("Failed to fetch distinct product types");
+                    alert("Failed to fetch distinct product types");
+                }
+            } catch (error) {
+                console.error("Error fetching distinct product types:", error);
+                alert("Error fetching distinct product types:", error);
+            }
+        }
+
+        function populateTypeDropdown(types) {
+            const typeDropdown = document.getElementById('type-dropdown'); // Get the dropdown element
+            typeDropdown.innerHTML = ''; // Clear existing options
+            typeDropdown.appendChild(new Option("Select Type", "")); // Add default option
+
+            types.forEach(type => {
+                const option = new Option(type, type);
+                typeDropdown.appendChild(option); // Add each type as an option
+            });
+        }
+    </script>
 </div>
 
 <div th:fragment="header">
     <header class="py-3 border-bottom">
-        <div class="row flex-nowrap justify-content-between align-items-center">
-            <div class="col-3 pt-1"></div>
-            <div class="col-6 text-center">
-                <a class="fs-1 text-white -bg-transparent text-end text-decoration-none" href="/">Lux Party Rents</a>
-            </div>
-            <div class="col-3 d-flex justify-content-end align-items-center" style="padding-right:2%;">
-                <!-- Added user-greeting element to display first name -->
-                <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span
-                    id="firstNameDisplay"></span>!</span>
+        <div class="container">
+            <div class="row flex-column flex-md-row justify-content-between align-items-center">
+                <!-- Left column (empty for spacing, hidden on small screens) -->
+                <div class="col-12 col-md-3"></div>
 
-                <a id="loginButton" class="btn btn-outline-light mx-2" href="/login">Login</a>
-                <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
-                <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()" style="display:none;">Logout</button>
-                <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart" style="display:none;">
-                    <img src="picture/cart.png" alt="Cart" style="width:30px; height:30px;">
-                </a>
+                <!-- Center section (Logo and Location) -->
+                <div class="col-12 col-md-6 text-center">
+                    <!-- Use flex-column to stack the logo and location text on top of each other -->
+                    <div class="d-flex flex-column align-items-center">
+                        <a class="fs-1 text-white text-decoration-none" href="/">Lux Party Rents</a>
+                        <span class="fs-6 text-white">Sacramento, California</span>
+                    </div>
+                </div>
+
+                <!-- Right column (User options, Cart, Login) -->
+                <div class="col-12 col-md-3 d-flex flex-column flex-md-row justify-content-end align-items-center mt-3 mt-md-0"
+                     style="padding-right: 1%;"> <!-- Adjust padding or margin here -->
+                    <!-- User greeting -->
+                    <span id="user-greeting" class="text-white me-2" style="display:none;">Welcome, <span
+                            id="firstNameDisplay"></span>!</span>
+
+                    <!-- Login / Signup buttons (will hide if logged in) -->
+                    <a id="loginButton" class="btn btn-outline-light mx-2" href="/login" style="margin-left: auto;">Login</a>
+                    <a id="signUpButton" class="btn btn-outline-light mx-2" href="/signup">Sign up</a>
+
+                    <!-- Logout button (displayed when logged in) -->
+                    <button id="logOutButton" class="btn btn-outline-light mx-2" onclick="logout()"
+                            style="display:none;">Logout</button>
+
+                    <a id="shoppingCartButton" class="btn btn-outline-light mx-2" href="/shoppingCart">
+                        <img src="https://d3snlw7xiuobl9.cloudfront.net/Cart.png" alt="Cart" style="width:30px; height:30px;">
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="container d-flex flex-wrap justify-content-center">
-            <a class="d-flex align-self-center link-body-emphasis text-decoration-none">
-                <span class="fs-6 text-white -bg-transparent text-center">Sacramento, California</span>
-            </a>
         </div>
     </header>
 
@@ -141,6 +185,7 @@
                     item.style.display = 'none';
                 });
             }
+            loadDistinctTypes();
         });
 
         function logout() {
@@ -156,10 +201,12 @@
                         window.location.href = '/';
                     } else {
                         console.error('Error:', response.statusText);
+                        alert('Error:', response.statusText);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    alert('Error:', error);
                 });
         }
     </script>
@@ -227,7 +274,7 @@
             countdownActive = false;
             inactivityTimer = setTimeout(() => {
                 startCountdown();
-            }, (1 * 60 * 1000) - (30 * 1000));
+            }, (10 * 60 * 1000) - (30 * 1000));
         }
 
         function startCountdown()
@@ -299,10 +346,6 @@
                 {
                     initializeSessionTimers(token);
                 }
-            }
-            else
-            {
-                console.error("No JWT token found. Unable to initialize session management.");
             }
         }
 

@@ -11,12 +11,12 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
-         // Fetch current (active) orders for a specific customer
-        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1 AND (o.status != 'completed' AND o.status != 'cancelled' )")
+        // Fetch current (active) orders for a specific customer
+        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1 AND (o.status != 'completed' AND o.status != 'cancelled' AND o.status != 'refunded')")
         List<Order> findCurrentOrdersByCustomerId(int customerId);
 
         // Fetch past (completed) orders for a specific customer
-        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1 AND ( o.status = 'completed' OR o.status = 'cancelled')")
+        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1 AND (o.status = 'completed' OR o.status = 'cancelled' OR o.status = 'refunded')")
         List<Order> findPastOrdersByCustomerId(int customerId);
         
         // Custom query to fetch an order by its ID
@@ -29,7 +29,19 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
         @Query("DELETE FROM Order o WHERE o.id = ?1")
         void deleteById(int id);
 
-		List<Order> findOrderByCustomerId(int customerId);
+        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1")
+        List<Order> findOrderByCustomerId(int customerId);
+
+        @Query(value = "SELECT * FROM orders WHERE order_status = 'PICK_UP' AND order_date = CURDATE() + INTERVAL 1 DAY", nativeQuery = true)
+        List<Order> findReturnOrders();
+
+        @Query(value = "SELECT * FROM orders WHERE order_status = 'RECEIVED' AND order_date < CURDATE()", nativeQuery = true)
+        List<Order> findReceivedOrdersBeforeToday();
+
+        @Modifying
+        @Transactional
+        @Query("DELETE FROM Order o WHERE o.status = 'RECEIVED' AND o.creationDate < CURRENT_DATE")
+        void deleteReceivedOrdersBeforeToday();
 }
 
 

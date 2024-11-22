@@ -50,14 +50,16 @@
         .then(response => {
             if (response.status === 200) {
                 return response.json();
-            } else if (response.status === 401) {
+            } else if (response.status === 400) {
                 // Incorrect password
+                alert('Incorrect password');
                 document.getElementById('errorMessage').style.display = 'block';
                 document.getElementById('successMessage').style.display = 'none';
                 document.getElementById('lockMessage').style.display = 'none';
                 document.getElementById('password').value = '';
             } else if (response.status === 423) {
                 // Account is locked
+                alert('Account is locked, please reset password');
                 document.getElementById('lockMessage').style.display = 'block';
                 document.getElementById('errorMessage').style.display = 'none';
                 document.getElementById('successMessage').style.display = 'none';
@@ -86,11 +88,13 @@
                 })
                 .catch(error => {
                     console.error('Error fetching user data:', error);
+                    alert('Error fetching user data:', error);
                 });
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            alert('Error:', error);
         });
     });
 

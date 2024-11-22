@@ -1,6 +1,7 @@
 // This is your test publishable API key.
 const stripe = Stripe("pk_test_51Q1YUIAyWoYCatGrzgztSBsX1ApLWvatUAuCgLhXGskD9NJr5cYn6hrGjCuVyXq4RoHUx83mx9NADWoB4EGCQF4800zrR7was9");
 
+let redirectCorrect = false;
 // The items the customer wants to buy
 const items = [{ id: "xl-tshirt", amount: 1000 }];
 
@@ -55,7 +56,20 @@ async function initialize() {
     const { clientSecret, dpmCheckerLink } = await response.json();
 
     const appearance = {
-        theme: 'stripe',
+        theme: 'none', // Use none to apply custom styles
+            variables: {
+                // Dark theme customization
+                colorPrimary: '#1e88e5', // Example: Bright primary button color
+                colorBackground: '#121212', // Dark background color
+                colorText: '#ffffff', // White text color
+                colorTextSecondary: '#b0b0b0', // Secondary text color
+                colorBorder: '#333333', // Border color
+                colorLink: '#ff4081', // Link color
+                fontFamily: 'Arial, sans-serif', // Font family
+                colorInputBackground: '#333333', // Input background color
+                colorInputText: '#ffffff', // Input text color
+                colorInputPlaceholder: '#888888', // Placeholder text color
+            },
     };
     elements = stripe.elements({ appearance, clientSecret });
 
@@ -100,7 +114,7 @@ async function handleSubmit(e) {
         console.log("Payment confirmed successfully.");
         // You can handle further actions after this, like redirecting to the success page
     }
-
+    redirectCorrect = true
     const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -156,3 +170,48 @@ function setLoading(isLoading) {
 function setDpmCheckerLink(url) {
     document.querySelector("#dpm-integration-checker").href = url;
 }
+
+
+
+window.addEventListener('beforeunload', function(event) {
+
+    const jwtToken = localStorage.getItem("jwtToken");
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+
+
+    if (!orderId) {
+        console.error("Order ID is missing.");
+        return;
+    }
+
+    if (redirectCorrect) {
+
+    } else {
+        // If no redirection flag exists, assume the user is leaving or closing the tab
+        console.log('User is leaving the page without redirection');
+        fetch(`/order/delete?orderId=${orderId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtToken}`
+            },
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                console.error('Error:', response.statusText);
+                alert('Error:', response.statusText);
+            }
+            else
+            {
+                // Handle errors
+
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error:', error);
+        });
+        // Perform any default action here (e.g., closing the tab or navigating away)
+    }
+});

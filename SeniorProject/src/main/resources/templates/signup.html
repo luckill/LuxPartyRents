@@ -131,6 +131,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
+                        alert('Error:', error);
                         document.getElementById('error').innerText = "An error occurred while sending the verification email.";
                     });
                 } else {
@@ -139,6 +140,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
+                alert('Error:', error);
             });
         }
     });

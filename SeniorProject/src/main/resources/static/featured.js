@@ -5,6 +5,7 @@ const maxItems = 6;
 let isEditing = false;
 let selectedSlotIndex = 0;
 let featuredItems = [];
+const userRole = localStorage.getItem('Role');
 // I have an idea to make the populate based on the table instead of populating based on looping through the featured
 // This will allow for more dynamic placement of items and the possiblility to swap items
 // Get the card template and container
@@ -12,9 +13,14 @@ const cardTemplate = document.getElementById('featured-item-list-card');
 const container = document.getElementById('featured-item-list-container');
 
 document.addEventListener('DOMContentLoaded', function() {
+    const editButton = document.getElementById("edit-button");
     createFeaturedItems();
     // Initialize the container and populate it with all items
     //populateModal();
+    if (localStorage.getItem('Role') === 'ADMIN' && editButton) {
+        document.getElementById('edit-button').style.display = 'block';
+        editButton.addEventListener('click', handleEditButton);
+    }
 });
 
 // Function to handle card click
@@ -47,8 +53,6 @@ function handleCardClick() {
     }
 }
 
-document.getElementById("edit-button").addEventListener('click', handleEditButton);
-
 async function createFeaturedItems() {
     // Await the result from getFeaturedItems
     const featuredItemsGotten = await getFeaturedItems();
@@ -62,6 +66,12 @@ async function createFeaturedItems() {
     } else {
         console.error("Featured items are not in the expected format:", featuredItemsGotten);
     }
+}
+
+function createTempFeaturedItems() {
+    for (let i = 0; i < featuredItems.length; i++) {
+        addItemCard(featuredItems[i]);
+    } 
 }
 
 function removeAllFeaturedCards() {
@@ -113,17 +123,11 @@ function addItemCard(item) {
 }
 
 async function getFeaturedItems() {
-    //const jwtToken = localStorage.getItem('jwtToken');
-    /*if (!jwtToken) {
-        console.error("No JWT token found.");
-        return;
-    } */
     try {
         const response = await fetch("/product/getFeatured", {
             method: "GET",
             headers: {
-                'Content-Type': 'application/json',
-                //"Authorization": `Bearer ${jwtToken}`
+                'Content-Type': 'application/json'
             }
         });
         
@@ -132,14 +136,16 @@ async function getFeaturedItems() {
             return featuredItems;
         } else {
             console.error("Failed to fetch featured products");
+            alert("Failed to fetch featured products");
             return [];
         }
     } catch (error) {
         console.error("Error fetching featured products:", error);
+        alert("Error fetching featured products:", error);
     }
 }
 
-function handleEditButton() {
+async function handleEditButton() {
     let editButton = document.getElementById("edit-button");
     if (isEditing == false) {
         editButton.textContent = "Done";
@@ -151,6 +157,12 @@ function handleEditButton() {
         isEditing = false;
         // Remove empty cells if any
         deleteEmptyCards();
+        
+        // Update backend
+        const featuredItemIds = featuredItems.map(item => item.id);
+        console.log(featuredItemIds);
+        await updateFeaturedItems(featuredItemIds);
+        featuredItems = [];
     }
     
 }
@@ -213,9 +225,11 @@ async function populateModal() {
             populateModalWithFeaturedProducts(products); 
         } else {
             console.error("Failed to fetch featured products");
+            alert("Failed to fetch featured products");
         }
     } catch (error) {
         console.error("Error fetching featured products:", error);
+        alert("Error fetching featured products:", error);
     }
 }
 
@@ -238,7 +252,8 @@ function populateModalWithFeaturedProducts(products) {
         cardClone.querySelector(".list-card-desc").textContent = product.description || "Description not available.";
         cardClone.querySelector(".list-card-img").src = `https://d3snlw7xiuobl9.cloudfront.net/${product.name.replace(/\s+/g, '')}.jpg` || "default-image-url.jpg";  // Use product image or a default image
         // Change background color to light grey if the product is featured
-        if (product.featureProduct) {
+        const isFeatured = featuredItems.some(item => item.id === product.id);
+        if (isFeatured) {
             cardClone.classList.add("text-white");
             cardClone.style.backgroundColor = '#696969';  // Set the background color to light grey
             cardClone.querySelector(".list-card-desc").textContent = "Press again to remove as a Featured Item"; 
@@ -252,31 +267,32 @@ function populateModalWithFeaturedProducts(products) {
 
             // Check if the product is already featured
             console.log(product.featureProduct);
-            if (product.featureProduct == true) {
-                console.log('Removing item');
-                const suc = await markProductAsUnfeatured(product.id);
-                if (suc) {
-                    // Optionally, you could create a new card for the featured item or update the UI
-                    removeAllFeaturedCards();
-                    await createFeaturedItems(); // Refresh the featured items
-                    showEditInterface(); 
-                } else {
-                    alert('Error marking product as featured.');
+            if (isFeatured) {
+                if (featuredItems.length == 1) {
+                    return alert("You must have at least 1 item!");
                 }
+                console.log('Removing item');
+                // Find the index of the object with the specified id
+                const index = featuredItems.findIndex(item => item.id === product.id);
+
+                // Check if the object was found
+                if (index !== -1) {
+                    featuredItems.splice(index, 1); // Remove the object from the array
+                }
+                console.log(featuredItems);
+                removeAllFeaturedCards();
+                createTempFeaturedItems();
+                showEditInterface(); 
             } else {
                 if (featuredItems.length == 6) {
-                    return alert("You have 6 items already");
+                    return alert("You have 6 items already!");
                 }
-                // Mark the product as featured
-                const success = await markProductAsFeatured(product.id);
-                if (success) {
-                    // Optionally, you could create a new card for the featured item or update the UI
-                    removeAllFeaturedCards();
-                    await createFeaturedItems(); // Refresh the featured items
-                    showEditInterface(); 
-                } else {
-                    alert('Error marking product as featured.');
-                }
+                console.log("Adding item");
+                featuredItems.push(product);
+                console.log(featuredItems);
+                removeAllFeaturedCards();
+                createTempFeaturedItems();
+                showEditInterface();
             }
             
             // Close the modal
@@ -292,7 +308,7 @@ function populateModalWithFeaturedProducts(products) {
     });
 }
 
-async function markProductAsFeatured(productId) {
+async function updateFeaturedItems(featuredItemIds) {
     const jwtToken = localStorage.getItem('jwtToken');
     if (!jwtToken) {
         console.error("No JWT token found.");
@@ -300,40 +316,23 @@ async function markProductAsFeatured(productId) {
     }
 
     try {
-        const response = await fetch(`/product/markAsFeatured?id=${productId}`, {
+        const response = await fetch('/product/updateFeaturedStatus', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                "Authorization": `Bearer ${jwtToken}`
-            }
+                'Authorization': `Bearer ${jwtToken}`
+            },
+            body: JSON.stringify(featuredItemIds)
         });
-
-        return response.ok; // Return true if the update was successful
+        
+        if (response.ok) {
+            console.log("Featured status updated successfully.");
+        } else {
+            console.error("Failed to update featured status.");
+        }
     } catch (error) {
         console.error("Error marking product as featured:", error);
-        return false;
-    }
-}
-
-async function markProductAsUnfeatured(productId) {
-    const jwtToken = localStorage.getItem('jwtToken');
-    if (!jwtToken) {
-        console.error("No JWT token found.");
-        return false;
-    }
-
-    try {
-        const response = await fetch(`/product/markAsUnfeatured?id=${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                "Authorization": `Bearer ${jwtToken}`
-            }
-        });
-
-        return response.ok; // Return true if the update was successful
-    } catch (error) {
-        console.error("Error marking product as featured:", error);
+        alert("Error marking product as featured:", error);
         return false;
     }
 }
@@ -369,9 +368,11 @@ async function handleModalSearch() {
             populateModalWithFeaturedProducts(filteredProducts); // Use the function to populate the modal
         } else {
             console.error("Failed to fetch filtered products");
+            alert("Failed to fetch filtered products");
         }
     } catch (error) {
         console.error("Error fetching filtered products:", error);
+        alert("Error fetching filtered products:", error);
     }
 }
 

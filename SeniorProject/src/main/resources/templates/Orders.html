@@ -133,7 +133,7 @@
                 orderRow.classList.add('clickable-row');
                 orderRow.innerHTML = `
                     <td>${order.id}</td>
-                    <td>${order.date}</td>
+                    <td>${order.creationDate}</td>
                     <td>${order.paid ? 'Paid' : 'Unpaid'}</td>
                     <td>${order.price}</td>
                     <td>${order.rentalTime}</td>
@@ -147,6 +147,7 @@
 
         } catch (error) {
             console.error('Error fetching orders:', error);
+            alert('Error fetching orders:', error);
         }
     }
 

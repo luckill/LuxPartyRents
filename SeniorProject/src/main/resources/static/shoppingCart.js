@@ -18,6 +18,8 @@ let totalAmountOfItems = 0;
 let subtotal = 0.00;
 let tax = 0.00;
 let totalDeposit = 0.00;
+let deliveryFee = 0.00;
+let address = "";
 const taxRate = 0.0725; // 7.25% tax rate
 
 // Function to parse cookies
@@ -51,6 +53,7 @@ async function fetchProductById(productId) {
 
     if (!response.ok) {
         throw new Error('Failed to fetch product');
+        alert('Failed to fetch product');
     }
 
     return await response.json();
@@ -97,18 +100,15 @@ function updateCartDisplay() {
 
 function duplicateCartItem(item) {
     // Get the div
-    let originalCartItem = document.getElementById("cartItemCard");
-    
+    let originalCartItem = document.getElementById("cartItemCard")
     // Make a clone
     let clonedCartItem = originalCartItem.cloneNode(true);
-    
-    // Set the image
+    // set the image
     let clonedItemImage = clonedCartItem.querySelector("#itemImage");
-    clonedItemImage.src = "/picture/items/" + item.name.toLowerCase() + ".jpg";
+    clonedItemImage.src = "https://d3snlw7xiuobl9.cloudfront.net/" + item.name.toLowerCase() + ".jpg";
     
     // Change the ID and populate item details
     clonedCartItem.id = "cloned" + item.id + "CartItem";
-    
     let clonedItemName = clonedCartItem.querySelector("#itemName");
     clonedItemName.innerHTML = item.name;
 
@@ -118,16 +118,17 @@ function duplicateCartItem(item) {
     let clonedItemAmount = clonedCartItem.querySelector("#itemAmountInput");
     clonedItemAmount.id = "cloned" + item.id + "CartAmount";
     clonedItemAmount.value = item.amount;
-    // Add these attributes to the input element
-    clonedItemAmount.setAttribute("type", "number");
-    clonedItemAmount.setAttribute("min", "1");
-    clonedItemAmount.setAttribute("step", "1");
+     // Add these attributes to the input element
+     clonedItemAmount.setAttribute("type", "number");
+     clonedItemAmount.setAttribute("min", "1");
+     clonedItemAmount.setAttribute("step", "1");
 
     let clonedItemCost = clonedCartItem.querySelector("#itemCost");
     clonedItemCost.id = "cloned" + item.id + "CartCost";
-    clonedItemCost.innerHTML = "$" + item.price.toFixed(2);
-    
+    clonedItemCost.innerHTML = "$"+ item.price.toFixed(2);
+
     // Enhanced input event listener with auto-update
+
     clonedItemAmount.addEventListener("input", function() {
         const newValue = parseInt(this.value);
         if (newValue && newValue > 0) {
@@ -155,6 +156,7 @@ function duplicateCartItem(item) {
                 setCookie('cart', JSON.stringify(cartCookie), 7);
 
                 // Recalculate totals
+
                 totalAmountOfItems = 0;
                 totalCost = 0;
                 calculateTotalItems();
@@ -169,7 +171,7 @@ function duplicateCartItem(item) {
         }
     });
 
-    // Set up delete button
+     // Set up delete button
     let deleteButton = clonedCartItem.querySelector(".deleteButton");
     if (deleteButton) {
         deleteButton.addEventListener("click", function() {
@@ -177,17 +179,14 @@ function duplicateCartItem(item) {
         });
     }
 
-    // Remove the update button since we don't need it anymore
-    let updateButton = clonedCartItem.querySelector(".updateButton");
-    if (updateButton) {
-        updateButton.remove();
-    }
 
-    // Remove the d-none class and append to container
+
+
+    // Append
     clonedCartItem.classList.remove("d-none");
     document.getElementById("shoppingCol").appendChild(clonedCartItem);
 }
-// Updated delete function with proper refresh handling
+
 function deleteItem(productId) {
     // Remove item from myCart array
     myCart = myCart.filter(item => item.id !== productId);
@@ -206,19 +205,20 @@ function deleteItem(productId) {
     if (cartItemToRemove) cartItemToRemove.remove();
     if (totalItemToRemove) totalItemToRemove.remove();
 
+
+     
     // Update displays
     calculateTotalCost();
-    calculateTotalItems();
-    
+    calculateTotalItems(); 
+
     // Check if cart is empty and show appropriate display
     if (myCart.length === 0) {
         emptyCartDiv.classList.remove("d-none");
         emptyTotalDiv.classList.remove("d-none");
     }
+    
 }
 
-
-// Fixed update quantity function
 function updateCartQuantity(productId) {
     // Get the quantity input using the correct ID format
     const quantityInput = document.getElementById(`cloned${productId}CartAmount`);
@@ -228,39 +228,43 @@ function updateCartQuantity(productId) {
     }
 
     const newQuantity = parseInt(quantityInput.value);
+
     if (isNaN(newQuantity) || newQuantity < 1) {
         alert('Please enter a valid quantity');
         return;
     }
 
-    // Update myCart array
-    const itemToUpdate = myCart.find(item => item.id === productId);
-    if (itemToUpdate) {
-        itemToUpdate.amount = newQuantity;
-        
-        // Update cookie
-        const cartCookie = myCart.map(item => ({
-            productId: item.id,
-            quantity: item.amount
-        }));
-        setCookie('cart', JSON.stringify(cartCookie), 7);
-
-        // Update total item display
-        const totalAmountElement = document.getElementById(`cloned${productId}TotalAmount`);
-        const totalCostElement = document.getElementById(`cloned${productId}TotalCost`);
-        
-        if (totalAmountElement) {
-            totalAmountElement.innerHTML = `x${newQuantity}`;
-        }
-        if (totalCostElement) {
-            totalCostElement.innerHTML = `$${(itemToUpdate.price * newQuantity).toFixed(2)}`;
-        }
+     // Update myCart array
+     const itemToUpdate = myCart.find(item => item.id === productId);
+     if (itemToUpdate) {
+         itemToUpdate.amount = newQuantity;
+         
+         // Update cookie
+         const cartCookie = myCart.map(item => ({
+             productId: item.id,
+             quantity: item.amount
+         }));
+         setCookie('cart', JSON.stringify(cartCookie), 7);
+ 
+         // Update total item display
+         const totalAmountElement = document.getElementById(`cloned${productId}TotalAmount`);
+         const totalCostElement = document.getElementById(`cloned${productId}TotalCost`);
+         
+         if (totalAmountElement) {
+             totalAmountElement.innerHTML = `x${newQuantity}`;
+         }
+         if (totalCostElement) {
+             totalCostElement.innerHTML = `$${(itemToUpdate.price * newQuantity).toFixed(2)}`;
+         }
+ 
 
         // Update totals
         calculateTotalCost();
         calculateTotalItems();
+    
     }
 }
+
 
 function setCookie(name, value, days) {
     const d = new Date();
@@ -308,7 +312,8 @@ function calculateTotalItems() {
     document.getElementById("totalItemCount").innerHTML = "Your Cart (" + totalAmountOfItems + ")";
 }
 
- async function calculateTotalCost() {
+async function calculateTotalCost()
+{
     subtotal = myCart.reduce((total, item) => total + (item.price * item.amount), 0);
     totalDeposit = myCart.reduce((total, item) => total + (item.deposit * item.amount), 0);
     tax = subtotal * taxRate;
@@ -318,8 +323,6 @@ function calculateTotalItems() {
     document.getElementById("taxAmount").innerHTML = "$" + tax.toFixed(2);
     document.getElementById("depositAmount").innerHTML = "$" + totalDeposit.toFixed(2);
     document.getElementById("completeTotal").innerHTML = "$" + totalCost.toFixed(2);
-
-
 }
 
 // Load cart when the page loads
@@ -344,6 +347,7 @@ function checkout() {
     .then(response => {
         if (!response.ok) {
             throw new Error("Failed to retrieve customer ID: " + response.statusText);
+            alert("Failed to retrieve customer ID: " + response.statusText);
         }
         return response.text(); // Customer ID will be returned as plain text
     })
@@ -356,7 +360,9 @@ function checkout() {
             creationDate: localDateString,
             rentalTime: 1, // Set rental time as needed
             paid: 0, // Set to true if the payment is made
-            price: totalCost, // Use the calculated total cost
+            //price: subtotal + tax + deliveryFee, // Use the calculated total cost
+            //deposit: totalDeposit,
+            address: address,
             orderProducts: myCart.map(item => ({
                 product: {
                     id: item.id // Wrap the id in an object
@@ -379,6 +385,7 @@ function checkout() {
     .then(response => {
         if (!response.ok) {
             throw new Error("Failed to create the order: " + response.statusText);
+            alert("Failed to create the order: " + response.statusText);
         }
         return response.json();  // Assuming the backend returns the order object with the orderId
     })
@@ -387,16 +394,102 @@ function checkout() {
         const orderId = order.id; // This depends on how the order is returned
         // Redirect to the payment page with orderId as a query parameter
         console.log(order.id);
-        //window.location.href = `/checkout?orderId=${order.id || order.orderId}`; CHANGE THIS BACK
+        window.location.href = `/checkout?orderId=${order.id || order.orderId}`;
     })
     .catch(error => {
         console.error("Checkout error:", error);
         if (error.response) {
             error.response.text().then(text => {
                 console.error("Response body: ", text); // Log the response body for more details
+                alert("Response body: ", text);
             });
         }
     });
+}
+
+async function CalculateDeliveryFee()
+{
+    const street= document.getElementById("street").value;
+    const addressLine2 = document.getElementById("address-line-2").value;
+    const city = document.getElementById("city").value;
+    const state= document.getElementById("state").value;
+    const zipCode= document.getElementById("zip").value;
+    if (addressLine2.length === 0)
+    {
+        address = street + ", " + city +" " + state + " " + zipCode;
+    }
+    else
+    {
+        address = street + " " + addressLine2 + ", " + city +" " + state + " " + zipCode;
+    }
+    const placeId = await getPlaceId(address);
+    if (placeId)
+    {
+        const deliveryFee = await getDeliveryFee(placeId);
+        console.log("Delivery Fee for the address:", deliveryFee);
+        document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee;
+    }
+    totalCost += deliveryFee;
+    document.getElementById("completeTotal").innerHTML = "$" + totalCost.toFixed(2);
+}
+
+async function getPlaceId(address)
+{
+    try
+    {
+        const response = await fetch('/map/getPlaceId', {
+            method: 'POST',
+            headers:
+            {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + localStorage.getItem('jwtToken')
+            },
+            body: JSON.stringify(address)
+        });
+
+        if (response.ok) {
+            const placeId = await response.text(); // assuming `result` is a plain string
+            console.log("Place ID:", placeId);
+            return placeId;
+        }
+        else
+        {
+            console.error("Failed to fetch Place ID");
+        }
+    }
+    catch (error)
+    {
+        console.error("Error:", error);
+    }
+}
+
+async function getDeliveryFee(destinationPlaceId)
+{
+    try
+    {
+        const response = await fetch(`/map/calculateDeliveryFee?destinationPlaceId=${encodeURIComponent(destinationPlaceId)}`, {
+            method: 'GET',
+            headers:
+            {
+                'Authorization': "Bearer " + localStorage.getItem('jwtToken')
+            }
+        });
+
+        if (response.ok)
+        {
+            const deliveryFee = parseFloat(await response.text());
+            console.log("Delivery Fee:", deliveryFee);
+            return deliveryFee;
+        }
+        else
+        {
+            console.error("Failed to calculate delivery fee");
+        }
+    }
+    catch (error)
+    {
+        console.error("Error:", error);
+    }
 }
 
 document.getElementById("termsCheckbox").addEventListener("change", function() {

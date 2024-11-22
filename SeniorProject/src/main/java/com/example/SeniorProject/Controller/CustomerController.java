@@ -60,60 +60,52 @@ public class CustomerController
         }
     }
 
-    @PutMapping("/updateCustomer")
+    @PostMapping("/updateCustomer")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateCustomer(@RequestBody CustomerDTO customer)
     {
-
-        try {
+        try
+        {
             customerService.updateCustomer(customer);
             return ResponseEntity.ok("Customer has been successfully updated");
-        }catch (ResponseStatusException exception)
+        }
+        catch (ResponseStatusException exception)
         {
+            System.out.println(exception.getReason());
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
-        // Fetch existing customer from the database
-
     }
-
-
 
     @DeleteMapping("/deleteCustomer")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> deleteCustomer(@RequestBody CustomerDTO customer) {
-        Account account=accountRepository.findAccountByEmail(customer.getEmail());
-        Account costAccount=customerRepository.findAccountByCustomerName(customer.getFirstName(), customer.getLastName());
-        if (account!=null && costAccount != null) {
-            accountRepository.deleteById(account.getId());
-            customerRepository.deleteById(costAccount.getId());
+        try
+        {
+            Customer costAccount=customerRepository.findCustomersByEmail(customer.getEmail());
+            Account account=accountRepository.findAccountByEmail(customer.getEmail());
+            if (account!=null && costAccount != null) {
+                customerRepository.deleteById(costAccount.getId());
+                accountRepository.deleteById(account.getId());
+
+            }
+            return ResponseEntity.ok("Customer has been successfully deleted");
         }
-
-
-        return ResponseEntity.ok("Customer has been successfully deleted");
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 
     @GetMapping("/getCustomerInfo")
-    public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token) {
-        String jwtToken = token.replace("Bearer ", "");
-
-        // Validate the token and extract username
-        if (jwtService.isTokenExpired(jwtToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Your session has expired, please log in again");
+    public ResponseEntity<?> getCustomerInfo(@RequestHeader("Authorization") String token)
+    {
+        try
+        {
+            return ResponseEntity.ok(customerService.getCustomerInfo(token));
         }
-
-        String username = jwtService.extractUsername(jwtToken);
-        Account account = accountRepository.findAccountByEmail(username);
-        Customer customer = customerRepository.findCustomersByEmail(account.getEmail());
-
-        if (customer == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with email " + username);
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
-
-        // Map the Customer entity to CustomerDTO
-        CustomerDTO customerDTO = new CustomerDTO(customer.getFirstName(), customer.getLastName(), customer.getEmail(), customer.getPhone());
-
-        // Add any other fields from Customer to the DTO as needed
-
-        return ResponseEntity.ok(customerDTO);
     }
 }

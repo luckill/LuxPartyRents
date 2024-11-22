@@ -337,7 +337,7 @@ cursor: not-allowed;
   gap: 10px;
 }
 
-.notification-green {
+.notification-green  {
   background-color: #4caf50;
   color: white;
   padding: 15px;
@@ -380,7 +380,6 @@ cursor: not-allowed;
   }
 
 }
-
 
 .delivery-icon {
   position: absolute;
