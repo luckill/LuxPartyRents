@@ -206,6 +206,10 @@ public class ProductService {
                 return productRepository.findAllByFeatureProduct(true);
         }
 
+        public List<Integer> getDeliveryOnly() {
+                return productRepository.findAllDeliveryOnly();
+            }
+
         public List<Product> getAllProducts() {
                 return productRepository.findAll(); // Fetch all products from the database
         }        
