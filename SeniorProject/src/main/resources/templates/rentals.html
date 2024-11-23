@@ -31,7 +31,7 @@
     <script>
         // Wrap everything in an IIFE to avoid global scope pollution
     (function() {
-        // Check if currentPage is already defined in window scope
+        // Check if currentPage is already defined in window 
     if (typeof window.currentPage === 'undefined') {
         window.currentPage = 0;
     }
@@ -162,27 +162,34 @@
     }
 
     function addToCart(productId, productName, availableQuantity, button) {
+    // Get elements and validate quantity
     const productContainer = button.closest('.product-item');
     const quantityInput = productContainer.querySelector('.quantity-input');
     const quantity = parseInt(quantityInput.value);
-
+    
+    // Initial validation checks
     if (isNaN(quantity) || quantity < 1) {
         showNotification('Please enter a valid quantity.','red');
         return;
     }
 
-    let cart = JSON.parse(getCookie('cart') || '[]');
-    const existingProductIndex = cart.findIndex(item => item.productId === productId);
+        // Check if there's available stock
+        if (availableQuantity <= 0) {
+        showNotification('Product is out of stock!', 'red');
+        return;
+    }
 
-    // Check if the cart is not empty and if the product exists in the cart
-    if (cart.length > 0 && existingProductIndex !== -1) {
     // Check if the requested quantity is greater than available quantity
     if (quantity > availableQuantity) {
             showNotification('Not enough stock available!',"red");
             return;  // Exit the function if the stock is insufficient
         }
-    }
+    
+    // Get current cart
+    let cart = JSON.parse(getCookie('cart') || '[]');
+    const existingProductIndex = cart.findIndex(item => item.productId === productId);
 
+    // Update or add product to cart
     if (existingProductIndex !== -1) {
         cart[existingProductIndex].quantity = quantity; // Update quantity if the product is already in the cart
     } else {

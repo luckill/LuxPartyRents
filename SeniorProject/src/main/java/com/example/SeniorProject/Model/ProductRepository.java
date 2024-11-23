@@ -42,6 +42,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer>
     @Query("SELECT p FROM Product p WHERE p.featureProduct = :featureProduct")
     List<Product> findAllByFeatureProduct(@Param("featureProduct") boolean featureProduct);
     
+    @Query("SELECT p.id FROM Product p WHERE p.deliverOnly = true")
+    List<Integer> findAllDeliveryOnly();
+    
     @Transactional
     @Modifying
     @Query(" DELETE FROM Product p WHERE p.id=?1")
