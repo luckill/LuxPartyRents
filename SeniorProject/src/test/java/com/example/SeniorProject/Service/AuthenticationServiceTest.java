@@ -51,7 +51,7 @@ public class AuthenticationServiceTest
         registerUserDTO = new RegisterUserDTO("John", "Doe", "john.doe@example.com", "password123", "1234567890");
         loginUserDTO = new LoginUserDTO("john.doe@example.com", "password123");
 
-        account = new Account("john.doe@example.com", "encodedPassword", false);
+        account = new Account("john.doe@example.com", "encodedPassword");
         account.setFailedLoginAttempt(0);
 
         customer = new Customer("John", "Doe", "john.doe@example.com", "1234567890");
@@ -194,6 +194,6 @@ public class AuthenticationServiceTest
         // Call the method and assert exception
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> authenticationService.authenticate(loginUserDTO));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("no account associated with this email", exception.getReason());
+        assertEquals("No account associated with this email", exception.getReason());
     }
 }

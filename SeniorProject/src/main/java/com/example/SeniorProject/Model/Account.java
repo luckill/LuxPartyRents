@@ -59,7 +59,7 @@ public class Account implements UserDetails
 
     }
 
-    public Account(String email, String password, boolean isAdmin)
+    public Account(String email, String password)
     {
         this.email = email;
         this.createdAt = LocalDate.now();
