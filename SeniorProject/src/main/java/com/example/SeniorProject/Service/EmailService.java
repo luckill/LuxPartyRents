@@ -240,7 +240,11 @@ public class EmailService
     public void sendOrderConfirmation(Order order)
     {
         EmailDetails CxEmailDetails = new EmailDetails();
-        CxEmailDetails.setRecipient(order.getCustomer().getEmail());
+        if (order.getCustomer() != null) {
+            CxEmailDetails.setRecipient(order.getCustomer().getEmail());
+        } else {
+            throw new IllegalArgumentException("Order has no associated customer. Cannot send order confirmation.");
+        }
         CxEmailDetails.setSubject("Order Confirmation");
         CxEmailDetails.setMessageBody("Attached is your order invoice.");
         sendOrderInvoice(CxEmailDetails, order.getId());

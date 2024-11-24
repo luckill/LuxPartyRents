@@ -7,6 +7,7 @@ import com.example.SeniorProject.Model.OrderStatus;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.PaymentMethod;
 import com.stripe.model.Refund;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
@@ -199,22 +200,32 @@ public class PaymentService {
         Stripe.apiKey = stripeApiKey;
         Order order = orderRepository.getOrderById(orderId);
         String stripeId = order.getPaymentReference();
-        try {
-            Charge charge = Charge.retrieve(stripeId);
-            var card = charge.getPaymentMethodDetails().getCard();
-            Map<String, Object> refundMap = new HashMap<>();
-            refundMap.put("id", charge.getId());
-            refundMap.put("amount", charge.getAmount());
-            refundMap.put("currency", charge.getCurrency());
-            refundMap.put("status", charge.getStatus());
-            refundMap.put("created", charge.getCreated());
-            refundMap.put("Last-4", card.getLast4());
-            return refundMap;
-        } catch (StripeException e) {
-            // Log the error
-            // logger.error("Error creating payment intent: ", e);
-            throw new Exception("Payment processing failed: " + e.getMessage());
-        }
+        PaymentIntent paymentIntent = PaymentIntent.retrieve(stripeId);
+
+        // You can alternatively use Charge if you have a charge ID
+        // Charge charge = Charge.retrieve(referenceId);
+
+        // Retrieve the PaymentMethod associated with the PaymentIntent
+        PaymentMethod paymentMethod = PaymentMethod.retrieve(paymentIntent.getPaymentMethod());
+
+        // Extracting information from the PaymentMethod and PaymentIntent
+        String cardLast4 = paymentMethod.getCard().getLast4();
+        String cardBrand = paymentMethod.getCard().getBrand();
+        long amountReceived = paymentIntent.getAmountReceived(); // Amount in cents
+        String status = paymentIntent.getStatus();
+        long createdTimestamp = paymentIntent.getCreated(); // Created timestamp (UNIX)
+
+        // Convert timestamp to a human-readable format (optional)
+        String created = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(createdTimestamp * 1000));
+
+        // Return payment details as a Map
+        return Map.of(
+            "cardLast4", cardLast4,
+            "cardBrand", cardBrand,
+            "amount", amountReceived / 100.0, // Convert from cents to dollars
+            "status", status,
+            "created", created
+        );
     }
 
     public String paymentSucceeded(int orderId) throws Exception{
