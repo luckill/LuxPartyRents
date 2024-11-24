@@ -3,6 +3,7 @@ package com.example.SeniorProject.Controller;
 import com.example.SeniorProject.DTOs.CustomerDTO;
 import com.example.SeniorProject.Model.*;
 import com.example.SeniorProject.Service.*;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.*;
@@ -71,7 +72,6 @@ public class CustomerController
         }
         catch (ResponseStatusException exception)
         {
-            System.out.println(exception.getReason());
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }

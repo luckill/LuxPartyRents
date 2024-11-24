@@ -9,7 +9,8 @@ import org.springframework.security.web.*;
 
 @TestConfiguration
 @EnableWebSecurity
-public class TestSecurityConfig {
+public class TestSecurityConfig
+{
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception

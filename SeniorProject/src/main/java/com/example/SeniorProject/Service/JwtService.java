@@ -44,11 +44,6 @@ public class JwtService
         return buildToken(extraClaims, userDetails, expirationTime);
     }
 
-	public long getExpirationTime()
-	{
-        return expirationTime;
-	}
-
     public boolean isTokenValid(String token, UserDetails userDetails)
 	{
         final String username = extractUsername(token);

@@ -41,7 +41,7 @@ public class AuthenticationService
         }
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         Customer customer = new Customer(input.getFirstName(), input.getLastName(), input.getEmail(), input.getPhoneNumber());
-        Account account = new Account(input.getEmail(), passwordEncoder.encode(input.getPassword()), false);
+        Account account = new Account(input.getEmail(), passwordEncoder.encode(input.getPassword()));
         optionalRole.ifPresent(account::setRole);
         accountRepository.save(account);
         customer.setAccount(account);

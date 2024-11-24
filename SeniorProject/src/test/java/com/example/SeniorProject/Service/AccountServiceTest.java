@@ -38,7 +38,7 @@ class AccountServiceTest {
 
     // Test for getAccountById
     @Test
-    void getAccountById_AccountExists() {
+    void getAccountByIdAccountExists() {
         int accountId = 1;
         Account mockAccount = new Account();
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(mockAccount));
@@ -50,7 +50,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void getAccountById_AccountNotFound() {
+    void getAccountByIdAccountNotFound() {
         int accountId = 1;
         when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
 
@@ -64,7 +64,7 @@ class AccountServiceTest {
 
     // Test for deleteAccount
     @Test
-    void deleteAccount_ValidId() {
+    void deleteAccountValidId() {
         int accountId = 1;
 
         doNothing().when(accountRepository).deleteById(accountId);
@@ -76,7 +76,7 @@ class AccountServiceTest {
 
     // Test for turnAdmin
     @Test
-    void turnAdmin_ValidApiKeyAndAccountExists() {
+    void turnAdminValidApiKeyAndAccountExists() {
         int accountId = 1;
         String validApiKey = "validApiKey";
         Account mockAccount = new Account();
@@ -94,7 +94,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void turnAdmin_InvalidApiKey() {
+    void turnAdminInvalidApiKey() {
         int accountId = 1;
         String invalidApiKey = "invalidApiKey";
         String storedApiKey = "storedApiKey";
@@ -109,7 +109,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void turnAdmin_NoApiKeyInSecretsManager() {
+    void turnAdminNoApiKeyInSecretsManager() {
         int accountId = 1;
 
         when(secretsManagerService.getSecretValue("adminAccountKey")).thenReturn(null);
@@ -123,7 +123,7 @@ class AccountServiceTest {
 
     // Test for getUserInfo
     @Test
-    void getUserInfo_ValidTokenAndAccountExists() {
+    void getUserInfoValidTokenAndAccountExists() {
         String token = "Bearer validToken";
         String jwtToken = "validToken";
         String username = "test@example.com";
@@ -140,7 +140,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void getUserInfo_ExpiredToken() {
+    void getUserInfoExpiredToken() {
         String token = "Bearer expiredToken";
         String jwtToken = "expiredToken";
 
@@ -154,7 +154,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void getUserInfo_AccountNotFound() {
+    void getUserInfoAccountNotFound() {
         String token = "Bearer validToken";
         String jwtToken = "validToken";
         String username = "test@example.com";
@@ -168,5 +168,45 @@ class AccountServiceTest {
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("No account found with email " + username, exception.getReason());
+    }
+
+    @Test
+    void deleteAllUnverifiedAccountsWithUnverifiedAccounts() {
+        // Arrange
+        List<Account> unverifiedAccounts = List.of(new Account()); // mock unverified accounts
+        when(accountRepository.findUnverifiedAccounts()).thenReturn(unverifiedAccounts);
+
+        // Act
+        accountService.deleteAllUnverifiedAccounts();
+
+        // Assert
+        verify(accountRepository, times(1)).deleteAllUnverifiedAccounts();
+    }
+
+    @Test
+    void deleteAllUnverifiedAccountsNoUnverifiedAccounts() {
+        // Arrange
+        when(accountRepository.findUnverifiedAccounts()).thenReturn(Collections.emptyList());
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountService.deleteAllUnverifiedAccounts();
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("No unverified accounts found", exception.getReason());
+    }
+
+    @Test
+    void deleteAllUnverifiedAccountsDeleteThrowsException() {
+        // Arrange
+        List<Account> unverifiedAccounts = List.of(new Account());
+        when(accountRepository.findUnverifiedAccounts()).thenReturn(unverifiedAccounts);
+        doThrow(new RuntimeException("Database error")).when(accountRepository).deleteAllUnverifiedAccounts();
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            accountService.deleteAllUnverifiedAccounts();
+        });
+        assertEquals("Database error", exception.getMessage());
     }
 }

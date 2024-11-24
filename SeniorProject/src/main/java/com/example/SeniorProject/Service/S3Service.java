@@ -24,10 +24,6 @@ public class S3Service
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
     public S3Service(@Value("${aws.accessKeyId}") String accessKeyId, @Value("${aws.secretKey}") String secretKey, @Value("${aws.s3.region}") String region)
     {
         AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
@@ -64,7 +60,7 @@ public class S3Service
                 renamedFile = file;  // Fallback to original if rename fails
             }
 
-            uploadFileToS3Bucket(renamedFile, file.getName() +".jpg");
+            uploadFileToS3Bucket(renamedFile, renamedFile.getName());
         }
         catch (S3Exception e)
         {
@@ -86,7 +82,7 @@ public class S3Service
             }
         }
     }
-    private File convertMultiPartFileToFile(MultipartFile file)
+    File convertMultiPartFileToFile(MultipartFile file)
     {
         File convFile = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convFile))
@@ -99,7 +95,7 @@ public class S3Service
         }
         return convFile;
     }
-    private void uploadFileToS3Bucket(File file, String name)
+    void uploadFileToS3Bucket(File file, String name)
     {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)

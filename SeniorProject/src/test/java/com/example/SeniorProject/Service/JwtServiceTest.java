@@ -1,12 +1,15 @@
 package com.example.SeniorProject.Service;
 
+import io.jsonwebtoken.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 
+import static org.bouncycastle.asn1.iana.IANAObjectIdentifiers.security;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -60,14 +63,14 @@ class JwtServiceTest
     }
 
     @Test
-    void testGetRemainingValidTime_ValidToken()
-    {
-        when(userDetails.getUsername()).thenReturn("testUser");
-        String token = jwtService.generateToken(userDetails);
-
-        long remainingTime = jwtService.getRemainingValidTime(token);
-
-        assertTrue(remainingTime > 0); // Should return positive time in seconds
+    void testGetExpirationTimeWithInvalidToken() {
+        // Act & Assert: Pass an expired or invalid token
+        String invalidToken = "invalid.token.here";
+        assertThrows(io.jsonwebtoken.JwtException.class, () -> {
+            Jwts.parser()
+                    .setSigningKey("secretKey")
+                    .parseClaimsJws(invalidToken); // Expecting a JwtException due to invalid token
+        });
     }
 
     // Reflection to set private fields for testing

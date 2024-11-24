@@ -16,7 +16,7 @@ public class CustomerAccountWrapper
         this.email = email;
         this.phone = phone;
         this.password = password;
-        this.account = new Account(email,"", isAdmin);
+        this.account = new Account(email,"");
         this.customer = new Customer(firstName, lastName, email, phone);
     }
 
