@@ -167,6 +167,17 @@ public class ProductController {
         }
     }
 
+    // Gets all Delivery Only items
+    @GetMapping("/getDeliverOnly")
+    public ResponseEntity<List<Integer>> getDeliverOnly() {
+        try {
+            List<Integer> deliveryOnlyProductIds = productService.getDeliveryOnly();
+            return ResponseEntity.ok(deliveryOnlyProductIds);
+        } catch (ResponseStatusException exception) {
+            return ResponseEntity.status(exception.getStatusCode()).build();
+        }
+    }
+
     @PostMapping("/updateFeaturedStatus")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> updateFeaturedStatus(@RequestBody List<Integer> featuredItemIds) {

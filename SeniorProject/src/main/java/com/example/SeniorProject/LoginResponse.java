@@ -6,14 +6,12 @@ public class LoginResponse
 {
 	private Account authenticatedAccount;
 	private String token;
-	private long expiresIn;
     private String firstName;
 
-	public LoginResponse(Account authenticatedAccount, String token, long expiresIn, String firstName)
+	public LoginResponse(Account authenticatedAccount, String token, String firstName)
 	{
 		this.authenticatedAccount = authenticatedAccount;
 		this.token = token;
-		this.expiresIn = expiresIn;
         this.firstName = firstName;
 	}
 
@@ -25,17 +23,6 @@ public class LoginResponse
     public LoginResponse setToken(String token)
     {
         this.token = token;
-        return this;
-    }
-
-    public long getExpiresIn()
-    {
-        return expiresIn;
-    }
-
-    public LoginResponse setExpiresIn(long expiresIn)
-    {
-        this.expiresIn = expiresIn;
         return this;
     }
 
@@ -63,7 +50,6 @@ public class LoginResponse
     {
         return "LoginResponse{" +
             "token='" + token + '\'' +
-            ", expiresIn=" + expiresIn +
             ", firstName='" + firstName + '\'' +
             '}';
     }

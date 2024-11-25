@@ -8,19 +8,8 @@ window.onload = function() {
     const alertFooter = document.getElementById('alert-footer');
     if (jwtToken)
     {
-        if (role === "USER")
-        {
-            pageContent.style.display = 'block';
-            alertContainer.style.display = 'none';
-        }
-        else
-        {
-            alertContainer.style.display = 'block'; // Show the alert
-            pageContent.style.display="none"
-            alertHeading.textContent = 'Access Denied';
-            alertMessage.innerHTML = "<strong>Error!!!</strong> - This page is for user use only, and you don't have access to it. If you want to view all the orders that are currently active, please go to <a href=\"/Orders\" class=\"alert-link\">order page</a>.";
-            alertFooter.innerHTML = 'Return to the <a href="/" class="alert-link">home page</a>.';
-        }
+        pageContent.style.display = 'block';
+        alertContainer.style.display = 'none';
     }
     else
     {

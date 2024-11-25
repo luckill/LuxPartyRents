@@ -59,6 +59,83 @@ async function fetchProductById(productId) {
     return await response.json();
 }
 
+// Function to validate cart quantities against available stock
+async function validateCartQuantities() {
+    const cartCookie = getCookieValue('cart');
+    if (!cartCookie) return;
+    
+    const cartItems = JSON.parse(cartCookie);
+    let quantityUpdated = false;
+    let itemsToRemove = [];
+    
+    for (const item of cartItems) {
+        try {
+            const productDetails = await fetchProductById(item.productId);
+            if (productDetails) {
+                if (item.quantity <= 0) {
+                    // Mark item for removal
+                    itemsToRemove.push(item.productId);
+                    quantityUpdated = true;
+                } else if (item.quantity > productDetails.quantity) {
+                    // Update quantity to maximum available
+                    item.quantity = productDetails.quantity;
+                    quantityUpdated = true;
+                    
+                    // Update UI if the item is already displayed
+                    const cartAmountInput = document.querySelector(`#cloned${item.productId}CartAmount`);
+                    if (cartAmountInput) {
+                        cartAmountInput.value = productDetails.quantity;
+                        cartAmountInput.max = productDetails.quantity;
+                        
+                        // Trigger input event to update other UI elements
+                        const inputEvent = new Event('input', {
+                            bubbles: true,
+                            cancelable: true,
+                        });
+                        cartAmountInput.dispatchEvent(inputEvent);
+                    }
+                    
+                    alert(`Quantity for ${productDetails.name} adjusted to available stock (${productDetails.quantity})`, 'warning');
+                }
+            }
+        } catch (error) {
+            console.error(`Error validating quantity for product ${item.productId}:`, error);
+        }
+    }
+    
+    // Remove items with zero quantity
+    if (itemsToRemove.length > 0) {
+        itemsToRemove.forEach(productId => {
+            // Remove from myCart array
+            myCart = myCart.filter(item => item.id !== productId);
+            
+            // Remove from DOM
+            const cartItemToRemove = document.getElementById(`cloned${productId}CartItem`);
+            const totalItemToRemove = document.getElementById(`cloned${productId}TotalItem`);
+            
+            if (cartItemToRemove) cartItemToRemove.remove();
+            if (totalItemToRemove) totalItemToRemove.remove();
+            
+        });
+    }
+    
+    if (quantityUpdated || itemsToRemove.length > 0) {
+        // Update cookie with remaining items and adjusted quantities
+        const updatedCartItems = cartItems.filter(item => !itemsToRemove.includes(item.productId));
+        setCookie('cart', JSON.stringify(updatedCartItems), 7);
+        
+        // Recalculate totals
+        calculateTotalItems();
+        calculateTotalCost();
+        
+        // Show empty cart if all items were removed
+        if (myCart.length === 0) {
+            emptyCartDiv.classList.remove("d-none");
+            emptyTotalDiv.classList.remove("d-none");
+        }
+    }
+}
+
 // Function to load cart from cookies and fetch product details
 async function loadCartFromCookies() {
     const cartCookie = getCookieValue('cart');
@@ -78,7 +155,9 @@ async function loadCartFromCookies() {
             }
         }
     }
+    await validateCartQuantities();
     updateCartDisplay();
+    updateAddressFormVisibility();
 }
 
 // Function to update the cart display
@@ -118,55 +197,77 @@ function duplicateCartItem(item) {
     let clonedItemAmount = clonedCartItem.querySelector("#itemAmountInput");
     clonedItemAmount.id = "cloned" + item.id + "CartAmount";
     clonedItemAmount.value = item.amount;
-     // Add these attributes to the input element
-     clonedItemAmount.setAttribute("type", "number");
-     clonedItemAmount.setAttribute("min", "1");
-     clonedItemAmount.setAttribute("step", "1");
+    // Add these attributes to the input element
+    clonedItemAmount.setAttribute("type", "number");
+    clonedItemAmount.setAttribute("min", "1");
+    clonedItemAmount.setAttribute("step", "1");
+    
+    // Fetch and set the maximum quantity
+    fetchProductById(item.id).then(productDetails => {
+        clonedItemAmount.setAttribute("max", productDetails.quantity);
+        if (item.amount > productDetails.quantity) {
+            clonedItemAmount.value = productDetails.quantity;
+            // Trigger input event to update other UI elements
+            const inputEvent = new Event('input', {
+                bubbles: true,
+                cancelable: true,
+            });
+            clonedItemAmount.dispatchEvent(inputEvent);
+        }
+    }).catch(error => {
+        console.error(`Error fetching product details for ${item.id}:`, error);
+    });
 
     let clonedItemCost = clonedCartItem.querySelector("#itemCost");
     clonedItemCost.id = "cloned" + item.id + "CartCost";
     clonedItemCost.innerHTML = "$"+ item.price.toFixed(2);
 
-    // Enhanced input event listener with auto-update
+    // Enhanced input event listener with quantity validation
+    clonedItemAmount.addEventListener("input", async function() {
+        let newValue = parseInt(this.value);
 
-    clonedItemAmount.addEventListener("input", function() {
-        const newValue = parseInt(this.value);
         if (newValue && newValue > 0) {
-            // Update corresponding elements
-            let cartItemAmountElement = document.querySelector("#cloned" + item.id + "CartAmount");
-            let totalItemAmountElement = document.querySelector("#cloned" + item.id + "TotalAmount");
-            
-            if (cartItemAmountElement) {
-                cartItemAmountElement.value = newValue;
-            }
-            if (totalItemAmountElement) {
-                totalItemAmountElement.innerHTML = "x" + newValue;
-            }
-
-            // Update cart data and cookie
-            let itemWanted = myCart.find(cartItem => cartItem.id === item.id);
-            if (itemWanted) {
-                itemWanted.amount = newValue;
-                
-                // Update cookie
-                const cartCookie = myCart.map(item => ({
-                    productId: item.id,
-                    quantity: item.amount
-                }));
-                setCookie('cart', JSON.stringify(cartCookie), 7);
-
-                // Recalculate totals
-
-                totalAmountOfItems = 0;
-                totalCost = 0;
-                calculateTotalItems();
-                calculateTotalCost();
-                
-                // Update cost display in total section
-                let totalItemCostElement = document.querySelector("#cloned" + item.id + "TotalCost");
-                if (totalItemCostElement) {
-                    totalItemCostElement.innerHTML = "$" + (item.price * newValue).toFixed(2);
+            try {
+                const productDetails = await fetchProductById(item.id);
+                if (newValue > productDetails.quantity) {
+                    newValue = productDetails.quantity;
+                    this.value = newValue;
+                    alert(`Quantity adjusted to maximum available stock (${productDetails.quantity})`, 'warning');
                 }
+
+                if (cartItemAmountElement) {
+                    cartItemAmountElement.value = newValue;
+                }
+                if (totalItemAmountElement) {
+                    totalItemAmountElement.innerHTML = "x" + newValue;
+                }
+                 // Update cart data and cookie
+                 let itemWanted = myCart.find(cartItem => cartItem.id === item.id);
+                 if (itemWanted) {
+                     itemWanted.amount = newValue;
+                     
+                     // Update cookie
+                     const cartCookie = myCart.map(item => ({
+                         productId: item.id,
+                         quantity: item.amount
+                     }));
+                     setCookie('cart', JSON.stringify(cartCookie), 7);
+ 
+                     // Recalculate totals
+                     totalAmountOfItems = 0;
+                     totalCost = 0;
+                     calculateTotalItems();
+                     calculateTotalCost();
+                     
+                     // Update cost display in total section
+                     let totalItemCostElement = document.querySelector("#cloned" + item.id + "TotalCost");
+                     if (totalItemCostElement) {
+                         totalItemCostElement.innerHTML = "$" + (item.price * newValue).toFixed(2);
+                     }
+                 }
+             } catch (error) {
+                 console.error(`Error validating quantity for product ${item.id}:`, error);
+ 
             }
         }
     });
@@ -210,6 +311,7 @@ function deleteItem(productId) {
     // Update displays
     calculateTotalCost();
     calculateTotalItems(); 
+    updateAddressFormVisibility();
 
     // Check if cart is empty and show appropriate display
     if (myCart.length === 0) {
@@ -337,6 +439,19 @@ function checkout() {
         return;
     }
 
+    // If cart is empty after filtering, show empty cart display
+    if (myCart.length === 0) {
+        emptyCartDiv.classList.remove("d-none");
+        emptyTotalDiv.classList.remove("d-none");
+        return; // Exit checkout if cart is empty
+    }
+
+    // Check if address is required and validate
+    if (hasDeliveryOnlyItems() && !validateAddressForm()) {
+        alert('Please fill in all required address fields before checking out.');
+        return;
+    }
+
     // Fetch the customer ID from the AccountController
     fetch('/account/customerId', {
         method: 'GET',
@@ -346,8 +461,8 @@ function checkout() {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error("Failed to retrieve customer ID: " + response.statusText);
             alert("Failed to retrieve customer ID: " + response.statusText);
+            throw new Error("Failed to retrieve customer ID: " + response.statusText);
         }
         return response.text(); // Customer ID will be returned as plain text
     })
@@ -384,8 +499,8 @@ function checkout() {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error("Failed to create the order: " + response.statusText);
             alert("Failed to create the order: " + response.statusText);
+            throw new Error("Failed to create the order: " + response.statusText);
         }
         return response.json();  // Assuming the backend returns the order object with the orderId
     })
@@ -394,7 +509,15 @@ function checkout() {
         const orderId = order.id; // This depends on how the order is returned
         // Redirect to the payment page with orderId as a query parameter
         console.log(order.id);
-        window.location.href = `/checkout?orderId=${order.id || order.orderId}`;
+          // Clear the cart cookie after successful order creation
+          setCookie('cart', JSON.stringify([]), 7);
+
+          // Optionally, update the UI to reflect the empty cart
+          myCart = [];
+          updateCartDisplay();
+          //redirect to checkout
+          window.location.href = `/checkout?orderId=${order.id || order.orderId}`;
+
     })
     .catch(error => {
         console.error("Checkout error:", error);
@@ -407,37 +530,224 @@ function checkout() {
     });
 }
 
-async function CalculateDeliveryFee()
-{
-    const street= document.getElementById("street").value;
-    const addressLine2 = document.getElementById("address-line-2").value;
-    const city = document.getElementById("city").value;
-    const state= document.getElementById("state").value;
-    const zipCode= document.getElementById("zip").value;
-    const cities = ["Sacramento",  "Elk Grove", "Citrus Heights", "Folsom", "Rancho Cordova", "Rocklin", "Roseville"]
-    if(containsWordIgnoreCase(cities, city))
-    {
-        deliveryFee = 250.00;
-        document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee.toFixed(2);
-    }
-    else
-    {
-        let address = street + " " + addressLine2 + ", " + city +" " + state + " " + zipCode;
-        const placeId = await getPlaceId(address);
-        if (placeId)
-        {
-            const deliveryFee = await getDeliveryFee(placeId);
-            console.log("Delivery Fee for the address:", deliveryFee);
-            document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee;
+// Function to fetch delivery-only items from the server
+async function fetchDeliveryOnlyItems() {
+    const jwtToken = localStorage.getItem('jwtToken');
+
+    const response = await fetch('/product/getDeliverOnly', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`
         }
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch delivery-only items');
     }
-    totalCost += deliveryFee;
-    document.getElementById("completeTotal").innerHTML = "$" + totalCost.toFixed(2);
+
+    return await response.json();
 }
 
-function containsWordIgnoreCase(list, word)
-{
-    return list.some(item => item.toLowerCase() === word.toLowerCase());
+async function hasDeliveryOnlyItems() {
+    try {
+        // Fetch delivery-only items (which is an array of IDs, e.g., [1, 2, 11])
+        const deliveryOnlyItems = await fetchDeliveryOnlyItems(); 
+
+        console.log('Delivery Only Item IDs:', deliveryOnlyItems);  // Log the IDs to verify
+
+        // Check each item in the cart
+        for (const cartItem of myCart) {
+            console.log('Checking Cart Item ID:', cartItem.id);  // Log cart item IDs
+
+            // If the cart item ID is in the delivery-only items list, return true
+            if (deliveryOnlyItems.includes(cartItem.id)) {
+                console.log('Delivery-only item found in cart:', cartItem.id);
+                return true;
+            }
+        }
+
+        console.log('No delivery-only items found in the cart.');
+        return false;
+    } catch (error) {
+        console.error('Error checking for delivery-only items:', error);
+        return false;
+    }
+}
+
+// Function to handle address form visibility based on delivery items
+async function updateAddressFormVisibility() {
+    const addressFormContainer = document.querySelector('.form-container');
+
+    try {
+        const needsDelivery = await hasDeliveryOnlyItems();  // Wait for hasDeliveryOnlyItems to resolve
+
+        if (addressFormContainer) {
+            if (needsDelivery) {
+                addressFormContainer.style.display = 'block';  // Show the form
+                validateAddressForm();  // Validate the form if delivery is needed
+            } else {
+                addressFormContainer.style.display = 'none';  // Hide the form
+                document.getElementById("checkoutButton").disabled = !document.getElementById("termsCheckbox").checked;
+            }
+        }
+    } catch (error) {
+        console.error('Error in updating address form visibility:', error);
+    }
+}
+
+// Function to validate the address form
+async function validateAddressForm() {
+    const needsDelivery = await hasDeliveryOnlyItems();
+
+    const street = document.getElementById("street").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const state = document.getElementById("state").value.trim();
+    const zipCode = document.getElementById("zip").value.trim();
+    const termsChecked = document.getElementById("termsCheckbox").checked;
+    
+    if (needsDelivery) {
+        const isAddressValid = street !== "" && city !== "" && state !== "" && zipCode !== "";
+        document.getElementById("checkoutButton").disabled = !(isAddressValid && termsChecked);
+        return isAddressValid;
+    } else {
+        document.getElementById("checkoutButton").disabled = !termsChecked;
+        return true;
+    }
+}
+
+// Function to add visual feedback for required fields
+function addFormValidationStyles() {
+    const requiredFields = ['street', 'city', 'state', 'zip'];
+    
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        
+        // Add required attribute
+        field.setAttribute('required', 'true');
+        
+        // Add invalid feedback styling on blur if empty
+        field.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('is-invalid');
+                this.style.borderColor = '#dc3545';
+            } else {
+                this.classList.remove('is-invalid');
+                this.style.borderColor = '#ced4da';
+            }
+        });
+        
+        // Remove invalid styling when user starts typing
+        field.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                this.classList.remove('is-invalid');
+                this.style.borderColor = '#ced4da';
+            }
+            validateAddressForm();
+        });
+    });
+}
+
+// Update the existing terms checkbox event listener
+document.getElementById("termsCheckbox").addEventListener("change", function() {
+    validateAddressForm();
+});
+
+// Initialize validation styles when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    addFormValidationStyles();
+    validateAddressForm();
+});
+
+// Separate function to validate date selection
+function validateDateSelection() {
+    const startDate = document.getElementById("startDate").value;
+    const isDateValid = startDate !== "";
+    return isDateValid;
+}
+
+// Update the checkout function to validate address before proceeding
+const originalCheckout = checkout;
+checkout = async function() {
+    const dateValid = validateDateSelection();
+    const addressValid = await validateAddressForm();
+    const termsChecked = document.getElementById("termsCheckbox").checked;
+    const hasDeliveryItems = await hasDeliveryOnlyItems();
+
+    // Basic validation checks
+    if (!dateValid) {
+        alert('Please select a rental start date before checking out.');
+        return;
+    }
+
+    if (!addressValid && hasDeliveryItems) {
+        alert('Please fill in all required address fields before checking out.');
+        return;
+    }
+
+    if (!termsChecked) {
+        alert('Please accept the terms and conditions before checking out.');
+        return;
+    }
+
+    // Calculate delivery fee only if there are delivery items
+    if (hasDeliveryItems) {
+        try {
+            const success = await CalculateDeliveryFee();
+            if (!success) {
+                return; // Stop checkout if delivery fee calculation fails
+            }
+        } catch (error) {
+            console.error('Error calculating delivery fee:', error);
+            alert('Failed to calculate delivery fee. Please try again.');
+            return;
+        }
+    }
+
+    // If all validations pass, proceed with original checkout
+    originalCheckout();
+};
+
+async function CalculateDeliveryFee() {
+    const street = document.getElementById("street").value;
+    const addressLine2 = document.getElementById("address-line-2").value;
+    const city = document.getElementById("city").value;
+    const state = document.getElementById("state").value;
+    const zipCode = document.getElementById("zip").value;
+
+    if (!street || !city || !state || !zipCode) {
+        alert('Please fill in all required address fields.');
+        return false;
+    }
+
+    if (addressLine2.length === 0) {
+        address = street + ", " + city + " " + state + " " + zipCode;
+    } else {
+        address = street + " " + addressLine2 + ", " + city + " " + state + " " + zipCode;
+    }
+
+    try {
+        const placeId = await getPlaceId(address);
+        if (!placeId) {
+            alert('Unable to validate address. Please check your address and try again.');
+            return false;
+        }
+
+        const deliveryFee = await getDeliveryFee(placeId);
+        if (deliveryFee === undefined || deliveryFee === null) {
+            alert('Unable to calculate delivery fee. Please try again.');
+            return false;
+        }
+
+        document.getElementById("deliveryFeeSAmount").innerHTML = "$" + deliveryFee.toFixed(2);
+        totalCost += deliveryFee;
+        document.getElementById("completeTotal").innerHTML = "$" + totalCost.toFixed(2);
+        return true;
+    } catch (error) {
+        console.error('Error in CalculateDeliveryFee:', error);
+        alert('Error calculating delivery fee. Please try again.');
+        return false;
+    }
 }
 
 async function getPlaceId(address)
