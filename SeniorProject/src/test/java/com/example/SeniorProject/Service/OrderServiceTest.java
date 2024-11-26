@@ -328,154 +328,7 @@ public class OrderServiceTest
         assertEquals("ERROR!!! - something went wrong when processing return payment", exception.getReason());
     }
 
-    @Test
-    void testValidStatusUpdate()
-    {
-        // Arrange
-        int orderId = 1;
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus("CONFIRMED");
 
-        Order order = new Order();
-        order.setId(orderId);
-        order.setStatus(OrderStatus.RECEIVED);
-
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        when(orderRepository.save(any(Order.class))).thenReturn(order);
-
-        // Act
-        orderService.updateOrderStatus(orderId, orderDTO);
-
-        // Assert
-        verify(orderRepository, times(1)).findById(orderId);
-        verify(orderRepository, times(1)).save(order);
-    }
-
-    @Test
-    void testOrderNotFound()
-    {
-        // Arrange
-        int orderId = 999;
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus("CONFIRMED");
-
-        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.updateOrderStatus(orderId, orderDTO);
-        });
-
-        verify(orderRepository, times(1)).findById(orderId);
-        verify(orderRepository, never()).save(any(Order.class));
-        assert exception.getStatusCode() == HttpStatus.NOT_FOUND;
-        assert exception.getReason().equals("ERROR!!! - Order not found");
-    }
-
-    @Test
-    void testNullStatusInOrderDTO()
-    {
-        // Arrange
-        int orderId = 1;
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus(null);
-
-        Order order = new Order();
-        order.setId(orderId);
-        order.setStatus(OrderStatus.RECEIVED);
-
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-
-        // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.updateOrderStatus(orderId, orderDTO);
-        });
-
-        verify(orderRepository, times(1)).findById(orderId);
-        verify(orderRepository, never()).save(any(Order.class));
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
-        assertEquals("ERROR!!! - trying to updated order status to null status", exception.getReason());
-    }
-
-    @Test
-    void testInvalidOrderStatusInOrderDTO()
-    {
-        // Arrange
-        int orderId = 1;
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus("INVALID_STATUS");
-
-        Order order = new Order();
-        order.setId(orderId);
-        order.setStatus(OrderStatus.RECEIVED);
-
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-
-        // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.updateOrderStatus(orderId, orderDTO);
-        });
-
-        verify(orderRepository, times(1)).findById(orderId);
-        verify(orderRepository, never()).save(any(Order.class));
-        assertEquals(exception.getStatusCode(), HttpStatus.BAD_REQUEST);
-        assertEquals("ERROR!!! - Invalid order status", exception.getReason());
-    }
-
-    @Test
-    void testOrderAlreadyInTargetStatus()
-    {
-        // Arrange
-        int orderId = 1;
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus("RECEIVED");
-
-        Order order = new Order();
-        order.setId(orderId);
-        order.setStatus(OrderStatus.RECEIVED);
-
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-
-        // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.updateOrderStatus(orderId, orderDTO);
-        });
-
-        verify(orderRepository, times(1)).findById(orderId);
-        verify(orderRepository, never()).save(any(Order.class));
-        assertEquals(exception.getStatusCode(), HttpStatus.BAD_REQUEST);
-        assertEquals("ERROR!!! - Order already has the status you want to updated to", exception.getReason());
-    }
-
-    @Test
-    void testStatusUpdateNotAllowed()
-    {
-        // Arrange
-        int orderId = 1;
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus("CONFIRMED");
-
-        Order order = new Order();
-        order.setId(orderId);
-        order.setStatus(OrderStatus.COMPLETED);
-
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-
-        // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.updateOrderStatus(orderId, orderDTO);
-        });
-
-        verify(orderRepository, times(1)).findById(orderId);
-        verify(orderRepository, never()).save(any(Order.class));
-        assert exception.getStatusCode() == HttpStatus.CONFLICT;
-        assert exception.getReason().equals("Order has already been completed");
-    }
 
     @Test
     public void cancelExistingOrder()
@@ -584,78 +437,7 @@ public class OrderServiceTest
     }
 
     @Test
-    public void testGetPastOrdersSuccess()
-    {
-        // Arrange
-        int customerId = 1;
-
-        // Create mock Order objects
-        Order order1 = new Order(122345, LocalDate.now(), LocalDate.now(), false, "1234 test Ave, Sacramento CA 99999");
-        order1.setStatus(OrderStatus.CANCELLED);
-        Order order2 = new Order(122345, LocalDate.now(), LocalDate.now(), false, "1234 test Ave, Sacramento CA 99999");
-        order2.setStatus(OrderStatus.CANCELLED);
-        Order order3 = new Order(122345, LocalDate.now(), LocalDate.now(), false, "1234 test Ave, Sacramento CA 99999");
-        order3.setStatus(OrderStatus.RETURNED);
-
-        List<Order> orders = Arrays.asList(order1, order2, order3);
-
-        // Mock the repository call to return the mock orders
-        when(orderRepository.findPastOrdersByCustomerId(customerId)).thenReturn(orders);
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(new Customer()));
-
-        // Act
-        List<OrderDTO> result = orderService.getPastOrders(customerId);
-
-        // Assert
-        assertThat(result).isNotEmpty();
-        assertThat(result).hasSize(3); // Ensure two orders are returned
-
-        for (int i = 0; i < 3; i++)
-        {
-            OrderDTO order = result.get(i);
-            assertEquals(order.getId(), orders.get(i).getId());
-            assertEquals(order.getCreationDate(), orders.get(i).getCreationDate());
-            assertEquals(order.getStatus(), orders.get(i).getStatus().toString());
-            assertNotEquals(order.getStatus(), OrderStatus.RECEIVED.toString());
-            assertNotEquals(order.getStatus(), OrderStatus.READY_FOR_PICK_UP.toString());
-        }
-        verify(orderRepository).findPastOrdersByCustomerId(customerId);
-    }
-
-    @Test
-    void testGetPastOrdersWithNoActiveOrders()
-    {
-        // Arrange
-        int customerId = 2;
-        when(orderRepository.findCurrentOrdersByCustomerId(customerId)).thenReturn(Collections.emptyList());
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(new Customer()));
-
-        // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.getPastOrders(customerId);
-        });
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(exception.getReason()).isEqualTo("No past orders found for the customer.");
-    }
-
-    @Test
-    public void testGetPastOrderInvalidCustomer()
-    {
-        int customerId = 3;
-        when(orderRepository.findCurrentOrdersByCustomerId(customerId)).thenReturn(Collections.emptyList());
-        when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
-
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.getCurrentOrders(customerId);
-        });
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(exception.getReason()).isEqualTo("ERROR!!! - Customer not found");
-    }
-
-    @Test
-    void testCustomerNotFound()
+    void testGetPastOrderCustomerNotFound()
     {
         int customerId = 1;
         when(customerRepository.findById(1)).thenReturn(Optional.empty());
@@ -666,7 +448,7 @@ public class OrderServiceTest
     }
 
     @Test
-    void testNoPastOrdersFound()
+    void tesGetPastOrderNoPastOrdersFound()
     {
         when(customerRepository.findById(anyInt())).thenReturn(Optional.of(new Customer()));
         when(orderRepository.findPastOrdersByCustomerId(anyInt())).thenReturn(Collections.emptyList());
@@ -688,13 +470,6 @@ public class OrderServiceTest
         assertNotNull(result);
         assertEquals(1, result.size());
         // Add further assertions for mapped DTOs if required
-    }
-
-    @Test
-    void testRepositoryExceptions()
-    {
-        when(customerRepository.findById(anyInt())).thenThrow(RuntimeException.class);
-        assertThrows(RuntimeException.class, () -> orderService.getPastOrders(1));
     }
 
     @Test
@@ -930,6 +705,106 @@ public class OrderServiceTest
     }
 
     @Test
+    void testUpdateOrderStatusOrderNotFound()
+    {
+        // Arrange
+        int orderId = 999;
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setStatus("CONFIRMED");
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+        {
+            orderService.updateOrderStatus(orderId, orderDTO);
+        });
+
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderRepository, never()).save(any(Order.class));
+        assert exception.getStatusCode() == HttpStatus.NOT_FOUND;
+        assert exception.getReason().equals("ERROR!!! - Order not found");
+    }
+
+    @Test
+    void testUpdateOrderStatusNullStatusInOrderDTO()
+    {
+        // Arrange
+        int orderId = 1;
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setStatus(null);
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.RECEIVED);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+        {
+            orderService.updateOrderStatus(orderId, orderDTO);
+        });
+
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderRepository, never()).save(any(Order.class));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("ERROR!!! - trying to updated order status to null status", exception.getReason());
+    }
+
+    @Test
+    void testUpdateOrderStatusInvalidOrderStatusInOrderDTO()
+    {
+        // Arrange
+        int orderId = 1;
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setStatus("INVALID_STATUS");
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.RECEIVED);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+        {
+            orderService.updateOrderStatus(orderId, orderDTO);
+        });
+
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderRepository, never()).save(any(Order.class));
+        assertEquals(exception.getStatusCode(), HttpStatus.BAD_REQUEST);
+        assertEquals("ERROR!!! - Invalid order status", exception.getReason());
+    }
+
+    @Test
+    void testUpdateOrderStatusOrderAlreadyInTargetStatus()
+    {
+        // Arrange
+        int orderId = 1;
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setStatus("RECEIVED");
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.RECEIVED);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+        {
+            orderService.updateOrderStatus(orderId, orderDTO);
+        });
+
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderRepository, never()).save(any(Order.class));
+        assertEquals(exception.getStatusCode(), HttpStatus.BAD_REQUEST);
+        assertEquals("ERROR!!! - Order already has the status you want to updated to", exception.getReason());
+    }
+
+    @Test
     public void testUpdateOrder_ValidStatusUpdateSuccessfully()
     {
         // Arrange
@@ -948,61 +823,7 @@ public class OrderServiceTest
     }
 
     @Test
-    public void testUpdateOrderUpdateToReturnedStatusConflict()
-    {
-        // Arrange
-        Order existingOrder = new Order();
-        existingOrder.setStatus(OrderStatus.RETURNED);
-
-        when(orderRepository.findById(1)).thenReturn(Optional.of(existingOrder));
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus("RECEIVED");
-
-        // Act & Assert
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.updateOrderStatus(1, orderDTO);
-        });
-        assertEquals(HttpStatus.CONFLICT, exception.getStatusCode());
-        assertEquals("Order has already been returned", exception.getReason());
-    }
-
-    @Test
-    public void testUpdateOrder_OrderNotFoundNotFound()
-    {
-        // Arrange
-        when(orderRepository.findById(99)).thenReturn(Optional.empty());
-        OrderDTO orderDTO = new OrderDTO();
-        // Act & Assert
-        ResponseStatusException thrown = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.updateOrderStatus(99, orderDTO);
-        });
-        assertEquals(HttpStatus.NOT_FOUND, thrown.getStatusCode());
-        assertEquals("ERROR!!! - Order not found", thrown.getReason());
-    }
-
-    @Test
-    public void testUpdateOrder_InvalidStatusBadRequest()
-    {
-        // Arrange
-        Order existingOrder = new Order();
-
-        when(orderRepository.findById(1)).thenReturn(Optional.of(existingOrder));
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setStatus("INVALID");
-
-        // Act & Assert
-        ResponseStatusException thrown = assertThrows(ResponseStatusException.class, () ->
-        {
-            orderService.updateOrderStatus(1, orderDTO);
-        });
-        assertEquals(HttpStatus.BAD_REQUEST, thrown.getStatusCode());
-        assertEquals("ERROR!!! - Invalid order status", thrown.getReason());
-    }
-
-    @Test
-    void testOrderAlreadyCancelled()
+    void testUpdatedOrderStatusOrderAlreadyCancelled()
     {
         // Given
         Order existingOrder = new Order();
@@ -1019,7 +840,7 @@ public class OrderServiceTest
     }
 
     @Test
-    void testOrderAlreadyReturned()
+    void testUpdateOrderStatusOrderAlreadyReturned()
     {
         // Given
         Order existingOrder = new Order();
@@ -1036,7 +857,7 @@ public class OrderServiceTest
     }
 
     @Test
-    void testOrderAlreadyRefunded()
+    void testUpdateOrderStatusAlreadyRefunded()
     {
         // Given
         Order existingOrder = new Order();
@@ -1053,7 +874,7 @@ public class OrderServiceTest
     }
 
     @Test
-    void testOrderAlreadyCompleted()
+    void testUpdateOrderStatusOrderAlreadyCompleted()
     {
         // Given
         Order existingOrder = new Order();
