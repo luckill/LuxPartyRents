@@ -186,3 +186,11 @@ body {
     color: #222222;
     margin-top: 15px;
 }
+
+.btn
+{
+    display: block;
+    width: 100%; /* Makes the button span full width */
+    margin: 10px auto; /* Centers the button */
+    text-align: center; /* Centers the text inside */
+}
