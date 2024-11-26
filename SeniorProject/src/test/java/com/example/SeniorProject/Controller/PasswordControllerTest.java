@@ -198,7 +198,7 @@ public class PasswordControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/password/resetPassword")
-                        .param("token", "invalid-token")
+                        .param("token", "")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {

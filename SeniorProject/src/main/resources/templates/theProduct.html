@@ -13,7 +13,6 @@
 </head>
 
 <body>
-<div th:replace="~{Navbar :: header}"></div>
 <div th:replace="~{Navbar :: sessionManagement}"></div>
 <div class="container mt-5" id="alert-container">
     <div class="alert alert-danger" role="alert">
@@ -27,18 +26,13 @@
     <section id="contact">
         <div class="content">
             <div class="hero">
-                <label for="input-file" id="drop-area">
-                    <input type="file" accept="image/*" id="input-file" hidden>
+                <label id="drop-area">
                     <div id="img-view">
-                        <img id="placeholder-img" name="placeholder-img" src="">
-                        <p>Drag and drop or click to add image</p>
-                        <span>Upload any image</span>
-                        <div id="fileError" class="text-danger mt-2"></div>
+
                     </div>
                     <div id="responseMessage" class="mt-3"></div>
                 </label>
             </div>
-            <script src="imageScript.js"></script>
             <div id="form">
                 <form id="updateForm" method="post" onsubmit="return false;"> <!-- Prevent default submission -->
                     <input type="hidden" name="id" class="id"/>
@@ -58,14 +52,11 @@
                     <span>Description</span>
                     <textarea name="description" class="description" placeholder="Enter a simple description of product" tabindex="5"></textarea>
 
+                    <button type="button" id="updateProductButton" class="btn btn-outline-light btn-lg mx-2" onclick="updateProduct()">update product info</button>
+                    <button type="button" id="updateProductPictureButton" class="btn btn-outline-light btn-lg mx-2" onclick="window.location.href='/uploadPicture'">updated product picture</button>
+                    <button type="button" id="deleteProductButton" class="btn btn-outline-light btn-lg mx-2" onclick="deleteProduct()">delete</button>
+                    <button type="button" id="backButton" class="btn btn-outline-light btn-lg mx-2" onclick="window.location.href='/products'">Back</button>
 
-                    <input type="button" name="edit" value="Edit" onclick="updateProduct()" class="edit" tabindex="6"/>
-
-                    <input type="button" name="delete" value="Delete" onclick="deleteProduct()" class="delete"
-                           tabindex="7"/>
-
-                    <input type="button" name="back" value="Back" onclick="window.location.href='/products'" class="back"
-                           tabindex="8"/>
                 </form>
             </div>
         </div>

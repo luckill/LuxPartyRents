@@ -194,10 +194,7 @@ public class EmailService
                 + "Here is an important reminder for your rental pickup.\n"
                 + order.getCustomer().getFirstName() + " "
                 + order.getCustomer().getLastName() + " your Order, "
-                + order.getId() + " pickup is on, " + order.getCreationDate();
-                /*TODO: order.getCreationDate() needs to be updated for when
-                 * getPickUpDate() is made.
-                 */
+                + order.getId() + " pickup is on, " + order.getPickupDate();
 
         //sending email
         CxEmailDetails.setMessageBody(emailBody);

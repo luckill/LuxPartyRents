@@ -222,4 +222,17 @@ public class OrderController
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
+
+    @GetMapping("/sendOrderDueForReturnNotification")
+    public void sendOrderDueForReturnNotification()
+    {
+        try
+        {
+            orderService.orderDueCheck();
+        }
+        catch (ResponseStatusException exception)
+        {
+            ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
+    }
 }

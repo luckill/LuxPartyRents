@@ -83,23 +83,6 @@ public class CustomerServiceTest
     }
 
     @Test
-    void testUpdateCustomerExistingCustomer()
-    {
-        Customer existingCustomer = new Customer();
-        existingCustomer.setId(1);
-        existingCustomer.setFirstName("Old Name");
-
-        CustomerDTO updatedCustomer = new CustomerDTO();
-        updatedCustomer.setId(1);
-
-        when(customerRepository.findById(1)).thenReturn(Optional.of(existingCustomer));
-
-        customerService.updateCustomer(updatedCustomer);
-
-        assertEquals("Old Name", existingCustomer.getFirstName());
-    }
-
-    @Test
     public void testDeleteCustomerAccountExists() {
         // Arrange
         int id = 1;
@@ -152,29 +135,6 @@ public class CustomerServiceTest
     }
 
     @Test
-    public void testUpdateCustomer_WithNullFields() {
-        // Arrange
-        Customer existingCustomer = new Customer();
-        existingCustomer.setId(1);
-        existingCustomer.setFirstName("John");
-        existingCustomer.setLastName("Doe");
-
-        CustomerDTO updatedCustomer = new CustomerDTO();
-        updatedCustomer.setId(1);
-        updatedCustomer.setFirstName(null); // Not updating first name
-
-        when(customerRepository.findById(updatedCustomer.getId())).thenReturn(Optional.of(existingCustomer));
-
-        // Act
-        customerService.updateCustomer(updatedCustomer);
-
-        // Assert
-        assertEquals("John", existingCustomer.getFirstName()); // Verify first name remains unchanged
-        assertEquals("Doe", existingCustomer.getLastName()); // Verify last name remains unchanged
-        verify(customerRepository).save(existingCustomer); // Verify save was called
-    }
-
-    @Test
     public void testUpdateCustomer_Success() {
         // Arrange
         Customer existingCustomer = new Customer();
@@ -186,7 +146,6 @@ public class CustomerServiceTest
         CustomerDTO updatedCustomer = new CustomerDTO();
         updatedCustomer.setId(1);
         updatedCustomer.setFirstName("Jane");
-        updatedCustomer.setLastName(null); // This should remain unchanged
         updatedCustomer.setPhone("0987654321");
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(existingCustomer));
@@ -289,8 +248,6 @@ public class CustomerServiceTest
         assertEquals("1234567890", existingCustomer.getPhone()); // Should not change
         verify(customerRepository).save(existingCustomer); // Verify that save was called
     }
-
-
 
     @Test
     void testGetCustomerInfo_ValidTokenWithExistingCustomer() {

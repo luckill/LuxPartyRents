@@ -10,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
+import java.time.*;
 import java.util.*;
 import java.util.stream.*;
 
@@ -35,7 +36,7 @@ public class OrderService
     private PdfService pdfService;
 
     @Autowired
-    private googleMapService googleMapService;
+    private GoogleMapService googleMapService;
 
     @Autowired
     private PaymentService paymentService;
@@ -58,7 +59,7 @@ public class OrderService
         }
 
         // Create the new order
-        Order order = new Order(orderId, orderDTO.getRentalTime(), orderDTO.isPaid(), orderDTO.getAddress());
+        Order order = new Order(orderId, orderDTO.getPickupDate(), orderDTO.getReturnDate(), orderDTO.isPaid(), orderDTO.getAddress());
         order.setCustomer(customer);
         // Save the order to the database
         order = orderRepository.save(order);
@@ -80,7 +81,7 @@ public class OrderService
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
             }
 
-            if(product.isDeliverOnly())
+            if (product.isDeliverOnly())
             {
                 hasDeliveryOnlyProduct = true;
             }
@@ -117,7 +118,7 @@ public class OrderService
         orderRepository.save(order);
         orderProductRepository.saveAll(order.getOrderProducts());
 
-        generateOrderInvoice(orderId);
+        generateOrderInvoice(order);
 
         return mapToOrderDTO(order);
     }
@@ -147,7 +148,6 @@ public class OrderService
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR!!! - something went wrong when processing return payment");
         }
-
     }
 
     // Cancel an order
@@ -311,6 +311,10 @@ public class OrderService
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error!!! - Order not found");
         }
+        if(order.getStatus() == OrderStatus.RETURNED)
+        {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Order has already been returned");
+        }
 
         // Update the order status to "Returned"
         order.setStatus(OrderStatus.RETURNED);
@@ -367,7 +371,7 @@ public class OrderService
         Set<OrderProductDTO> orderProductDTOs = order.getOrderProducts().stream()
                 .map(orderProduct -> new OrderProductDTO(orderProduct.getQuantity(), new ProductDTO(orderProduct.getProduct().getId(), orderProduct.getProduct().getName(), orderProduct.getProduct().getPrice(), orderProduct.getProduct().getType())))
                 .collect(Collectors.toSet());
-        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getRentalTime(), order.isPaid(), order.getStatus(), order.getAddress(), order.getDeposit(), order.getTax(), order.getDeliveryFee(), order.getPrice(), order.getSubtotal());
+        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getPickupDate(), order.getReturnDate(), order.isPaid(), order.getStatus(), order.getAddress(), order.getDeposit(), order.getTax(), order.getDeliveryFee(), order.getPrice(), order.getSubtotal());
         orderDTO.setPrice(order.getPrice());
         orderDTO.setId(order.getId());
         orderDTO.setOrderProducts(orderProductDTOs);
@@ -391,26 +395,20 @@ public class OrderService
         return orderId;
     }
 
-    //Function that checks orders for when they should be returned
-    //Takes in all orders that are set at status RECEIVED and compares there
-    //order pick up date against the order rental time requested
-    private void OrderDueCheck(/*Order dbtable goes here*/)
+    public void orderDueCheck()
     {
-        /*TODO: for loop that goes through the dbtable checking for all orders
-         * that are set as RECEIVED, if they are RECEIVED then they should
-         * compare pick up date against the order rental time by checking the
-         * date that it would be after the rental time as passed.
-         * ie if order pick up is 10/25/24 and rental time is 2 days then
-         * pick up should 10/27/24
-         * this should at end of day every day.
-         */
-
-    }
-
-    private void orderDueCheck()
-    {
-        List<Order> list = orderRepository.findReturnOrders();
-        for (Order order : list) {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        List<Order> list = orderRepository.findReturnOrders(tomorrow);
+        for (Order order : list)
+        {
+            if (order.getCustomer() == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
+            }
+            else if(order.getCustomer().getEmail()==null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer email not found");
+            }
             EmailDetails customerEmailDetails = new EmailDetails();
             customerEmailDetails.setRecipient(order.getCustomer().getEmail());
             customerEmailDetails.setSubject("Order Return");
@@ -427,34 +425,18 @@ public class OrderService
     public void deleteOrder(int orderId)
     {
         Order order = orderRepository.findById(orderId).orElse(null);
-        if (order == null) {
+        if (order == null)
+        {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error!!! - Order not found");
         }
 
         // Returning the products within the order
-        for (OrderProduct orderProduct : order.getOrderProducts()) {
-            // Checking to make sure product exists before updating it
-            Product product = orderProduct.getProduct();
-            int quantity = orderProduct.getQuantity();
+        returnProduct(order);
 
-            if (product == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
-            }
-            if (quantity == 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Insufficient product quantity in order, check to see if it hasn't been processed already.");
-            }
-            if (order.getStatus() == OrderStatus.RETURNED) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Check to see if it hasn't been processed already.");
-            }
-
-            // Update product quantity and save
-            product.setQuantity(product.getQuantity() + quantity);
-            productRepository.save(product);
-        }
-
-        try {
-
-            if (order.getCustomer() != null) {
+        try
+        {
+            if (order.getCustomer() != null)
+            {
                 order.setCustomer(null); // Remove the reference to account
                 orderRepository.save(order);  // Save changes to persist them
             }
@@ -465,19 +447,16 @@ public class OrderService
 
             // Now delete the Order (this should not fail due to foreign key constraints)
             orderRepository.delete(order);
-            String fileName = "invoice_" + orderId + ".pdf";
-            s3Service.deleteFileFromS3Bucket(fileName);
-
-        } catch (DataIntegrityViolationException e) {
+        }
+        catch (DataIntegrityViolationException e)
+        {
             // Handle the foreign key constraint violation
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete order due to foreign key constraints. Ensure all related entities are properly handled.");
         }
     }
 
-    public void generateOrderInvoice(int orderId)
+    public void generateOrderInvoice(Order order)
     {
-        // Fetch the order by ID
-        Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Order not found");
@@ -495,12 +474,12 @@ public class OrderService
         pdfService.generateInvoicePDF(model);
     }
 
-    private void deleteOrderNotPayed()
+    private void putProductBackToInventory(Order order)
     {
-        orderRepository.deleteReceivedOrdersBeforeToday();
+        returnProduct(order);
     }
 
-    private void putProductBackToInventory(Order order)
+    void returnProduct(Order order)
     {
         for (OrderProduct orderProduct : order.getOrderProducts())
         {
