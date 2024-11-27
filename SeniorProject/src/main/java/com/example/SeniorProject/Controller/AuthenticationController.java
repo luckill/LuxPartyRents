@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.context.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.*;
 
 import java.time.*;
 import java.util.*;
@@ -20,10 +21,10 @@ import java.util.*;
 @RestController
 public class AuthenticationController
 {
-	private final JwtService jwtService;
-	private final AuthenticationService authenticationService;
+    private final JwtService jwtService;
+    private final AuthenticationService authenticationService;
 
-	public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService)
+    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService)
     {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
@@ -33,12 +34,18 @@ public class AuthenticationController
     public ResponseEntity<?> register(@RequestBody RegisterUserDTO registerUserDTO)
     {
         authenticationService.signUp(registerUserDTO);
-        return ResponseEntity.ok("Your account has been successfully created. A verification email has been sent to the address provided. Please follow the instructions in the email to verify your account. Unverified accounts and associated profiles will be automatically deleted at 12:00 AM Pacific Time.");
+        return ResponseEntity.ok("Your account has been successfully created. A verification email has been sent to the address provided. Please follow the instructions in the email to verify your account. Unverified accounts and associated profiles will be automatically deleted the next day.");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticate(@RequestBody LoginUserDTO loginUserDTO) {
-        try {
+    public ResponseEntity<?> authenticate(@RequestBody LoginUserDTO loginUserDTO)
+    {
+        try
+        {
+            if (loginUserDTO == null)
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request body!!!! - request body can't be null");
+            }
             Account authenticatedUser = authenticationService.authenticate(loginUserDTO);
             String jwtToken = jwtService.generateToken(authenticatedUser);
 
@@ -47,11 +54,19 @@ public class AuthenticationController
             String firstName = customer != null ? customer.getFirstName() : "";
 
             // Create a login response containing the user's first name
-            LoginResponse loginResponse = new LoginResponse(authenticatedUser, jwtToken, jwtService.getExpirationTime(), firstName);
+            LoginResponse loginResponse = new LoginResponse(authenticatedUser, jwtToken, firstName);
             return ResponseEntity.ok(loginResponse);
-        } catch (BadRequestException exception) {
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
+        catch (BadRequestException exception)
+        {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid credentials provided.");
-        } catch (LockedException exception) {
+        }
+        catch (LockedException exception)
+        {
             return ResponseEntity.status(HttpStatus.LOCKED).body("Your account is locked.");
         }
     }

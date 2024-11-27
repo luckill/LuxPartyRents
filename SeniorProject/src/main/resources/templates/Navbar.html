@@ -67,6 +67,40 @@
             </div>
         </div>
     </nav>
+    <script>
+        async function loadDistinctTypes() {
+            try {
+                const response = await fetch("/rental/types", {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const types = await response.json();
+                    populateTypeDropdown(types); // Call function to populate the dropdown
+                } else {
+                    console.error("Failed to fetch distinct product types");
+                    alert("Failed to fetch distinct product types");
+                }
+            } catch (error) {
+                console.error("Error fetching distinct product types:", error);
+                alert("Error fetching distinct product types:", error);
+            }
+        }
+
+        function populateTypeDropdown(types) {
+            const typeDropdown = document.getElementById('type-dropdown'); // Get the dropdown element
+            typeDropdown.innerHTML = ''; // Clear existing options
+            typeDropdown.appendChild(new Option("Select Type", "")); // Add default option
+
+            types.forEach(type => {
+                const option = new Option(type, type);
+                typeDropdown.appendChild(option); // Add each type as an option
+            });
+        }
+    </script>
 </div>
 
 <div th:fragment="header">
@@ -109,39 +143,6 @@
     </header>
 
     <script>
-        async function loadDistinctTypes() { 
-            try {
-                const response = await fetch("/rental/types", {
-                    method: "GET",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const types = await response.json();
-                    populateTypeDropdown(types); // Call function to populate the dropdown
-                } else {
-                    console.error("Failed to fetch distinct product types");
-                    alert("Failed to fetch distinct product types");
-                }
-            } catch (error) {
-                console.error("Error fetching distinct product types:", error);
-                alert("Error fetching distinct product types:", error);
-            }
-        }
-
-        function populateTypeDropdown(types) {
-            const typeDropdown = document.getElementById('type-dropdown'); // Get the dropdown element
-            typeDropdown.innerHTML = ''; // Clear existing options
-            typeDropdown.appendChild(new Option("Select Type", "")); // Add default option
-
-            types.forEach(type => {
-                const option = new Option(type, type);
-                typeDropdown.appendChild(option); // Add each type as an option
-            });
-        }
-
         document.addEventListener('DOMContentLoaded', function () {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const userRole = localStorage.getItem('Role'); // Admin or User
@@ -184,7 +185,6 @@
                     item.style.display = 'none';
                 });
             }
-            loadDistinctTypes();
         });
 
         function logout() {
@@ -213,7 +213,7 @@
 
 <div th:fragment="sessionManagement">
     <div class="container">
-        <div id="countdownDisplay" style="display: none; background-color: #f8d7da; padding: 20px; border-radius: 5px; color: #721c24; font-weight: bold; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); text-align: center; justify-content: center">
+        <div id="countdownDisplay" style="display: none;position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index:100; background-color: #f8d7da; padding: 20px; border-radius: 5px; color: #721c24; font-weight: bold; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); text-align: center; justify-content: center">
             <p>Session will expire in <span id="countdownTimer">30</span> seconds due to inactivity.</p>
             <button id="resetTimerButton" style="margin-top: 10px; padding: 10px 15px; font-size: 16px;">Stay Active</button>
         </div>
@@ -281,7 +281,7 @@
             countdownActive = true;
             let countdown = 30;
             document.getElementById("countdownTimer").textContent = countdown;
-            document.getElementById("countdownDisplay").style.display = "block";
+            document.getElementById("countdownDisplay").style.display = "flex";
 
             // Set countdown start time in localStorage as string
             localStorage.setItem("countdownStart", Date.now().toString());

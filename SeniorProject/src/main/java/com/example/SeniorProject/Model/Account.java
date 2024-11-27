@@ -59,7 +59,7 @@ public class Account implements UserDetails
 
     }
 
-    public Account(String email, String password, boolean isAdmin)
+    public Account(String email, String password)
     {
         this.email = email;
         this.createdAt = LocalDate.now();
@@ -76,6 +76,9 @@ public class Account implements UserDetails
         return List.of(authority);
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
     @Override
     public boolean isAccountNonExpired()

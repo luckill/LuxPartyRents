@@ -1,11 +1,26 @@
 document.addEventListener('DOMContentLoaded', function() {
     const gallerySection = document.querySelector('.gallery');
     const images = [
-        'https://d3snlw7xiuobl9.cloudfront.net/Image1.jpg',
-        'https://d3snlw7xiuobl9.cloudfront.net/Image2.jpg',
-        'https://d3snlw7xiuobl9.cloudfront.net/Image3.jpg',
-        'https://d3snlw7xiuobl9.cloudfront.net/Image4.jpg',
-        'https://d3snlw7xiuobl9.cloudfront.net/Image5.jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery25(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery22(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery21(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery20(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery18(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery17(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery14(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery11(1).jpg',
+         'https://d3snlw7xiuobl9.cloudfront.net/gallery10(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery7(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery2(1).jpg',
+         'https://d3snlw7xiuobl9.cloudfront.net/gallery6(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery5(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery24(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery26(1).jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/Gallery1.jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery13.jpg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery15.jpeg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery16.jpeg',
+        'https://d3snlw7xiuobl9.cloudfront.net/gallery23(1).jpg',
     ];
 
     // Function to display images in the gallery

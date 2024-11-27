@@ -1,6 +1,7 @@
 window.onload = function() {
     const params = new URLSearchParams(window.location.search);
     const productId = params.get('id'); // Get the product ID from the URL
+    const imageView = document.getElementById("img-view");
 
     const jwtToken = localStorage.getItem("jwtToken");
     const role = localStorage.getItem("Role");
@@ -36,7 +37,8 @@ window.onload = function() {
         alertFooter.innerHTML = 'Please <a href="/login" class="alert-link">log in</a> to continue.';
     }
 
-    if (productId) {
+    if (productId)
+    {
         fetch(`/product/getById?id=${productId}`, {
             method: "GET",
             headers: {
@@ -55,33 +57,21 @@ window.onload = function() {
             document.querySelector('.description').value = product.description;
 
             let imgLink = "https://d3snlw7xiuobl9.cloudfront.net/";
-            imgLink = imgLink.concat(product.name, ".jpg");// Assuming product.imageUrl contains the URL of the image
+            let imageName = product.name
+            imgLink = imgLink.concat(imageName.replace(/ /g, "%20"), ".jpg");// Assuming product.imageUrl contains the URL of the image
             console.log(imgLink);
             imageView.style.backgroundImage = `url(${imgLink})`;
-            imageView.textContent = ""; // Clear placeholder text
-            imageView.style.border = 0;
-            placeholderImg.style.display = "none";
+
         })
         .catch(error => {
             console.log('Error fetching product details:', error)
-            alert('Error fetching product details:', error);
+            //alert('Error fetching product details:', error);
         });
-        }
     }
 };
-
 function updateProduct() {
     const form = document.getElementById('updateForm');
     let formData = new FormData(form);
-    const name = formData.get('name');
-    const inputFile = document.getElementById("input-file");
-    let file = inputFile.files[0];
-    if (file) {
-        let newName = name.concat(".jpg")
-        file = renameFile(file, newName);
-        console.log(file); // Log the renamed file
-    }
-    console.log(formData)
     // Prevent form submission
     event.preventDefault();
 

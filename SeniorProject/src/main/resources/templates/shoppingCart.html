@@ -41,6 +41,7 @@
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
+            display: none;
         }
         .form-group input {
             width: 100%;
@@ -65,6 +66,33 @@
         .form-inline .form-group {
             width: 48%;
         }
+        .is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+
+        .required-field::after {
+        content: "*";
+        color: #dc3545;
+        margin-left: 4px;
+        }
+
+        .required-message {
+        color: #dc3545;
+        font-size: 0.9em;
+        margin-top: 10px;
+        font-weight:bold
+        }
+
     </style>
 </head>
 <body class="bg-transparent container-fluid">
@@ -118,8 +146,9 @@
 
                 <!-- Date Selection Section -->
                 <div class="container my-3">
-                    <h5>Select Rental Dates</h5>
+                    <h5 class="required-field">Select Rental Dates</h5>
                     <div class="row">
+                        <!-- Address Selection Section -->
                         <div class="col-6">
                             <label for="startDate">Start Date:</label>
                             <input type="text" id="startDate" class="form-control" placeholder="Select start date">
@@ -131,7 +160,7 @@
                     </div>
                     <div class="row">
                         <div class="form-container">
-                            <h3 style="text-align: center">delivery Address(to the place that you hold the event)</h3>
+                            <h3 style="text-align: center" class="required-field">Delivery Address(the location where you will hold the event)</h3>
 
                             <div class="form-group">
                                 <label for="street">Street Address</label>
@@ -159,6 +188,7 @@
                                 </div>
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-lg mx-2" onclick="CalculateDeliveryFee()">Calculate Delivery Fee</button>
+                            <div class="required-message">* = Required Fields</div>
                         </div>
                     </div>
                 </div>
@@ -277,25 +307,29 @@
     });
 
     // Initialize flatpickr for date selection with fixed return date 4 days after start date
-    flatpickr("#startDate", {
-        dateFormat: "Y-m-d",
-        onChange: function(selectedDates, dateStr) {
+    // Date picker initialization and validation
+flatpickr("#startDate", {
+    dateFormat: "Y-m-d",
+    minDate: "today",
+    disable: [
+        function(date) {
+            // Disable today's date, only allow tomorrow and future dates
+            return date.getTime() <= new Date().getTime();
+        }
+    ],
+    onChange: function(selectedDates, dateStr) {
+        if (selectedDates[0]) {
             // Calculate the return date as 4 days after the start date
             const returnDate = new Date(selectedDates[0]);
             returnDate.setDate(returnDate.getDate() + 3); // 3 days after start date to include the start date
-
             // Format the return date as YYYY-MM-DD and set it to the endDate field
             const formattedReturnDate = returnDate.toISOString().split('T')[0];
             document.getElementById("endDate").value = formattedReturnDate;
         }
-    });
+        validateDateSelection(); // Validate whenever date changes
+    }
+});
 
-    // Make the end date field read-only
-    flatpickr("#endDate", {
-        dateFormat: "Y-m-d",
-        clickOpens: false, // Prevent users from opening the calendar on the end date field
-        allowInput: false // Disallow manual input
-    });
 </script>
 </body>
 </html>

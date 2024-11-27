@@ -5,12 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,10 +24,6 @@ public class S3Service
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
     public S3Service(@Value("${aws.accessKeyId}") String accessKeyId, @Value("${aws.secretKey}") String secretKey, @Value("${aws.s3.region}") String region)
     {
         AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKeyId, secretKey);
@@ -36,6 +31,12 @@ public class S3Service
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
                 .build();
+    }
+
+    public void uploadOrderInvoice(File file, int orderId)
+    {
+        String name = "invoice_" + orderId + ".pdf";
+        uploadFileToS3Bucket(file, name);
     }
 
     public void uploadFile(MultipartFile multipartFile, String name)
@@ -59,12 +60,7 @@ public class S3Service
                 renamedFile = file;  // Fallback to original if rename fails
             }
 
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(name + ".jpg")
-                    .acl(ObjectCannedACL.PUBLIC_READ)
-                    .build();
-            s3Client.putObject(putObjectRequest, RequestBody.fromFile(renamedFile));
+            uploadFileToS3Bucket(renamedFile, renamedFile.getName());
         }
         catch (S3Exception e)
         {
@@ -86,7 +82,7 @@ public class S3Service
             }
         }
     }
-    private File convertMultiPartFileToFile(MultipartFile file)
+    File convertMultiPartFileToFile(MultipartFile file)
     {
         File convFile = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(convFile))
@@ -98,6 +94,44 @@ public class S3Service
             e.printStackTrace();
         }
         return convFile;
+    }
+    void uploadFileToS3Bucket(File file, String name)
+    {
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(name)
+                .acl(ObjectCannedACL.PUBLIC_READ)
+                .build();
+        s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
+    }
+
+    public File downloadPdfFileFromS3Bucket(String fileName) throws IOException
+    {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+
+        // Downloading the file as bytes
+        ResponseBytes<?> s3ObjectBytes = s3Client.getObjectAsBytes(getObjectRequest);
+
+        // Ensure the file is saved with a .pdf extension
+        File tempFile = File.createTempFile("downloaded-", ".pdf");
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(s3ObjectBytes.asByteArray());
+        }
+        return tempFile;
+    }
+
+    public String deleteFileFromS3Bucket(String fileName)
+    {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+            .bucket(bucketName)
+            .key(fileName)
+            .build();
+
+            s3Client.deleteObject(deleteObjectRequest);
+            return "File deleted successfully from S3 bucket";
     }
 }
 

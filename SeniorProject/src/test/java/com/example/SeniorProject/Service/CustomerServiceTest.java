@@ -1,5 +1,6 @@
 package com.example.SeniorProject.Service;
 
+import com.example.SeniorProject.DTOs.*;
 import com.example.SeniorProject.Model.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
@@ -25,6 +26,9 @@ public class CustomerServiceTest
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private JwtService jwtService;
 
     @Test
     void testCheckIfAccountExistWithAccountExists()
@@ -79,23 +83,6 @@ public class CustomerServiceTest
     }
 
     @Test
-    void testUpdateCustomerExistingCustomer()
-    {
-        Customer existingCustomer = new Customer();
-        existingCustomer.setId(1);
-        existingCustomer.setFirstName("Old Name");
-
-        Customer updatedCustomer = new Customer();
-        updatedCustomer.setId(1);
-
-        when(customerRepository.findById(1)).thenReturn(Optional.of(existingCustomer));
-
-        customerService.updateCustomer(updatedCustomer);
-
-        assertEquals("Old Name", existingCustomer.getFirstName());
-    }
-
-    @Test
     public void testDeleteCustomerAccountExists() {
         // Arrange
         int id = 1;
@@ -133,7 +120,7 @@ public class CustomerServiceTest
         existingCustomer.setFirstName("John");
         existingCustomer.setLastName("Doe");
 
-        Customer updatedCustomer = new Customer();
+        CustomerDTO updatedCustomer = new CustomerDTO();
         updatedCustomer.setId(1);
         updatedCustomer.setFirstName("Jane"); // Change first name
 
@@ -148,29 +135,6 @@ public class CustomerServiceTest
     }
 
     @Test
-    public void testUpdateCustomer_WithNullFields() {
-        // Arrange
-        Customer existingCustomer = new Customer();
-        existingCustomer.setId(1);
-        existingCustomer.setFirstName("John");
-        existingCustomer.setLastName("Doe");
-
-        Customer updatedCustomer = new Customer();
-        updatedCustomer.setId(1);
-        updatedCustomer.setFirstName(null); // Not updating first name
-
-        when(customerRepository.findById(updatedCustomer.getId())).thenReturn(Optional.of(existingCustomer));
-
-        // Act
-        customerService.updateCustomer(updatedCustomer);
-
-        // Assert
-        assertEquals("John", existingCustomer.getFirstName()); // Verify first name remains unchanged
-        assertEquals("Doe", existingCustomer.getLastName()); // Verify last name remains unchanged
-        verify(customerRepository).save(existingCustomer); // Verify save was called
-    }
-
-    @Test
     public void testUpdateCustomer_Success() {
         // Arrange
         Customer existingCustomer = new Customer();
@@ -179,10 +143,9 @@ public class CustomerServiceTest
         existingCustomer.setLastName("Doe");
         existingCustomer.setPhone("1234567890");
 
-        Customer updatedCustomer = new Customer();
+        CustomerDTO updatedCustomer = new CustomerDTO();
         updatedCustomer.setId(1);
         updatedCustomer.setFirstName("Jane");
-        updatedCustomer.setLastName(null); // This should remain unchanged
         updatedCustomer.setPhone("0987654321");
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(existingCustomer));
@@ -200,7 +163,7 @@ public class CustomerServiceTest
     @Test
     public void testUpdateCustomer_CustomerNotFound() {
         // Arrange
-        Customer updatedCustomer = new Customer();
+        CustomerDTO updatedCustomer = new CustomerDTO();
         updatedCustomer.setId(1);
 
         when(customerRepository.findById(1)).thenReturn(Optional.empty());
@@ -219,7 +182,7 @@ public class CustomerServiceTest
         // Arrange
         Customer existingCustomer = new Customer();
         existingCustomer.setId(1);
-        Customer updatedCustomer = new Customer();
+        CustomerDTO updatedCustomer = new CustomerDTO();
         updatedCustomer.setId(1);
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(existingCustomer));
@@ -241,7 +204,7 @@ public class CustomerServiceTest
         existingCustomer.setFirstName("John");
         existingCustomer.setLastName("Doe");
         existingCustomer.setPhone("1234567890");
-        Customer updatedCustomer = new Customer();
+        CustomerDTO updatedCustomer = new CustomerDTO();
         updatedCustomer.setId(1);
         updatedCustomer.setFirstName(null);
         updatedCustomer.setLastName(null);
@@ -268,7 +231,7 @@ public class CustomerServiceTest
         existingCustomer.setLastName("Doe");
         existingCustomer.setPhone("1234567890");
 
-        Customer updatedCustomer = new Customer();
+        CustomerDTO updatedCustomer = new CustomerDTO();
         updatedCustomer.setId(1);
         updatedCustomer.setFirstName(null); // No change
         updatedCustomer.setLastName("Smith"); // Change
@@ -284,5 +247,81 @@ public class CustomerServiceTest
         assertEquals("Smith", existingCustomer.getLastName()); // Should change
         assertEquals("1234567890", existingCustomer.getPhone()); // Should not change
         verify(customerRepository).save(existingCustomer); // Verify that save was called
+    }
+
+    @Test
+    void testGetCustomerInfo_ValidTokenWithExistingCustomer() {
+        // Arrange
+        String token = "Bearer validToken";
+        String jwtToken = "validToken";
+        String username = "user@example.com";
+        Customer mockCustomer = new Customer("John", "Doe", username, "123456789");
+
+        when(jwtService.isTokenExpired(jwtToken)).thenReturn(false);
+        when(jwtService.extractUsername(jwtToken)).thenReturn(username);
+        when(customerRepository.findCustomersByEmail(username)).thenReturn(mockCustomer);
+
+        // Act
+        CustomerDTO result = customerService.getCustomerInfo(token);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(mockCustomer.getId(), result.getId());
+        assertEquals(mockCustomer.getFirstName(), result.getFirstName());
+        assertEquals(mockCustomer.getLastName(), result.getLastName());
+        assertEquals(mockCustomer.getEmail(), result.getEmail());
+        assertEquals(mockCustomer.getPhone(), result.getPhone());
+    }
+
+    @Test
+    void testGetCustomerInfo_ExpiredToken() {
+        // Arrange
+        String token = "Bearer expiredToken";
+        String jwtToken = "expiredToken";
+
+        when(jwtService.isTokenExpired(jwtToken)).thenReturn(true);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            customerService.getCustomerInfo(token);
+        });
+        assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
+        assertEquals("Your session has expired, please log in again", exception.getReason());
+    }
+
+    @Test
+    void testGetCustomerInfo_NonExistentCustomer() {
+        // Arrange
+        String token = "Bearer validToken";
+        String jwtToken = "validToken";
+        String username = "nonexistent@example.com";
+
+        when(jwtService.isTokenExpired(jwtToken)).thenReturn(false);
+        when(jwtService.extractUsername(jwtToken)).thenReturn(username);
+        when(customerRepository.findCustomersByEmail(username)).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            customerService.getCustomerInfo(token);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("customer not found", exception.getReason());
+    }
+
+    @Test
+    void testGetCustomerInfo_InvalidUsername() {
+        // Arrange
+        String token = "Bearer validToken";
+        String jwtToken = "validToken";
+
+        when(jwtService.isTokenExpired(jwtToken)).thenReturn(false);
+        when(jwtService.extractUsername(jwtToken)).thenReturn(null);
+
+        // Act & Assert
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            customerService.getCustomerInfo(token);
+        });
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("customer not found", exception.getReason());
     }
 }

@@ -5,10 +5,7 @@ import com.example.SeniorProject.DTOs.*;
 import com.example.SeniorProject.Service.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,12 +57,23 @@ public class OrderController
     }
 
     // Cancel an order
-    @PutMapping("/cancel")
-    public ResponseEntity<?> cancelOrder(@RequestParam int orderId)
+    @PostMapping("/cancel")
+    public ResponseEntity<?> cancelOrder(@RequestParam int orderId, @RequestParam String role)
     {
         try
         {
-            orderService.cancelOrder(orderId);
+            if (role.equalsIgnoreCase("admin"))
+            {
+                orderService.orderCancelledByAdmin(orderId);
+            }
+            else if (role.equalsIgnoreCase("user"))
+            {
+                orderService.orderCancelledByCustomer(orderId);
+            }
+            else
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing or unknown role");
+            }
             return new ResponseEntity<>("An order has been successfully cancelled", HttpStatus.OK);
         }
         catch (ResponseStatusException exception)
@@ -143,7 +151,7 @@ public class OrderController
     {
         try
         {
-            orderService.updateOrder(orderId, orderDTO);
+            orderService.updateOrderStatus(orderId, orderDTO);
             return new ResponseEntity<>("The order has been successfully updated", HttpStatus.OK);
         }
         catch (ResponseStatusException exception)
@@ -161,7 +169,7 @@ public class OrderController
         System.out.println(id);
         try
         {
-            orderService.returnDeleteOrder(id);
+            orderService.deleteOrder(id);
             return ResponseEntity.ok("Order deleted successfully");
         }
         catch (ResponseStatusException exception)
@@ -215,33 +223,16 @@ public class OrderController
         }
     }
 
-    @GetMapping(path = "/generateInvoice")
-    public ResponseEntity<ByteArrayResource> generateInvoice(@RequestParam int orderId)
+    @GetMapping("/sendOrderDueForReturnNotification")
+    public void sendOrderDueForReturnNotification()
     {
-        // Fetch the order by ID
-        Order order = orderRepository.findById(orderId).orElse(null);
-        if (order == null)
+        try
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            orderService.orderDueCheck();
         }
-
-        // Fetch the customer associated with the order
-        Customer customer = order.getCustomer();
-
-        // Populate model for invoice
-        Map<String, Object> model = new HashMap<>();
-        model.put("order", order);
-        model.put("customer", customer);
-
-        // Generate the PDF using the PdfService
-        ByteArrayResource pdfContent = pdfService.generateInvoicePDF(model);
-
-        // Prepare the HTTP response with the generated PDF
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "invoice_" + orderId + ".pdf");
-
-        // Return the PDF as a response entity
-        return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
+        catch (ResponseStatusException exception)
+        {
+            ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
     }
 }

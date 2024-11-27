@@ -2,21 +2,24 @@ package com.example.SeniorProject.Model;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
+
+import java.time.*;
 import java.util.List;
 
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
-         // Fetch current (active) orders for a specific customer
-        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1 AND (o.status != 'completed' AND o.status != 'cancelled' )")
+        // Fetch current (active) orders for a specific customer
+        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1 AND (o.status != 'completed' AND o.status != 'cancelled' AND o.status != 'refunded')")
         List<Order> findCurrentOrdersByCustomerId(int customerId);
 
         // Fetch past (completed) orders for a specific customer
-        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1 AND ( o.status = 'completed' OR o.status = 'cancelled')")
+        @Query("SELECT o FROM Order o WHERE o.customer.id = ?1 AND (o.status = 'completed' OR o.status = 'cancelled' OR o.status = 'refunded')")
         List<Order> findPastOrdersByCustomerId(int customerId);
         
         // Custom query to fetch an order by its ID
@@ -32,8 +35,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
         @Query("SELECT o FROM Order o WHERE o.customer.id = ?1")
         List<Order> findOrderByCustomerId(int customerId);
 
-        @Query(value = "SELECT * FROM orders WHERE order_status = 'PICK_UP' AND order_date = CURDATE() + INTERVAL 1 DAY", nativeQuery = true)
-        List<Order> findReturnOrders();
+        @Query("SELECT o FROM Order o WHERE o.status = 'PICK_UP' AND o.returnDate = :tomorrow")
+        List<Order> findReturnOrders(@Param("tomorrow")LocalDate tomorrow);
 
         @Query(value = "SELECT * FROM orders WHERE order_status = 'RECEIVED' AND order_date < CURDATE()", nativeQuery = true)
         List<Order> findReceivedOrdersBeforeToday();

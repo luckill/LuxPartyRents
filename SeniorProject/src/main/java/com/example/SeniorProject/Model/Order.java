@@ -23,8 +23,13 @@ public class Order
     private LocalDate creationDate;
 
     @NotNull
+    @Column(name = "pickup_date")
+    private LocalDate pickupDate;
+
+
+    @NotNull
     @Column(name = "rental_time")
-    private int rentalTime;
+    private LocalDate returnDate;
 
     @NotNull
     @Column(name = "payment_status")
@@ -47,6 +52,15 @@ public class Order
     @Column(nullable = false, name = "deposit")
     private double deposit;
 
+    @Column(nullable = false, name = "tax")
+    private double tax;
+
+    @Column(nullable = false, name = "deliveryFee")
+    private double deliveryFee;
+
+    @Column(nullable = false, name = "subtotal")
+    private double subtotal;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
     @JsonBackReference
@@ -56,11 +70,12 @@ public class Order
     @JsonManagedReference
     private Set<OrderProduct> orderProducts = new HashSet<>();
 
-    public Order(int id, int rentalTime, boolean paid, String address)
+    public Order(int id, LocalDate pickupDate, LocalDate returnDate, boolean paid, String address)
     {
         this.id = id;
         this.creationDate = LocalDate.now();
-        this.rentalTime = rentalTime;
+        this.pickupDate = pickupDate;
+        this.returnDate = returnDate;
         this.paid = paid;
         this.status = OrderStatus.RECEIVED;
         this.address = address;
@@ -88,16 +103,6 @@ public class Order
     public void setId(int id)
     {
         this.id = id;
-    }
-
-    public int getRentalTime()
-    {
-        return rentalTime;
-    }
-
-    public void setRentalTime(int rentalTime)
-    {
-        this.rentalTime = rentalTime;
     }
 
     public boolean isPaid()
@@ -188,5 +193,49 @@ public class Order
     public void setDeposit(double deposit)
     {
         this.deposit = deposit;
+    }
+
+    public double getTax() {
+        return tax;
+    }
+
+    public void setTax(double tax) {
+        this.tax = tax;
+    }
+
+    public double getDeliveryFee() {
+        return deliveryFee;
+    }
+
+    public void setDeliveryFee(double deliveryFee) {
+        this.deliveryFee = deliveryFee;
+    }
+
+    public double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public @NotNull LocalDate getPickupDate()
+    {
+        return pickupDate;
+    }
+
+    public void setPickupDate(@NotNull LocalDate pickupDate)
+    {
+        this.pickupDate = pickupDate;
+    }
+
+    public @NotNull LocalDate getReturnDate()
+    {
+        return returnDate;
+    }
+
+    public void setReturnDate(@NotNull LocalDate returnDate)
+    {
+        this.returnDate = returnDate;
     }
 }

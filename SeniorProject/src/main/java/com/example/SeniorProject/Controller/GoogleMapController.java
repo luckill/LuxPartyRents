@@ -1,19 +1,17 @@
 package com.example.SeniorProject.Controller;
 
-import com.example.SeniorProject.Service.googleMapService;
+import com.example.SeniorProject.Service.GoogleMapService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/map")
-public class googleMapController
+public class GoogleMapController
 {
     @Autowired
-    private googleMapService googleMapService;
+    private GoogleMapService googleMapService;
 
     @PostMapping("/getPlaceId")
     public ResponseEntity<?> getPlaceId(@RequestBody String address)

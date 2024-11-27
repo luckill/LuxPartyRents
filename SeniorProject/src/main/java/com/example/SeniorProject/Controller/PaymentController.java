@@ -18,80 +18,95 @@ import java.util.Map;
 @RequestMapping("/api/payment/secure")
 public class PaymentController {
 
-        @Autowired
-        PaymentService paymentService;
-        @Autowired
-        OrderRepository orderRepository;
+    @Autowired
+    PaymentService paymentService;
+    @Autowired
+    OrderRepository orderRepository;
 
-        @PostMapping("/create-payment-intent")
-        public ResponseEntity<?> createPaymentIntent(@RequestBody String orderId) throws Exception {
-                try
-                {
-                        System.out.println("order id" + orderId);
-                        int id;
-                        try {
-                                id = Integer.parseInt(orderId);
-                        } catch (NumberFormatException e) {
-                                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid orderId format");
-                        }
+    @PostMapping("/create-payment-intent")
+    public ResponseEntity<?> createPaymentIntent(@RequestBody String orderId) throws Exception {
+        try
+        {
+            System.out.println("order id" + orderId);
+            int id;
+            try {
+                id = Integer.parseInt(orderId);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid orderId format");
+            }
 
-                        Map<String, Object> response = paymentService.payAll(id);
-                        return ResponseEntity.status(HttpStatus.OK).body(response);
-                }
-                catch (ResponseStatusException exception)
-                {
-                        return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
-                }
+            Map<String, Object> response = paymentService.payAll(id);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
+    }
+
+    @PostMapping("/create-refund-intent")
+    public ResponseEntity<?> createRefund(@RequestParam int orderId, @RequestBody double amount) throws Exception
+    {
+        try
+        {
+            Map<String, Object> response = paymentService.refund(orderId, amount);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
+    }
+
+    @PostMapping("/create-refund-intentDepositOnly")
+    public ResponseEntity<?> createRefundDepositOnly(@RequestParam int orderId) throws Exception
+    {
+        try
+        {
+            Map<String, Object> response = paymentService.refundDeposit(orderId);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
 
-        @PostMapping("/create-refund-intent")
-        public ResponseEntity<?> createRefund(@RequestBody PaymentRequest paymentRequest, @RequestBody int orderId, @RequestBody double amount) throws Exception {
-                try
-                {
-                        Map<String, Object> response = paymentService.refund(orderId, amount);
-                        return ResponseEntity.status(HttpStatus.OK).body(response);
-                }
-                catch (ResponseStatusException exception)
-                {
-                        return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
-                }
+    }
 
+    @GetMapping("/paymentInfo")
+    public ResponseEntity<?> getPaymentInfo( @RequestBody int orderId) throws Exception {
+        try
+        {
+            Map<String, Object> response = paymentService.getCharge(orderId);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
 
-        @GetMapping("/paymentInfo")
-        public ResponseEntity<?> getPaymentInfo( @RequestBody int orderId) throws Exception {
-                try
-                {
-                        Map<String, Object> response = paymentService.getCharge(orderId);
-                        return ResponseEntity.status(HttpStatus.OK).body(response);
-                }
-                catch (ResponseStatusException exception)
-                {
-                        return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
-                }
+    }
 
+    @PostMapping("/paymentSuccess")
+    public ResponseEntity<?> getPaymentSuccess(@RequestBody String orderId) throws Exception {
+
+        try
+        {
+            System.out.println("order id" + orderId);
+            int id;
+            try {
+                id = Integer.parseInt(orderId);
+            } catch (NumberFormatException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid orderId format");
+            }
+
+            String response = paymentService.paymentSucceeded(id);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         }
-
-        @PostMapping("/paymentSuccess")
-        public ResponseEntity<?> getPaymentSuccess(@RequestBody String orderId) throws Exception {
-
-                try
-                {
-                        System.out.println("order id" + orderId);
-                        int id;
-                        try {
-                                id = Integer.parseInt(orderId);
-                        } catch (NumberFormatException e) {
-                                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid orderId format");
-                        }
-
-                        String response = paymentService.paymentSucceeded(id);
-                        return ResponseEntity.status(HttpStatus.OK).body(response);
-                }
-                catch (ResponseStatusException exception)
-                {
-                        return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
-                }
+        catch (ResponseStatusException exception)
+        {
+            return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
+    }
 }
 

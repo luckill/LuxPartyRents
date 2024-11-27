@@ -6,11 +6,11 @@ import com.example.SeniorProject.Model.*;
 import jakarta.transaction.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.query.ReturnedType;
 import org.springframework.http.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
+import java.time.*;
 import java.util.*;
 import java.util.stream.*;
 
@@ -36,7 +36,13 @@ public class OrderService
     private PdfService pdfService;
 
     @Autowired
-    private googleMapService googleMapService;
+    private GoogleMapService googleMapService;
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
+    private S3Service s3Service;
 
     @Transactional
     public OrderDTO createOrder(int id, OrderDTO orderDTO)
@@ -53,18 +59,17 @@ public class OrderService
         }
 
         // Create the new order
-        Order order = new Order(orderId, orderDTO.getRentalTime(), orderDTO.isPaid(), orderDTO.getAddress());
+        Order order = new Order(orderId, orderDTO.getPickupDate(), orderDTO.getReturnDate(), orderDTO.isPaid(), orderDTO.getAddress());
         order.setCustomer(customer);
         // Save the order to the database
         order = orderRepository.save(order);
 
         //initialize totalPrice
-        double totalPrice = 0;
-        double totalDeposit = 0;
+        double price = 0;
+        double deposit = 0;
+        double tax = 0;
         double deliveryFee = 0;
-
-        // Initialize a flag to check if the delivery fee has been added
-        boolean deliveryFeeAdded = false;
+        double subtotal;
 
         // Process the products in the order
         for (OrderProductDTO orderProductDTO : orderDTO.getOrderProducts())
@@ -76,7 +81,7 @@ public class OrderService
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
             }
 
-            if(product.isDeliverOnly())
+            if (product.isDeliverOnly())
             {
                 hasDeliveryOnlyProduct = true;
             }
@@ -86,45 +91,63 @@ public class OrderService
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Insufficient product quantity.");
             }
 
-            // Update product quantity and calculate total price and add 250 if there is a delivery only item
-            totalPrice +=  (product.getPrice() * quantity) + ((product.getPrice() * quantity) * .0725);
-            totalDeposit += product.getDeposit();
+            price += product.getPrice() * quantity;
+            deposit += product.getDeposit() * quantity;
+            tax += price * 0.0725;
 
             product.setQuantity(product.getQuantity() - quantity);
             productRepository.save(product);
 
             // Save the OrderProduct to link the order and product
             OrderProduct orderProduct = new OrderProduct(order, product, quantity);
-            orderProductRepository.save(orderProduct);
+            order.getOrderProducts().add(orderProduct);
         }
+
         if (hasDeliveryOnlyProduct)
         {
-            if(!order.getAddress().isEmpty())
-            {
-                String placeId = googleMapService.getPlaceId(order.getAddress());
-                deliveryFee = googleMapService.calculateDeliveryFee(placeId);
-            }
-            else
-            {
-                deliveryFee = 250.00;
-            }
+            String placeId = googleMapService.getPlaceId(order.getAddress());
+            deliveryFee = googleMapService.calculateDeliveryFee(placeId);
         }
 
-        order.setPrice(totalPrice + deliveryFee);
-        order.setDeposit(totalDeposit);
+        subtotal = price + deposit + tax + deliveryFee;
+        order.setPrice(Math.round(price * 100.0) / 100.0);
+        order.setTax(Math.round(tax * 100.0) / 100.0);
+        order.setDeliveryFee(deliveryFee);
+        order.setDeposit(Math.round(deposit * 100.0) / 100.0);
+        order.setSubtotal(Math.round(subtotal * 100.0) / 100.0);
         orderRepository.save(order);
+        orderProductRepository.saveAll(order.getOrderProducts());
 
-        // Send notification to admin for new order
-        sendAdminNotification(
-                "New Order Placed",
-                "A new order has been placed by " + customer.getFirstName() + " " + customer.getLastName(),
-                order
-        );
-
-        //Send notification to Customer about creation of new order, and pick up
-        emailService.sendCxPickupNotification(order);
+        generateOrderInvoice(order);
 
         return mapToOrderDTO(order);
+    }
+
+    public void orderCancelledByCustomer(int orderId)
+    {
+        cancelOrder(orderId);
+
+        try
+        {
+            paymentService.refundAllExceptDeposit(orderId);
+        }
+        catch (Exception e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR!!! - something went wrong when processing return payment");
+        }
+    }
+
+    public void orderCancelledByAdmin(int orderId)
+    {
+        cancelOrder(orderId);
+        try
+        {
+            paymentService.refundAll(orderId);
+        }
+        catch (Exception e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "ERROR!!! - something went wrong when processing return payment");
+        }
     }
 
     // Cancel an order
@@ -149,8 +172,10 @@ public class OrderService
         // Save the order with the updated status
         orderRepository.save(order);
 
+        putProductBackToInventory(order);
+
         // Send notification to admin for order cancellation
-        sendAdminNotification(
+        emailService.sendAdminNotification(
                 "Order Cancelled",
                 "Order ID " + order.getId() + " has been cancelled by " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
                 order
@@ -219,18 +244,12 @@ public class OrderService
         return mapToOrderDTO(order);
     }
 
-    public void updateOrder(int orderId, OrderDTO orderDTO)
+    public void updateOrderStatus(int orderId, OrderDTO orderDTO)
     {
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Order not found");
-        }
-
-        if (orderDTO.isPaid() != order.isPaid())
-        {
-            order.setPaid(orderDTO.isPaid());
-            orderRepository.save(order);
         }
 
         if (orderDTO.getStatus() != null)
@@ -245,32 +264,42 @@ public class OrderService
                 {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Invalid order status");
                 }
-                if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.RETURNED)
+                if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.RETURNED || order.getStatus() == OrderStatus.REFUNDED || order.getStatus() == OrderStatus.COMPLETED)
                 {
+                    String message = "";
                     if (order.getStatus() == OrderStatus.CANCELLED)
                     {
-                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Order has already been cancelled");
+                        message = "Order has already been cancelled";
                     }
-                    if (order.getStatus() == OrderStatus.RETURNED && OrderStatus.valueOf(orderDTO.getStatus()) != OrderStatus.COMPLETED)
+                    else if (order.getStatus() == OrderStatus.RETURNED)
                     {
-                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Order has already been returned, the only status that you can update to is complete");
+                        message = "Order has already been returned";
                     }
+                    else if (order.getStatus() == OrderStatus.REFUNDED)
+                    {
+                        message = "Order has already been refunded";
+                    }
+                    else if (order.getStatus() == OrderStatus.COMPLETED)
+                    {
+                        message = "Order has already been completed";
+                    }
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, message);
                 }
                 order.setStatus(OrderStatus.fromString(orderDTO.getStatus()));
                 orderRepository.save(order);
+                if (order.getStatus() == OrderStatus.READY_FOR_PICK_UP){
+                    emailService.sendCxReadyNotification(order);
+                }//Calling Ready Email
+            }
+            else
+            {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Order already has the status you want to updated to");
             }
         }
-    }
-
-    // Delete an order
-    public void deleteOrder(int id)
-    {
-        Order order = orderRepository.findById(id).orElse(null);
-        if (order == null)
+        else
         {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error!!! - Order associated with this id is not found in the database");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - trying to updated order status to null status");
         }
-        orderRepository.deleteById(id);
     }
 
     // Return an order
@@ -282,38 +311,10 @@ public class OrderService
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error!!! - Order not found");
         }
-
-        if (order.getStatus() == OrderStatus.RETURNED)
+        if(order.getStatus() == OrderStatus.RETURNED)
         {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Order is already returned");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Order has already been returned");
         }
-
-        //returning the products within order
-        for (OrderProduct orderProduct : order.getOrderProducts())
-        {
-            //checking to make sure product exists before updating it
-            // and that quantity of the order is not 0 or status is not returned
-            Product product = orderProduct.getProduct();
-            int quantity = orderProduct.getQuantity();
-            if (product == null)
-            {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
-            }
-            else if (quantity == 0)
-            {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Insufficient product quantity in order, "
-                        + "check to see if it hasn't been processed already.");
-            }
-            else if (order.getStatus() == OrderStatus.RETURNED)
-            {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - check to see if it hasn't been processed already.");
-            }
-
-            //update product quantity and save
-            product.setQuantity(product.getQuantity() + quantity);
-            productRepository.save(product);
-        }
-
 
         // Update the order status to "Returned"
         order.setStatus(OrderStatus.RETURNED);
@@ -321,13 +322,16 @@ public class OrderService
         // Save the updated order
         orderRepository.save(order);
 
+        putProductBackToInventory(order);
+
+
         // Send notification to both admin and customer for successful return
-        sendAdminNotification("Order Returned",
+        emailService.sendAdminNotification("Order Returned",
                 "Order ID " + order.getId() + " has been successfully returned by "
                         + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName(),
                 order);
 
-        sendCustomerReturnNotification(order);
+        emailService.sendCustomerReturnNotification(order);
     }
 
     public List<OrderDTO> getOrderByCustomerId(int id)
@@ -367,43 +371,13 @@ public class OrderService
         Set<OrderProductDTO> orderProductDTOs = order.getOrderProducts().stream()
                 .map(orderProduct -> new OrderProductDTO(orderProduct.getQuantity(), new ProductDTO(orderProduct.getProduct().getId(), orderProduct.getProduct().getName(), orderProduct.getProduct().getPrice(), orderProduct.getProduct().getType())))
                 .collect(Collectors.toSet());
-        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getRentalTime(), order.isPaid(), order.getStatus(), order.getAddress());
+        OrderDTO orderDTO = new OrderDTO(order.getCreationDate(), order.getPickupDate(), order.getReturnDate(), order.isPaid(), order.getStatus(), order.getAddress(), order.getDeposit(), order.getTax(), order.getDeliveryFee(), order.getPrice(), order.getSubtotal());
         orderDTO.setPrice(order.getPrice());
         orderDTO.setId(order.getId());
         orderDTO.setOrderProducts(orderProductDTOs);
         return orderDTO;
     }
 
-    // Helper method to send email notifications to the admin
-    private void sendAdminNotification(String subject, String messageBody, Order order)
-    {
-        EmailDetails adminEmailDetails = new EmailDetails();
-        adminEmailDetails.setRecipient("zhijunli7799@gmail.com"); //email of admin
-        adminEmailDetails.setSubject(subject);
-
-        String emailBody = messageBody +
-                "\nOrder ID: " + order.getId() +
-                "\nCustomer: " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName() +
-                "\nTotal Amount: $" + order.getPrice();
-
-        adminEmailDetails.setMessageBody(emailBody);
-        emailService.sendSimpleEmail(adminEmailDetails);
-    }
-
-    // Helper method to send email notifications to the customer when the order is returned
-    private void sendCustomerReturnNotification(Order order)
-    {
-        EmailDetails customerEmailDetails = new EmailDetails();
-        customerEmailDetails.setRecipient(order.getCustomer().getEmail());
-        customerEmailDetails.setSubject("Order Returned Successfully");
-
-        String emailBody = "Dear " + order.getCustomer().getFirstName() + " " + order.getCustomer().getLastName() + "," +
-                "\n\nYour order with ID: " + order.getId() + " has been successfully returned." +
-                "\n\nThank you for shopping with us!";
-
-        customerEmailDetails.setMessageBody(emailBody);
-        emailService.sendSimpleEmail(customerEmailDetails);
-    }
 
     // Method to generate a unique order ID
     private int generateUniqueOrderId()
@@ -421,26 +395,20 @@ public class OrderService
         return orderId;
     }
 
-    //Function that checks orders for when they should be returned
-    //Takes in all orders that are set at status RECEIVED and compares there
-    //order pick up date against the order rental time requested
-    private void OrderDueCheck(/*Order dbtable goes here*/)
+    public void orderDueCheck()
     {
-        /*TODO: for loop that goes through the dbtable checking for all orders
-         * that are set as RECEIVED, if they are RECEIVED then they should
-         * compare pick up date against the order rental time by checking the
-         * date that it would be after the rental time as passed.
-         * ie if order pick up is 10/25/24 and rental time is 2 days then
-         * pick up should 10/27/24
-         * this should at end of day every day.
-         */
-
-    }
-
-    private void orderDueCheck()
-    {
-        List<Order> list = orderRepository.findReturnOrders();
-        for (Order order : list) {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        List<Order> list = orderRepository.findReturnOrders(tomorrow);
+        for (Order order : list)
+        {
+            if (order.getCustomer() == null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
+            }
+            else if(order.getCustomer().getEmail()==null)
+            {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer email not found");
+            }
             EmailDetails customerEmailDetails = new EmailDetails();
             customerEmailDetails.setRecipient(order.getCustomer().getEmail());
             customerEmailDetails.setSubject("Order Return");
@@ -454,58 +422,83 @@ public class OrderService
         }
     }
 
-    public void returnDeleteOrder(int orderId)
+    public void deleteOrder(int orderId)
     {
         Order order = orderRepository.findById(orderId).orElse(null);
-        if (order == null) {
+        if (order == null)
+        {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error!!! - Order not found");
         }
 
         // Returning the products within the order
-        for (OrderProduct orderProduct : order.getOrderProducts()) {
+        returnProduct(order);
+
+        try
+        {
+            if (order.getCustomer() != null)
+            {
+                order.setCustomer(null); // Remove the reference to account
+                orderRepository.save(order);  // Save changes to persist them
+            }
+
+            // Delete the order products first
+            // Deletes each related OrderProduct
+            orderProductRepository.deleteAll(order.getOrderProducts());
+
+            // Now delete the Order (this should not fail due to foreign key constraints)
+            orderRepository.delete(order);
+        }
+        catch (DataIntegrityViolationException e)
+        {
+            // Handle the foreign key constraint violation
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete order due to foreign key constraints. Ensure all related entities are properly handled.");
+        }
+    }
+
+    public void generateOrderInvoice(Order order)
+    {
+        if (order == null)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Order not found");
+        }
+
+        // Fetch the customer associated with the order
+        Customer customer = order.getCustomer();
+
+        // Populate model for invoice
+        Map<String, Object> model = new HashMap<>();
+        model.put("order", order);
+        model.put("customer", customer);
+
+        // Generate the PDF using the PdfService
+        pdfService.generateInvoicePDF(model);
+    }
+
+    private void putProductBackToInventory(Order order)
+    {
+        returnProduct(order);
+    }
+
+    void returnProduct(Order order)
+    {
+        for (OrderProduct orderProduct : order.getOrderProducts())
+        {
             // Checking to make sure product exists before updating it
             Product product = orderProduct.getProduct();
             int quantity = orderProduct.getQuantity();
 
-            if (product == null) {
+            if (product == null)
+            {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "ERROR!!! - Product not found");
             }
-            if (quantity == 0) {
+            if (quantity == 0)
+            {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Insufficient product quantity in order, check to see if it hasn't been processed already.");
-            }
-            if (order.getStatus() == OrderStatus.RETURNED) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ERROR!!! - Check to see if it hasn't been processed already.");
             }
 
             // Update product quantity and save
             product.setQuantity(product.getQuantity() + quantity);
             productRepository.save(product);
         }
-
-        try {
-
-            if (order.getCustomer() != null) {
-                order.setCustomer(null); // Remove the reference to account
-                orderRepository.save(order);  // Save changes to persist them
-            }
-
-            // Delete the order products first
-            for (OrderProduct orderProduct : order.getOrderProducts()) {
-                orderProductRepository.delete(orderProduct); // Deletes each related OrderProduct
-            }
-
-            // Now delete the Order (this should not fail due to foreign key constraints)
-            orderRepository.delete(order);
-
-        } catch (DataIntegrityViolationException e) {
-            // Handle the foreign key constraint violation
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete order due to foreign key constraints. Ensure all related entities are properly handled.");
-        }
-    }
-
-
-    private void deleteOrderNotPayed()
-    {
-        orderRepository.deleteReceivedOrdersBeforeToday();;
     }
 }
