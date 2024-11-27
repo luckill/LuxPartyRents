@@ -9,8 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -783,5 +785,120 @@ class ProductServiceTest {
                         assertEquals(real.getName(), test.getName());
                         assertEquals(real.getDescription(), test.getDescription());
                 }
+        }
+
+        @Test
+        public void updateFeaturedStatusTest() {
+                // Create test products
+                Product testProduct1 = mock(Product.class);
+                Product testProduct2 = mock(Product.class);
+                Product testProduct3 = mock(Product.class);
+                Product testProduct4 = mock(Product.class);
+
+                // List of products to be returned by the repository
+                List<Product> products = new ArrayList<>();
+                products.add(testProduct1);
+                products.add(testProduct2);
+                products.add(testProduct3);
+                products.add(testProduct4);
+
+                // Mocking the repository's findAll behavior to return the list of products
+                when(productRepository.findAll()).thenReturn(products);
+
+                // Featured product IDs (IDs of products that should be marked as featured)
+                List<Integer> featuredItemIds = new ArrayList<>();
+                featuredItemIds.add(3); // Only Product B (id=3) should be featured
+
+                // Call the method under test
+                productService.updateFeaturedStatus(featuredItemIds);
+
+                // Verify that the save method was called for each product
+                verify(productRepository, times(1)).save(testProduct1); // Product D
+                verify(productRepository, times(1)).save(testProduct2); // Product B
+                verify(productRepository, times(1)).save(testProduct3); // Product C
+                verify(productRepository, times(1)).save(testProduct4); // Product A
+
+                // Verify that the setFeatureProduct method was called with correct boolean values
+                verify(testProduct1, times(1)).setFeatureProduct(false); // Product D should NOT be featured
+                verify(testProduct2, times(1)).setFeatureProduct(false);  // Product B should be featured
+                verify(testProduct3, times(1)).setFeatureProduct(false); // Product C should NOT be featured
+                verify(testProduct4, times(1)).setFeatureProduct(false); // Product A should NOT be featured
+        }
+
+        @Test
+        public void testFindAllByNameContaining() {
+                // Prepare test data
+                Product product1 = new Product(1, 5, "Product A", "A", "Description for A");
+                Product product2 = new Product(2, 10, "Product B", "B", "Description for B");
+                List<Product> allProducts = Arrays.asList(product1, product2);
+                List<Product> filteredProducts = Arrays.asList(product2);
+
+                // Mock behavior for repository
+                when(productRepository.findAllByNameContaining("B")).thenReturn(filteredProducts);
+                when(productRepository.findAll()).thenReturn(allProducts);
+
+                // Test: When name is provided
+                List<Product> result = productService.findAllByNameContaining("B");
+                assertEquals(1, result.size());
+                assertEquals("B", result.get(0).getName());
+
+                // Test: When name is null or empty (should return all products)
+                result = productService.findAllByNameContaining(null);
+                assertEquals(2, result.size()); // All products should be returned
+                result = productService.findAllByNameContaining("");
+                assertEquals(2, result.size()); // All products should be returned
+        }
+
+        // Test for getFeaturedProducts()
+        @Test
+        public void testGetFeaturedProducts() {
+                // Prepare test data
+                Product product1 = new Product(1, 5, "Product A", "A", "Description for A");
+                Product product2 = new Product(2, 10, "Product B", "B", "Description for B");
+                product1.setFeatureProduct(true); // Featured product
+                product2.setFeatureProduct(false); // Non-featured product
+                List<Product> featuredProducts = Arrays.asList(product1);
+
+                // Mock behavior for repository
+                when(productRepository.findAllByFeatureProduct(true)).thenReturn(featuredProducts);
+
+                // Test: Get featured products
+                List<Product> result = productService.getFeaturedProducts();
+                assertEquals(1, result.size());
+                assertTrue(result.get(0).isFeatureProduct()); // Should be featured
+        }
+
+        // Test for getDeliveryOnly()
+        @Test
+        public void testGetDeliveryOnly() {
+                // Prepare test data
+                List<Integer> deliveryProductIds = Arrays.asList(1, 2);
+
+                // Mock behavior for repository
+                when(productRepository.findAllDeliveryOnly()).thenReturn(deliveryProductIds);
+
+                // Test: Get delivery-only product IDs
+                List<Integer> result = productService.getDeliveryOnly();
+                assertEquals(2, result.size());
+                assertTrue(result.contains(1)); // Should contain ID 1
+                assertTrue(result.contains(2)); // Should contain ID 2
+        }
+
+        // Test for getAllProducts()
+        @Test
+        public void testGetAllProducts() {
+                // Prepare test data
+                Product product1 = new Product(1, 5, "Product A", "A", "Description for A");
+                Product product2 = new Product(2, 10, "Product B", "B", "Description for B");
+                List<Product> allProducts = Arrays.asList(product1, product2);
+
+                // Mock behavior for repository
+                when(productRepository.findAll()).thenReturn(allProducts);
+
+                // Test: Get all products
+                List<Product> result = productService.getAllProducts();
+                assertEquals(2, result.size());
+                assertEquals("A", result.get(0).getName());
+                assertEquals("B", result.get(1).getName());
         }
 }
