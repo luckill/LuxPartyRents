@@ -47,7 +47,7 @@ public class PaymentServiceTest {
                 order.setStatus(OrderStatus.RECEIVED);
                 order.setPaymentReference("pi_1234567890");
 
-                Account account = new Account("john.doe@example.com", "password123", false);
+                Account account = new Account("john.doe@example.com", "password123");
 
 
                 // Create Customer

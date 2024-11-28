@@ -6,6 +6,7 @@ import com.example.SeniorProject.Model.*;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
 
+import java.io.*;
 import java.time.*;
 import java.util.*;
 
@@ -1167,7 +1168,7 @@ public class OrderServiceTest
         order.setCustomer(customer);
 
         // Mock PDF generation
-        doNothing().when(pdfService).generateInvoicePDF(any());
+        when(pdfService.generateInvoicePDF(any(Map.class))).thenReturn(new File("test.pdf"));
 
         // When
         orderService.generateOrderInvoice(order);
@@ -1188,7 +1189,8 @@ public class OrderServiceTest
         order.setCustomer(null);
 
         // Mock PDF generation
-        doNothing().when(pdfService).generateInvoicePDF(any());
+        when(pdfService.generateInvoicePDF(any(Map.class))).thenReturn(new File("test.pdf"));
+
 
         // When
         orderService.generateOrderInvoice(order);

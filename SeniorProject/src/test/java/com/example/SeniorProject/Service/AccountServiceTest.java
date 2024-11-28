@@ -1,6 +1,7 @@
 package com.example.SeniorProject.Service;
 
 import com.example.SeniorProject.Model.*;
+import okhttp3.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -171,16 +172,21 @@ class AccountServiceTest {
     }
 
     @Test
-    void deleteAllUnverifiedAccountsWithUnverifiedAccounts() {
+    void deleteAllUnverifiedAccountsWithUnverifiedAccounts()
+    {
+            Account account1 = new Account();
+            Account account2 = new Account();
+            Account account3 = new Account();
+
         // Arrange
         List<Account> unverifiedAccounts = List.of(new Account()); // mock unverified accounts
         when(accountRepository.findUnverifiedAccounts()).thenReturn(unverifiedAccounts);
 
         // Act
-        accountService.deleteAllUnverifiedAccounts();
+        accountService.deleteAllUnverifiedAccounts(unverifiedAccounts);
 
         // Assert
-        verify(accountRepository, times(1)).deleteAllUnverifiedAccounts();
+        verify(accountRepository, times(1)).deleteAll(unverifiedAccounts);
     }
 
     @Test
@@ -190,7 +196,7 @@ class AccountServiceTest {
 
         // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            accountService.deleteAllUnverifiedAccounts();
+            accountService.deleteAllUnverifiedAccounts(new ArrayList<>());
         });
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("No unverified accounts found", exception.getReason());
@@ -201,12 +207,14 @@ class AccountServiceTest {
         // Arrange
         List<Account> unverifiedAccounts = List.of(new Account());
         when(accountRepository.findUnverifiedAccounts()).thenReturn(unverifiedAccounts);
-        doThrow(new RuntimeException("Database error")).when(accountRepository).deleteAllUnverifiedAccounts();
+        doThrow(new RuntimeException("Database error")).when(accountRepository).deleteAll(unverifiedAccounts);
 
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            accountService.deleteAllUnverifiedAccounts();
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            accountService.deleteAllUnverifiedAccounts(unverifiedAccounts);
         });
-        assertEquals("Database error", exception.getMessage());
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatusCode());
+        assertEquals("Database error", exception.getReason());
     }
 }
