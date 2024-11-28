@@ -28,9 +28,9 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 * Deployment: 
 	- AWS.
 * Payment service:
-* 	- Stripe API
+ 	- Stripe API
 * location Service:
-* 	- Google Map API
+ 	- Google Map API
 
 
 # Installation
