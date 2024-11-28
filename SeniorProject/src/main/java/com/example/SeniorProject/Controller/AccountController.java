@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.server.*;
 
-import java.util.Optional;
+import java.util.*;
 
 
 @RestController
@@ -84,11 +84,11 @@ public class AccountController
     }
 
     @DeleteMapping("/deleteUnverifiedAccounts")
-    public ResponseEntity<?> deleteUnverifiedAccounts()
+    public ResponseEntity<?> deleteUnverifiedAccounts(@RequestBody List<Account> accounts)
     {
         try
         {
-            accountService.deleteAllUnverifiedAccounts();
+            accountService.deleteAllUnverifiedAccounts(accounts);
             return ResponseEntity.status(HttpStatus.OK).body("All unverified accounts have been successfully deleted.");
         }
         catch (ResponseStatusException exception)
