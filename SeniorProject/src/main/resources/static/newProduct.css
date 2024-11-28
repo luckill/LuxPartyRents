@@ -194,3 +194,20 @@ body {
     margin: 10px auto; /* Centers the button */
     text-align: center; /* Centers the text inside */
 }
+
+.checkbox-container
+{
+    clear: both;
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    padding: 5px 0;
+}
+
+.checkbox-container input[type="checkbox"]
+{
+    width: auto !important;
+    float: none !important;
+    margin: 0 10px 0 0 !important;
+    cursor: pointer;
+}

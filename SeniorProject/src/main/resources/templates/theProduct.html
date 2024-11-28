@@ -51,7 +51,10 @@
 
                     <span>Description</span>
                     <textarea name="description" class="description" placeholder="Enter a simple description of product" tabindex="5"></textarea>
-
+                    <div class="checkbox-container">
+                        <input type="checkbox" name="deliveryOnlyCheckBox" id="deliveryOnlyCheckBox">
+                        <label for="deliveryOnlyCheckBox">Check this box if the product is delivery only</label>
+                    </div>
                     <button type="button" id="updateProductButton" class="btn btn-outline-light btn-lg mx-2" onclick="updateProduct()">update product info</button>
                     <button type="button" id="updateProductPictureButton" class="btn btn-outline-light btn-lg mx-2" onclick="window.location.href='/uploadPicture'">updated product picture</button>
                     <button type="button" id="deleteProductButton" class="btn btn-outline-light btn-lg mx-2" onclick="deleteProduct()">delete</button>

@@ -72,6 +72,9 @@ window.onload = function() {
 function updateProduct() {
     const form = document.getElementById('updateForm');
     let formData = new FormData(form);
+    const checkbox = document.getElementById('deliveryOnlyCheckBox');
+    const isChecked = checkbox.checked; // returns true/false
+    formData.append('deliveryOnly', isChecked);
     // Prevent form submission
     event.preventDefault();
 
@@ -86,7 +89,6 @@ function updateProduct() {
     })
         .then(function (response) {
             if (response.ok) {
-                uploadPic(file);
                 window.location.href = '/products';
             } else {
                 // Handle errors
@@ -121,44 +123,4 @@ function deleteProduct() {
         console.error('Error:', error);
         alert('An error occurred. Please try again later.');
     });
-}
-
-function renameFile(originalFile, newName) {
-    // Create a new File object with the new name
-    return new File([originalFile], newName, {
-        type: originalFile.type,
-        lastModified: originalFile.lastModified
-    });
-}
-
-function uploadPic(file)
-{
-    console.log(file)
-    const imgData = new FormData();
-    imgData.append('file', file);
-    imgData.forEach((value, key) => {
-        console.log(`${key}:`, value);
-    });
-    fetch('/uploadFile',
-        {
-            method: 'POST',
-            headers:
-                {
-                    "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
-                },
-            body: imgData
-        })
-        .then(response => response.text())
-        .then(result => {
-            if (result.startsWith('Error')) {
-                responseMessage.innerHTML = `<div class="alert alert-danger">${result}</div>`;
-            }
-            else {
-                responseMessage.innerHTML = `<div class="alert alert-success">Success: ${result}</div>`;
-            }
-        })
-        .catch(error => {
-            responseMessage.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-        });
-
 }
