@@ -115,10 +115,10 @@ pease refer to the deployment section in our maintainance manual.
 Team Members:
 - Heamandeep Kaur
 - Anish Chouhan
-- Andreas Zignago
+- Andreas Zignago (github name: Wojtek)
 - Balraj Kalathil
 - Kanan Shah
-- Zhijun Li(github name: luckill)
+- Zhijun Li (github name: luckill)
 - Eric Brutskiy
 - Brandon Kue
 
