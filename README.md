@@ -111,7 +111,7 @@ pease refer to the deployment section in our maintainance manual.
 
 # Contributors
 Team Members:
-- Heamandeep Kaur
+- Heamandeep Kaur(github name: heamandeepkaur)
 - Anish Chouhan
 - Andreas Zignago (github name: Wojtek)
 - Balraj Kalathil
