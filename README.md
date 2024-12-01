@@ -86,7 +86,7 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 
 
 # Testing
-[Placeholder for testing instructions. To be filled in CSC 191.]
+Please refer to the System Test Report for more info.
 
 
 # Deployment
