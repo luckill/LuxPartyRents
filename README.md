@@ -62,9 +62,9 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
    	- spring.servlet.multipart.enabled=true
 	- spring.servlet.multipart.max-file-size=50MB
 	- spring.servlet.multipart.max-request-size=50MB
-8 add stripe APi key into appicaiton.properties
+8. add stripe APi key into appicaiton.properties
 	- stripe.api.key=#your private stripe api key that you get from stripe
-9. add into applicition.propertiesfor JWT Token
+9. add into application.properties for JWT Token
  	- security.jwt.secret-key=#your JWT token sgning key
 	- security.jwt.expiration-time=the expiraiton time of your JWT Token that You want to set to(in millisecond)
 10. open the project in your favourt=ite IDE and start developing!!!
