@@ -96,7 +96,8 @@ pease refer to the deployment section in our maintainance manual.
 
 
 # Timeline
-![time1](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/579878d3-b7cc-42d7-9441-cc6dc4ba223b)
+![jira_timeline](https://github.com/user-attachments/assets/fc00f330-7dcf-4027-8a7e-b1709408591b)
+
 ## What is done:
 - Milestone 1: Creating a mock-up for visualization and researching our stack and database.
 - Milestone 2: Code each of the pages with a consistent navbar based on our mock-up
