@@ -1,4 +1,5 @@
 ![cheezits](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/055fb94f-e32e-4e8a-bcb1-d06dfa84b93c)
+![LPR](https://github.com/user-attachments/assets/6fce978c-2ebf-4736-8e7b-dab251486dc3)
 # Project Name: LuxPartyRents Website
 ## By Cheezits
 
@@ -71,10 +72,9 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 
 
 # ERD
-![ERD](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/e40a376b-79ba-4caa-bf8d-1f68b42b19e2)
+<img width="1243" alt="ERD" src="https://github.com/user-attachments/assets/3b77e517-121c-46a3-adc7-848ba63505ad">
 
-
-# Prototype
+# finished product
 ![home](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/f6db66d4-432b-45a2-b8a9-71bf5c116996)
 
 ![login](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/f2171b84-fbcd-48ed-96e9-27e283aab438)
@@ -82,8 +82,6 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 ![rental](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/3804fb0a-4bbb-468a-b618-689210659dfc)
 
 ![rental2](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/b02c8eee-6c50-4e70-809c-74d2bb4a510a)
-
-
 
 # Testing
 [Placeholder for testing instructions. To be filled in CSC 191.]
