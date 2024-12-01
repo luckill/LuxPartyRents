@@ -146,7 +146,6 @@ public class OrderController
     }
 
     @PutMapping(path = "/update")
-    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> updateOrder(@RequestParam int orderId, @RequestBody OrderDTO orderDTO)
     {
         try
