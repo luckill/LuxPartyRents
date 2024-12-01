@@ -67,7 +67,7 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 9. add into application.properties for JWT Token
  	- security.jwt.secret-key=#your JWT token sgning key
 	- security.jwt.expiration-time=the expiraiton time of your JWT Token that You want to set to(in millisecond)
-10. open the project in your favourt=ite IDE and start developing!!!
+10. open the project in your favorite IDE and start developing!!!
 
 
 # ERD
