@@ -1,7 +1,6 @@
-![cheezits](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/055fb94f-e32e-4e8a-bcb1-d06dfa84b93c)
-![LPR](https://github.com/user-attachments/assets/6fce978c-2ebf-4736-8e7b-dab251486dc3)
+![cheezits](https://github.com/user-attachments/assets/de7f637a-6b36-46b9-9c4a-01a215fc8650)
 # Project Name: LuxPartyRents Website
-## By Cheezits
+
 
 
 # Synopsis
@@ -112,14 +111,14 @@ pease refer to the deployment section in our maintainance manual.
 
 # Contributors
 Team Members:
-- Heamandeep Kaur(github name: heamandeepkaur)
-- Anish Chouhan
+- Heamandeep Kaur (github name: heamandeepkaur)
+- Anish Chouhan (github name: achouhan0214 )
 - Andreas Zignago (github name: Wojtek)
-- Balraj Kalathil
-- Kanan Shah
+- Balraj Kalathil (github name: Bkalathil)
+- Kanan Shah (github name: Kinfernopixel)
 - Zhijun Li (github name: luckill)
-- Eric Brutskiy
-- Brandon Kue
+- Eric Brutskiy (github name: EricBrute)
+- Brandon Kue (github name: BKueCS)
 
 # License
 
