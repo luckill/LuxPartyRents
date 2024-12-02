@@ -1,4 +1,4 @@
-![cheezits](https://github.com/user-attachments/assets/de7f637a-6b36-46b9-9c4a-01a215fc8650)
+![cheezits](https://github.com/user-attachments/assets/bdf4e75b-93ee-4707-add4-7da8e5c7d6d5)
 # Project Name: LuxPartyRents Website
 
 
