@@ -4,12 +4,10 @@ import io.jsonwebtoken.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.beans.factory.annotation.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 
-import static org.bouncycastle.asn1.iana.IANAObjectIdentifiers.security;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -88,17 +86,13 @@ class JwtServiceTest
         }
     }
 
-    private void setExpirationTime(JwtService jwtService, Long expirationTime)
-    {
-        try
-        {
-            var field = jwtService.getClass().getDeclaredField("expirationTime");
-            field.setAccessible(true);
-            field.set(jwtService, expirationTime);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+    private void setExpirationTime(JwtService jwtService, Long expirationTime) {
+            try {
+                    var field = jwtService.getClass().getDeclaredField("expirationTime");
+                    field.setAccessible(true);
+                    field.set(jwtService, expirationTime);
+            } catch (Exception e) {
+                    e.printStackTrace();
+            }
     }
 }

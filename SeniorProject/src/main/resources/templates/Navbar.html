@@ -185,7 +185,6 @@
                     item.style.display = 'none';
                 });
             }
-            loadDistinctTypes();
         });
 
         function logout() {
@@ -214,7 +213,7 @@
 
 <div th:fragment="sessionManagement">
     <div class="container">
-        <div id="countdownDisplay" style="display: none; background-color: #f8d7da; padding: 20px; border-radius: 5px; color: #721c24; font-weight: bold; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); text-align: center; justify-content: center">
+        <div id="countdownDisplay" style="display: none;position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index:100; background-color: #f8d7da; padding: 20px; border-radius: 5px; color: #721c24; font-weight: bold; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); text-align: center; justify-content: center">
             <p>Session will expire in <span id="countdownTimer">30</span> seconds due to inactivity.</p>
             <button id="resetTimerButton" style="margin-top: 10px; padding: 10px 15px; font-size: 16px;">Stay Active</button>
         </div>
@@ -282,7 +281,7 @@
             countdownActive = true;
             let countdown = 30;
             document.getElementById("countdownTimer").textContent = countdown;
-            document.getElementById("countdownDisplay").style.display = "block";
+            document.getElementById("countdownDisplay").style.display = "flex";
 
             // Set countdown start time in localStorage as string
             localStorage.setItem("countdownStart", Date.now().toString());

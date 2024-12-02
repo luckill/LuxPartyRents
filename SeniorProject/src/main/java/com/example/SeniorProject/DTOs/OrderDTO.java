@@ -11,7 +11,8 @@ public class OrderDTO
 {
     private int id;
     private LocalDate creationDate;
-    private int rentalTime;
+    private LocalDate pickupDate;
+    private LocalDate returnDate;
     private boolean paid;
     private String status;
     private double price;
@@ -25,10 +26,11 @@ public class OrderDTO
     {
 
     }
-    public OrderDTO(LocalDate date, int rentalTime, boolean paid, OrderStatus status, String address, double deposit, double tax, double deliveryFee, double price, double subtotal)
+
+    public OrderDTO(LocalDate date, LocalDate pickupDate, LocalDate returnDate, boolean paid, OrderStatus status, String address, double deposit, double tax, double deliveryFee, double price, double subtotal)
     {
         this.creationDate = date;
-        this.rentalTime = rentalTime;
+        this.pickupDate = date;
         this.paid = paid;
         this.status = status.toString();
         this.address = address;
@@ -58,16 +60,6 @@ public class OrderDTO
     public void setCreationDate(LocalDate creationDate)
     {
         this.creationDate = creationDate;
-    }
-
-    public int getRentalTime()
-    {
-        return rentalTime;
-    }
-
-    public void setRentalTime(int rentalTime)
-    {
-        this.rentalTime = rentalTime;
     }
 
     public boolean isPaid()
@@ -156,5 +148,25 @@ public class OrderDTO
     public void setSubtotal(double subtotal)
     {
         this.subtotal = subtotal;
+    }
+
+    public LocalDate getPickupDate()
+    {
+        return pickupDate;
+    }
+
+    public void setPickupDate(LocalDate pickupDate)
+    {
+        this.pickupDate = pickupDate;
+    }
+
+    public LocalDate getReturnDate()
+    {
+        return returnDate;
+    }
+
+    public void setReturnDate(LocalDate returnDate)
+    {
+        this.returnDate = returnDate;
     }
 }

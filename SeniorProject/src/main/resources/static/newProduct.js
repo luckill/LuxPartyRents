@@ -34,7 +34,9 @@ function addProduct() {
     let formData = new FormData(form)
     // Log FormData contents for debugging
     const name = formData.get('name');
-
+    const checkbox = document.getElementById('deliveryOnlyCheckBox');
+    const isChecked = checkbox.checked; // returns true/false
+    formData.append('deliveryOnly', isChecked);
     event.preventDefault();
 
     // Send the data using fetch
@@ -54,7 +56,6 @@ function addProduct() {
             }
             else
             {
-                // Handle errors
                 console.error('Error:', response.statusText);
                 alert('Error:', response.statusText);
             }

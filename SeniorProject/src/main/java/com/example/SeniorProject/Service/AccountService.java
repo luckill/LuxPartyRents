@@ -83,7 +83,19 @@ public class AccountService
         return account;
     }
 
-    public void deleteAllUnverifiedAccounts() {
-        accountRepository.deleteAllUnverifiedAccounts();
+    public void deleteAllUnverifiedAccounts(List<Account> accounts)
+    {
+        if (accounts.isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No unverified accounts found");
+        }
+        try
+        {
+            accountRepository.deleteAll(accounts);
+        }
+        catch (Exception e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 }

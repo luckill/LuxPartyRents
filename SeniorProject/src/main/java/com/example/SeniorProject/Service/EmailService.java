@@ -194,10 +194,7 @@ public class EmailService
                 + "Here is an important reminder for your rental pickup.\n"
                 + order.getCustomer().getFirstName() + " "
                 + order.getCustomer().getLastName() + " your Order, "
-                + order.getId() + " pickup is on, " + order.getCreationDate();
-                /*TODO: order.getCreationDate() needs to be updated for when
-                 * getPickUpDate() is made.
-                 */
+                + order.getId() + " pickup is on, " + order.getPickupDate();
 
         //sending email
         CxEmailDetails.setMessageBody(emailBody);
@@ -240,7 +237,11 @@ public class EmailService
     public void sendOrderConfirmation(Order order)
     {
         EmailDetails CxEmailDetails = new EmailDetails();
-        CxEmailDetails.setRecipient(order.getCustomer().getEmail());
+        if (order.getCustomer() != null) {
+            CxEmailDetails.setRecipient(order.getCustomer().getEmail());
+        } else {
+            throw new IllegalArgumentException("Order has no associated customer. Cannot send order confirmation.");
+        }
         CxEmailDetails.setSubject("Order Confirmation");
         CxEmailDetails.setMessageBody("Attached is your order invoice.");
         sendOrderInvoice(CxEmailDetails, order.getId());

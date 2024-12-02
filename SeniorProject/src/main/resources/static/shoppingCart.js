@@ -184,7 +184,11 @@ function duplicateCartItem(item) {
     let clonedCartItem = originalCartItem.cloneNode(true);
     // set the image
     let clonedItemImage = clonedCartItem.querySelector("#itemImage");
-    clonedItemImage.src = "https://d3snlw7xiuobl9.cloudfront.net/" + item.name.toLowerCase() + ".jpg";
+
+    let imageLink = "https://d3snlw7xiuobl9.cloudfront.net/";
+    let imageName = item.name;
+    imageLink = imageLink.concat(imageName.replace(/ /g, "%20"), ".jpg");
+    clonedItemImage.src = imageLink;
     
     // Change the ID and populate item details
     clonedCartItem.id = "cloned" + item.id + "CartItem";
@@ -279,9 +283,6 @@ function duplicateCartItem(item) {
             deleteItem(item.id);
         });
     }
-
-
-
 
     // Append
     clonedCartItem.classList.remove("d-none");
@@ -471,12 +472,14 @@ function checkout() {
         const creationDate = new Date();
         const localDateString = creationDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
         calculateTotalCost();
+        const pickupDate = document.getElementById("startDate").value;
+        const returnDate = document.getElementById("endDate").value;
         const orderData = {
             creationDate: localDateString,
+            pickupDate: pickupDate,
+            returnDate: returnDate,
             rentalTime: 1, // Set rental time as needed
             paid: 0, // Set to true if the payment is made
-            //price: subtotal + tax + deliveryFee, // Use the calculated total cost
-            //deposit: totalDeposit,
             address: address,
             orderProducts: myCart.map(item => ({
                 product: {

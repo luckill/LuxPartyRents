@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @Service
-public class googleMapService
+public class GoogleMapService
 {
     private static final String GEOCODE_URL = "https://maps.googleapis.com/maps/api/geocode/json";
     private static final String DISTANCE_URL = "https://maps.googleapis.com/maps/api/distancematrix/json";

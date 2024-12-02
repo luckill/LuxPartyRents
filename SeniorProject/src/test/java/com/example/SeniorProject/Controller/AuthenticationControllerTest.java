@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.*;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.context.*;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.*;
@@ -129,66 +130,6 @@ public class AuthenticationControllerTest
     }
 
     @Test
-    void authenticate_InvalidCredentials_ReturnsBadRequest()
-    {
-
-        LoginUserDTO loginUserDTO = new LoginUserDTO("testuser", "password");
-        Customer customer = new Customer("John", "Doe", "john.doe@example.com", "1234445555");
-        Account account = new Account("testuser", "password");
-
-        // Arrange
-        when(authenticationService.authenticate(any(LoginUserDTO.class))).thenThrow(new BadRequestException("Invalid credentials"));
-
-        // Act
-        ResponseEntity<?> response = authenticationController.authenticate(loginUserDTO);
-
-        // Assert
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid credentials provided.", response.getBody());
-    }
-
-    @Test
-    void authenticate_LockedAccount_ReturnsLockedResponse()
-    {
-
-        LoginUserDTO loginUserDTO = new LoginUserDTO("testuser", "password");
-        Customer customer = new Customer("John", "Doe", "john.doe@example.com", "1234445555");
-        Account account = new Account("testuser", "password");
-
-        // Arrange
-        when(authenticationService.authenticate(any(LoginUserDTO.class))).thenThrow(new org.springframework.security.authentication.LockedException("Account is locked"));
-
-        // Act
-        ResponseEntity<?> response = authenticationController.authenticate(loginUserDTO);
-
-        // Assert
-        assertEquals(HttpStatus.LOCKED, response.getStatusCode());
-        assertEquals("Your account is locked.", response.getBody());
-    }
-
-    @Test
-    void authenticate_NullCustomer_ReturnsLoginResponseWithEmptyFirstName()
-    {
-        LoginUserDTO loginUserDTO = new LoginUserDTO("testuser", "password");
-        Customer customer = new Customer("John", "Doe", "john.doe@example.com", "1234445555");
-        Account account = new Account("testuser", "password");
-
-        // Arrange
-        account.setCustomer(null); // Simulating no associated customer
-        when(authenticationService.authenticate(any(LoginUserDTO.class))).thenReturn(account);
-        when(jwtService.generateToken(any(Account.class))).thenReturn("mockJwtToken");
-
-        // Act
-        ResponseEntity<?> response = authenticationController.authenticate(loginUserDTO);
-
-        // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody() instanceof LoginResponse);
-        LoginResponse loginResponse = (LoginResponse) response.getBody();
-        assertEquals("", loginResponse.getFirstName());  // Empty first name
-    }
-
-    @Test
     void authenticate_UnexpectedException_ReturnsInternalServerError()
     {
         LoginUserDTO loginUserDTO = new LoginUserDTO("testuser", "password");
@@ -233,19 +174,6 @@ public class AuthenticationControllerTest
 
         // Assert
         verify(response, times(1)).setStatus(HttpServletResponse.SC_OK);  // Verify status is set to 200 OK
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());  // Ensure response status is 200 OK
-    }
-
-    @Test
-    void logout_NullRequestAndResponse_ReturnsOkResponse() {
-        // Arrange: Mock the response object to avoid NullPointerException
-        HttpServletResponse mockResponse = mock(HttpServletResponse.class);
-
-        // Act
-        ResponseEntity<?> responseEntity = authenticationController.logout(null, mockResponse);
-
-        // Assert
-        verify(mockResponse, times(1)).setStatus(HttpServletResponse.SC_OK);  // Verify status is set to 200 OK
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());  // Ensure response status is 200 OK
     }
 

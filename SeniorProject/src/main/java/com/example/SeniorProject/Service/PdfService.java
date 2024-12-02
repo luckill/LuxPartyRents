@@ -18,7 +18,7 @@ public class PdfService
 {
     @Autowired
     private S3Service s3Service;
-    public void generateInvoicePDF(Map<String, Object> model) {
+    public File generateInvoicePDF(Map<String, Object> model) {
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage(PDRectangle.LETTER);
             document.addPage(page);
@@ -217,6 +217,7 @@ public class PdfService
             File outputFile = File.createTempFile("Invoice_" + ((Order) model.get("order")).getId(), ".pdf");
             document.save(outputFile);
             s3Service.uploadOrderInvoice(outputFile, ((Order) model.get("order")).getId());
+            return outputFile;
         }
         catch (IOException e)
         {

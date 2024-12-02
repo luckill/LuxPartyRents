@@ -11,20 +11,18 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.*;
 import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.http.*;
-import org.springframework.security.core.context.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.*;
 import org.springframework.context.annotation.Import;
 import com.example.SeniorProject.Configuration.TestSecurityConfig;
 
-import javax.annotation.meta.*;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -60,6 +58,9 @@ public class CustomerControllerTest
     {
         MockitoAnnotations.openMocks(this);
         objectMapper.findAndRegisterModules();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(EmailController.class)
+                .build();
     }
 
     // Test case 1: checkIfAccountExist
@@ -146,16 +147,47 @@ public class CustomerControllerTest
 
     // Test case 3: updateCustomer
     @Test
-    void updateCustomer_ShouldReturnSuccess_WhenValidCustomerDTO() throws Exception
-    {
-        CustomerDTO customerDTO = new CustomerDTO("John", "Doe", "john@example.com", "1234445566");
-        Mockito.doNothing().when(customerService).updateCustomer(customerDTO);
+    void updateCustomer_ValidRequest_ReturnsSuccess() throws Exception {
+        // Arrange
+        CustomerDTO customerDTO = new CustomerDTO("John", "Doe", "john.doe@example.com", "1234445566");
+        doNothing().when(customerService).updateCustomer(any(CustomerDTO.class));
 
+        // Act
         mockMvc.perform(post("/customer/updateCustomer")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(customerDTO)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Customer has been successfully updated"));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(customerDTO)))
+            .andExpect(status().isOk())
+            .andExpect(content().string("Customer has been successfully updated"));
+    }
+
+    @Test
+    void updateCustomer_CustomerNotFound_ReturnsNotFound() throws Exception {
+        // Arrange
+        CustomerDTO customerDTO = new CustomerDTO("NonExistent", "User", "nonexistent@example.com", "1222222222");
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"))
+            .when(customerService).updateCustomer(any(CustomerDTO.class));
+
+        // Act
+        mockMvc.perform(post("/customer/updateCustomer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(customerDTO)))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string("Customer not found"));
+    }
+
+    @Test
+    void updateCustomer_ServiceError_ReturnsInternalServerError() throws Exception {
+        // Arrange
+        CustomerDTO customerDTO = new CustomerDTO("John", "Doe", "john.doe@example.com", "1234445566");
+        doThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Database error"))
+            .when(customerService).updateCustomer(any(CustomerDTO.class));
+
+        // Act
+        mockMvc.perform(post("/customer/updateCustomer")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(customerDTO)))
+            .andExpect(status().isInternalServerError())
+            .andExpect(content().string("Database error"));
     }
 
     // Test case 4: deleteCustomer
@@ -244,49 +276,7 @@ public class CustomerControllerTest
                 .andExpect(content().string("Invalid token"));
     }
 
-    @Test
-    void updateCustomer_ValidRequest_ReturnsSuccess() throws Exception {
-        // Arrange
-        CustomerDTO customerDTO = new CustomerDTO("John", "Doe", "john.doe@example.com", "1234445566");
-        doNothing().when(customerService).updateCustomer(any(CustomerDTO.class));
 
-        // Act
-        mockMvc.perform(post("/customer/updateCustomer")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(customerDTO)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Customer has been successfully updated"));
-    }
-
-    @Test
-    void updateCustomer_CustomerNotFound_ReturnsNotFound() throws Exception {
-        // Arrange
-        CustomerDTO customerDTO = new CustomerDTO("NonExistent", "User", "nonexistent@example.com", "1222222222");
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"))
-                .when(customerService).updateCustomer(any(CustomerDTO.class));
-
-        // Act
-        mockMvc.perform(post("/customer/updateCustomer")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(customerDTO)))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("Customer not found"));
-    }
-
-    @Test
-    void updateCustomer_ServiceError_ReturnsInternalServerError() throws Exception {
-        // Arrange
-        CustomerDTO customerDTO = new CustomerDTO("John", "Doe", "john.doe@example.com", "1234445566");
-        doThrow(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Database error"))
-                .when(customerService).updateCustomer(any(CustomerDTO.class));
-
-        // Act
-        mockMvc.perform(post("/customer/updateCustomer")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(customerDTO)))
-                .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Database error"));
-    }
 
     private String asJsonString(Object obj) throws JsonProcessingException
     {

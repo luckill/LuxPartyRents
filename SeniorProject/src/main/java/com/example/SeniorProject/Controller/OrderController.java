@@ -146,7 +146,6 @@ public class OrderController
     }
 
     @PutMapping(path = "/update")
-    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> updateOrder(@RequestParam int orderId, @RequestBody OrderDTO orderDTO)
     {
         try
@@ -220,6 +219,19 @@ public class OrderController
         catch (ResponseStatusException exception)
         {
             return ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
+        }
+    }
+
+    @GetMapping("/sendOrderDueForReturnNotification")
+    public void sendOrderDueForReturnNotification()
+    {
+        try
+        {
+            orderService.orderDueCheck();
+        }
+        catch (ResponseStatusException exception)
+        {
+            ResponseEntity.status(exception.getStatusCode()).body(exception.getReason());
         }
     }
 }
