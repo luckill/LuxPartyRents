@@ -27,17 +27,17 @@ public class ApplicationConfiguration
 
 	@Bean
 	UserDetailsService userDetailsService()
-    {
-        return username ->
         {
-            Account account = accountRepository.findAccountByEmail(username);
-            if (account == null)
-            {
-                throw new UsernameNotFoundException("User not found");
-            }
-            return account;
-        };
-    }
+                return username ->
+                {
+                    Account account = accountRepository.findAccountByEmail(username);
+                    if (account == null)
+                    {
+                        throw new UsernameNotFoundException("User not found");
+                    }
+                    return account;
+                };
+        }
 
 	@Bean
 	BCryptPasswordEncoder passwordEncoder()

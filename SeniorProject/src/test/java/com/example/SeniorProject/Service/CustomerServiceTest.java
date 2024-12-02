@@ -1,6 +1,6 @@
 package com.example.SeniorProject.Service;
 
-import com.example.SeniorProject.DTOs.*;
+import com.example.SeniorProject.DTOs.CustomerDTO;
 import com.example.SeniorProject.Model.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.*;
