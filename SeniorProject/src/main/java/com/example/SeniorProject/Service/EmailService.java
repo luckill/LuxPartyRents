@@ -169,7 +169,7 @@ public class EmailService
             emailMap.put(token,email);
         }
 
-        String verificationUrl = "http://" + request.getServerName() + ":" + request.getServerPort()  + "/email/verify-email?token=" + token;
+        String verificationUrl = "https://" + request.getServerName() + ":" + request.getServerPort()  + "/email/verify-email?token=" + token;
 
         // Creating the email details
         EmailDetails details = new EmailDetails();
@@ -256,7 +256,7 @@ public class EmailService
     public void sendAdminNotification(String subject, String messageBody, Order order)
     {
         EmailDetails adminEmailDetails = new EmailDetails();
-        adminEmailDetails.setRecipient("zhijunli7799@gmail.com"); //email of admin
+        adminEmailDetails.setRecipient("lpr.luxpartyrents@gmail.com"); //email of admin
         adminEmailDetails.setSubject(subject);
 
         String emailBody = messageBody +
