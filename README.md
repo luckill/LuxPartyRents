@@ -93,22 +93,34 @@ pease refer to the deployment section in our maintainance manual.
 
 
 # Developer Instructions
-1. Setting Up Git
-	-Before using Git, you need to set up your identity:
-		-git config --global user.name "Your Name"
-		-git config --global user.email "youremail@example.com"
-2. Initializing a New Repository
-	-git init
-3. Cloning an Existing Repository
-	-git clone https://github.com/luckill/SeniorProject.git
-4. Use an IDE to make changes to the code
-5. Adding Changes
-	-git add <filename>
-6. Committing Changes
-	-git commit
-   	-Add comment of what is changeing and a brief description
-7. Pushing Changes
-	-git push origin <branch-name>
+1. **Setting Up Git**
+   - Before using Git, you need to set up your identity:
+     - `git config --global user.name "Your Name"`
+     - `git config --global user.email "youremail@example.com"`
+
+2. **Initializing a New Repository**
+   - Run the following command to initialize a new Git repository:
+     - `git init`
+
+3. **Cloning an Existing Repository**
+   - Clone an existing repository with the following command:
+     - `git clone https://github.com/luckill/SeniorProject.git`
+
+4. **Use an IDE to Make Changes**
+   - Open the project in your preferred IDE and make the necessary changes to the code.
+
+5. **Adding Changes**
+   - To stage the changes, use the following command:
+     - `git add <filename>`
+
+6. **Committing Changes**
+   - Commit the changes with the following command:
+     - `git commit`
+     - Add a comment about what is changing, along with a brief description of the changes.
+
+7. **Pushing Changes**
+   - Push the changes to the remote repository:
+     - `git push origin <branch-name>`
 
 # Timeline
 ![jira_timeline](https://github.com/user-attachments/assets/fc00f330-7dcf-4027-8a7e-b1709408591b)
