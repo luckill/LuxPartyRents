@@ -73,14 +73,14 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 # ERD
 <img width="1243" alt="ERD" src="https://github.com/user-attachments/assets/3b77e517-121c-46a3-adc7-848ba63505ad">
 
-# finished product
-![home](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/f6db66d4-432b-45a2-b8a9-71bf5c116996)
+# Finished product
+![home](https://github.com/user-attachments/assets/c5e003be-d61e-4fa5-af08-8c359758dc50)
 
-![login](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/f2171b84-fbcd-48ed-96e9-27e283aab438)
+![login](https://github.com/user-attachments/assets/7bb94c65-5f58-4099-8595-dd5f7c3f028d)
 
-![rental](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/3804fb0a-4bbb-468a-b618-689210659dfc)
+![rental](https://github.com/user-attachments/assets/e9736148-0bdd-474d-9b49-228c142a6350)
 
-![rental2](https://github.com/heamandeepkaur/SeniorProject/assets/114961336/b02c8eee-6c50-4e70-809c-74d2bb4a510a)
+![rental2](https://github.com/user-attachments/assets/ecd4d5af-30df-409d-b817-2c93ad33069e)
 
 # Testing
 Please refer to the System Test Report for more info.
@@ -88,7 +88,7 @@ Please refer to the System Test Report for more info.
 
 
 # Deployment
-pease refer to the deployment section in our maintainance manual.
+Please refer to the deployment section in our maintainance manual.
 [Mantainance Manual](https://docs.google.com/document/d/1a3PEmkMXdZsAMS51TGbTEGXiO1MJa6Q2/edit?usp=sharing&ouid=114157817892068461033&rtpof=true&sd=true)
 
 
