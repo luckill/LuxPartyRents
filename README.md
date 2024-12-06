@@ -84,15 +84,31 @@ Potapov Wedding is an equipment rental website. This project aims to help improv
 
 # Testing
 Please refer to the System Test Report for more info.
+[System Test Report](https://docs.google.com/document/d/1c9pWq9uKmi4EhvE2_iEGuktmAVEnjuVMACaJC3oXmmI/edit?usp=sharing)
 
 
 # Deployment
 pease refer to the deployment section in our maintainance manual.
+[Mantainance Manual](https://docs.google.com/document/d/1a3PEmkMXdZsAMS51TGbTEGXiO1MJa6Q2/edit?usp=sharing&ouid=114157817892068461033&rtpof=true&sd=true)
 
 
 # Developer Instructions
-[Placeholder for developer instructions. To be filled in CSC 191.]
-
+1. Setting Up Git
+	-Before using Git, you need to set up your identity:
+		-git config --global user.name "Your Name"
+		-git config --global user.email "youremail@example.com"
+2. Initializing a New Repository
+	-git init
+3. Cloning an Existing Repository
+	-git clone https://github.com/luckill/SeniorProject.git
+4. Use an IDE to make changes to the code
+5. Adding Changes
+	-git add <filename>
+6. Committing Changes
+	-git commit
+   	-Add comment of what is changeing and a brief description
+7. Pushing Changes
+	-git push origin <branch-name>
 
 # Timeline
 ![jira_timeline](https://github.com/user-attachments/assets/fc00f330-7dcf-4027-8a7e-b1709408591b)
