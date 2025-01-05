@@ -120,7 +120,7 @@ async function handleSubmit(e) {
         confirmParams: {
 
             // Make sure to change this to your payment completion page
-            return_url: "http://localhost:8080/paymentGood",
+            return_url: "https://lpr.luxpartyrents.com/paymentGood",
         },
     });
 

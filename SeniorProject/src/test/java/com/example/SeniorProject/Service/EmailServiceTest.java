@@ -293,7 +293,32 @@ public class EmailServiceTest {
                 // Verify that the email is sent exactly once
                 verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));  // Assuming you're using SimpleMailMessage
         }
+        @Test
+        void testSendCxReadyNotification() {
+                // Arrange
+                Order order = mock(Order.class);
+                Customer customer = mock(Customer.class);
 
+                // Mock the behavior of Order and Customer objects
+                when(order.getCustomer()).thenReturn(customer);
+                when(order.getId()).thenReturn(123);
+                when(customer.getEmail()).thenReturn("john.doe@example.com");
+                when(customer.getFirstName()).thenReturn("John");
+                when(customer.getLastName()).thenReturn("Doe");
+
+                // Create an instance of EmailDetails and set its expected values
+                String expectedSubject = "Your Wedding Rental Pickup Is Ready";
+                String expectedEmailBody = "Thank you for coming to us for your rental needs!\n\nYour Order, 123 is ready for pick up!";
+
+                // Mock the sendSimpleEmail method to simulate sending an email
+                doNothing().when(javaMailSender).send(any(SimpleMailMessage.class));  // Mock send() to do nothing
+
+                // Act: Call the sendCxReadyNotification method
+                emailService.sendCxReadyNotification(order);
+
+                // Assert: Verify that sendSimpleEmail was called with the expected EmailDetails
+                verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
+        }
         @Test
         void testSendCxCanceledNotification() {
                 // Arrange

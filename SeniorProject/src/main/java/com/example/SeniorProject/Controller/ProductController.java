@@ -24,7 +24,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping(path="/addProduct") // Map ONLY POST Requests
+    @PostMapping("/addProduct") // Map ONLY POST Requests
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> addProduct (@RequestBody ProductDTO productDTO)
     {
@@ -83,7 +83,7 @@ public class ProductController {
             boolean delete = productService.deleteProduct(id);
             if(!delete)
             {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error!!! - Order associated with this id is not found in the database");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error!!! - Product associated with this id is not found in the database");
             }
             return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully");
         }

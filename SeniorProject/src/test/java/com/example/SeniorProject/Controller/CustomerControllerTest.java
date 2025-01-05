@@ -13,9 +13,12 @@ import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.*;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.*;
 import org.springframework.context.annotation.Import;
 import com.example.SeniorProject.Configuration.TestSecurityConfig;
+
+
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,6 +58,9 @@ public class CustomerControllerTest
     {
         MockitoAnnotations.openMocks(this);
         objectMapper.findAndRegisterModules();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(EmailController.class)
+                .build();
     }
 
     // Test case 1: checkIfAccountExist
