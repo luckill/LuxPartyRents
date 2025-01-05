@@ -166,7 +166,7 @@ public class EmailService
             emailMap.put(token,email);
         }
 
-        String verificationUrl = "https://" + request.getServerName() + ":" + request.getServerPort()  + "/email/verify-email?token=" + token;
+        String verificationUrl = "https://" + request.getServerName() + "/email/verify-email?token=" + token;
 
         // Creating the email details
         EmailDetails details = new EmailDetails();

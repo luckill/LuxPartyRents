@@ -112,7 +112,8 @@ function renderOrders(orders)
                 <td>${order.creationDate}</td>
                 <td>${order.paid ? 'Paid' : 'Unpaid'}</td>
                 <td>${order.price}</td>
-                <td>${order.rentalTime}</td>
+                <td>${order.pickupDate}</td>
+                <td>${order.returnDate}</td>
                 <td>${order.status}</td>
             `;
         orderRow.addEventListener('click', () =>

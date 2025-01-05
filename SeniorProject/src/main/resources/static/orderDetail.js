@@ -371,7 +371,3 @@ if (localStorage.getItem("Role") === "ADMIN")
 {
     cancelOrderButton.addEventListener("click", cancelOrder);
 }
-
-
-
-

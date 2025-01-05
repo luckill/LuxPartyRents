@@ -55,7 +55,8 @@
                         <th>Order Date</th>
                         <th>Payment Status</th>
                         <th>Price</th>
-                        <th>Rental Time</th>
+                        <th>Ready to be pickup on</th>
+                        <th>Return due on</th>
                         <th>Order Status</th>
                     </tr>
                     </thead>
@@ -136,7 +137,8 @@
                     <td>${order.creationDate}</td>
                     <td>${order.paid ? 'Paid' : 'Unpaid'}</td>
                     <td>${order.price}</td>
-                    <td>${order.rentalTime}</td>
+                    <td>${order.pickupDate}</td>
+                    <td>${order.returnDate}</td>
                     <td>${order.status}</td>
                 `;
                 orderRow.addEventListener('click', () => {

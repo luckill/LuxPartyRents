@@ -28,7 +28,7 @@ public class Order
 
 
     @NotNull
-    @Column(name = "rental_time")
+    @Column(name = "return_date")
     private LocalDate returnDate;
 
     @NotNull

@@ -30,7 +30,8 @@ public class OrderDTO
     public OrderDTO(LocalDate date, LocalDate pickupDate, LocalDate returnDate, boolean paid, OrderStatus status, String address, double deposit, double tax, double deliveryFee, double price, double subtotal)
     {
         this.creationDate = date;
-        this.pickupDate = date;
+        this.pickupDate = pickupDate;
+        this.returnDate = returnDate;
         this.paid = paid;
         this.status = status.toString();
         this.address = address;
