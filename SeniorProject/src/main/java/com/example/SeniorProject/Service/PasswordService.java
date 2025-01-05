@@ -33,7 +33,7 @@ public class PasswordService
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "missing email");
         }
         String token = tokenService.generateToken(email);
-        String url = "http://" + request.getServerName() + ":" + request.getServerPort()  + "/resetPassword?token=" + token;
+        String url = "https://" + request.getServerName() + "/resetPassword?token=" + token;
         EmailDetails emailDetails = new EmailDetails();
         emailDetails.setRecipient(email);
         emailDetails.setSubject("Reset Token");
